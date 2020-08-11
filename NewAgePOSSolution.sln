@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewAgePOS", "NewAgePOS\NewAgePOS.csproj", "{9C1B2D9F-BCBB-43FA-B08E-565B3E0935EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSenderLibrary", "EmailSenderLibrary\EmailSenderLibrary.csproj", "{E8E141DB-E4C2-4F21-89EB-AA83FBD37D0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C1B2D9F-BCBB-43FA-B08E-565B3E0935EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C1B2D9F-BCBB-43FA-B08E-565B3E0935EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C1B2D9F-BCBB-43FA-B08E-565B3E0935EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C1B2D9F-BCBB-43FA-B08E-565B3E0935EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8E141DB-E4C2-4F21-89EB-AA83FBD37D0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8E141DB-E4C2-4F21-89EB-AA83FBD37D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8E141DB-E4C2-4F21-89EB-AA83FBD37D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8E141DB-E4C2-4F21-89EB-AA83FBD37D0E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86B80F99-BD44-4F48-8570-B6B91B576485}
+	EndGlobalSection
+EndGlobal
