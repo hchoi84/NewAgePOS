@@ -15,6 +15,9 @@ using NewAgePOS.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using ChannelAdvisorLibrary;
+using NewAgePOSLibrary.Databases;
+using NewAgePOSLibrary.Data;
 
 namespace NewAgePOS
 {
@@ -47,7 +50,13 @@ namespace NewAgePOS
         options.LoginPath = new PathString("/Account/Login");
       });
 
+      services.AddSession();
+
       services.AddTransient<IEmailSender, EmailSender>();
+      services.AddTransient<ISQLData, SQLData>();
+      services.AddTransient<ISQLDataAccess, SQLDataAccess>();
+
+      services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,6 +79,8 @@ namespace NewAgePOS
       app.UseRouting();
 
       app.UseAuthorization();
+
+      app.UseSession();
 
       app.UseEndpoints(endpoints =>
       {

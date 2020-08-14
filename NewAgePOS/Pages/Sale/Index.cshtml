@@ -1,0 +1,47 @@
+﻿@page
+@model NewAgePOS.Pages.Sale.IndexModel
+@{
+  ViewData["Title"] = "Search";
+}
+
+<form method="post">
+  <div class="form-group">
+    <label asp-for="SaleId"></label>
+    <input asp-for="SaleId" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label asp-for="LastName"></label>
+    <input asp-for="LastName" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label asp-for="EmailAddress"></label>
+    <input asp-for="EmailAddress" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label asp-for="PhoneNumber"></label>
+    <input asp-for="PhoneNumber" class="form-control" />
+  </div>
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.SearchResults != null && Model.SearchResults.Any())
+{
+  <h3 class="mt-5">Results</h3>
+
+  @foreach (var result in Model.SearchResults)
+  {
+    <div class="container">
+      <div class="row">
+        <div class="col">@result.Created.ToString("yyyy/MM/dd")</div>
+        <div class="col">Order Id: @result.Id</div>
+      </div>
+      <div class="row">
+        <div class="col">@result.FullName</div>
+        <div class="col">@result.EmailAddress</div>
+      </div>
+      <div class="row">
+        <div class="col">@result.PhoneNumber</div>
+      </div>
+    </div>
+  }
+}

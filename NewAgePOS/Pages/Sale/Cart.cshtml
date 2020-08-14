@@ -1,0 +1,100 @@
+﻿@page "{saleid}"
+@model NewAgePOS.Pages.CartModel
+@{
+  ViewData["Title"] = "Sales";
+}
+
+<h3>ADD PRODUCTS</h3>
+<form method="post">
+  <div class="form-group">
+    <label asp-for="Codes"></label>
+    <textarea asp-for="Codes" class="form-control" rows="5"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Update</button>
+
+  <h3 class="mt-5">PRODUCTS</h3>
+  @for (var i = 0; i < Model.SaleLines.Count; i++)
+  {
+    float lineTotal = (Model.SaleLines[i].Price - Model.SaleLines[i].DiscAmt) * (1 - Model.SaleLines[i].DiscPct / 100) * Model.SaleLines[i].Qty;
+
+    if (i != 0)
+    {
+      <div class="mt-5"></div>
+    }
+
+    <div class="form-row">
+      <div class="col">
+        <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
+      </div>
+      <div class="col">
+        <input readonly asp-for="@Model.SaleLines[i].Upc" class="form-control">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col">
+        <input readonly asp-for="@Model.SaleLines[i].AllName" class="form-control">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col">
+        <label asp-for="@Model.SaleLines[i].Cost"></label>
+        <input readonly asp-for="@Model.SaleLines[i].Cost" class="form-control">
+      </div>
+      <div class="col">
+        <label asp-for="@Model.SaleLines[i].Price"></label>
+        <input readonly asp-for="@Model.SaleLines[i].Price" class="form-control">
+      </div>
+      <div class="col">
+        <label asp-for="@Model.SaleLines[i].Qty"></label>
+        <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col">
+        <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
+        <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
+      </div>
+      <div class="col">
+        <label asp-for="@Model.SaleLines[i].DiscPct"></label>
+        <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
+      </div>
+      <div class="col">
+        <label>Line Total</label>
+        <input class="form-control" value="@lineTotal">
+      </div>
+    </div>
+  }
+  <button type="submit" class="btn btn-primary mt-3">Update</button>
+</form>
+
+<h3 class="mt-5">CUSTOMER INFO</h3>
+<div class="form-group">
+  <label>First Name</label>
+  <input class="form-control">
+</div>
+<div class="form-group">
+  <label>Last Name</label>
+  <input class="form-control">
+</div>
+<div class="form-group">
+  <label>Email Address</label>
+  <input class="form-control">
+</div>
+<div class="form-group">
+  <label>Phone Number</label>
+  <input class="form-control">
+</div>
+
+<h3 class="mt-5">PAYMENT</h3>
+<div class="form-group col-md-4">
+  <label for="inputState">Payment Type</label>
+  <select id="inputState" class="form-control">
+    <option>Choose...</option>
+    <option selected>Cash</option>
+    <option>Credit Card</option>
+  </select>
+</div>
+<div class="form-group col-md-2">
+  <label for="inputZip">Amount</label>
+  <input type="text" class="form-control" id="inputZip">
+</div>

@@ -8,6 +8,7 @@ using EmailSenderLibrary;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NewAgePOS.Models;
 using NewAgePOS.Securities;
@@ -19,12 +20,14 @@ namespace NewAgePOS.Pages.Account
     private readonly UserManager<EmployeeModel> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<RegisterModel> _logger;
+    private readonly LogRegContext _context;
 
-    public RegisterModel(UserManager<EmployeeModel> userManager, IEmailSender emailSender, ILogger<RegisterModel> logger)
+    public RegisterModel(UserManager<EmployeeModel> userManager, IEmailSender emailSender, ILogger<RegisterModel> logger, LogRegContext context)
     {
       _userManager = userManager;
       _emailSender = emailSender;
       _logger = logger;
+      _context = context;
     }
 
     [BindProperty]
