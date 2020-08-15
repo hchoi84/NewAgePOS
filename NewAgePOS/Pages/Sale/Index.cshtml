@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{handler?}"
 @model NewAgePOS.Pages.Sale.IndexModel
 @{
   ViewData["Title"] = "Search";
@@ -26,10 +26,6 @@
     </div>
   </div>
   <button type="submit" class="btn btn-primary">Search</button>
-</form>
-
-<form method="post" asp-page-handler="CreateNewSale">
-  <button type="submit" class="btn btn-primary">Create</button>
 </form>
 
 @if (Model.SearchResults != null && Model.SearchResults.Any())

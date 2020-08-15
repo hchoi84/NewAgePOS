@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@using NewAgePOS.Models 
+
+@inject UserManager<EmployeeModel> UserManager
+@inject SignInManager<EmployeeModel> SignInManager
+@inject IAuthorizationService AuthorizationService
+
+@{
+  string fullName = "";
+  if (SignInManager.IsSignedIn(User))
+  {
+    fullName = (await UserManager.GetUserAsync(User)).FullName;
+  }
+}
+
+<ul class="navbar-nav">
+  @if (SignInManager.IsSignedIn(User))
+  {
+    <li class="nav-item">
+      <a class="nav-link text-dark" asp-page="">Hello @fullName</a>
+    </li>
+    @if ((await AuthorizationService.AuthorizeAsync(User, "Manager")).Succeeded)
+    {
+      <li class="nav-item">
+        <a class="nav-link text-dark" asp-page="">Admin</a>
+      </li>
+    }
+    <li class="nav-item">
+      <form asp-page="">
+        <button type="submit" class="nav-link btn btn-link text-dark" style="margin-top: -1px;">Logout</button>
+      </form>
+    </li>
+  }
+  else
+  {
+    <li class="nav-item">
+      <a class="nav-link text-dark" asp-page="/Account/Register">
+        Register
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-dark" asp-page="/Account/Login">Login</a>
+    </li>
+  }
+</ul>
