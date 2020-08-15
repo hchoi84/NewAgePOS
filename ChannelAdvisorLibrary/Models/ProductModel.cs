@@ -12,7 +12,5 @@ namespace ChannelAdvisorLibrary.Models
     public float Cost { get; set; }
     public float Price { get; set; }
     public int Qty { get; set; }
-    public float DiscAmt { get; set; }
-    public float DiscPct { get; set; }
   }
 }

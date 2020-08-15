@@ -17,58 +17,84 @@ namespace NewAgePOSLibrary.Data
       _sqlDb = sqlDb;
     }
 
-    public List<SaleSearchModel> GetSalesBySaleId(string id)
+    public List<SaleSearchModel> Sales_GetById(string id)
     {
       return _sqlDb.LoadData<SaleSearchModel, dynamic>(
         "dbo.spSales_GetBySaleId",
         new { id },
-        connectionStringName,
-        true);
+        connectionStringName, true);
     }
 
-    public List<SaleSearchModel> GetSalesByLastName(string lastName)
+    public List<SaleSearchModel> Sales_GetByLastName(string lastName)
     {
       return _sqlDb.LoadData<SaleSearchModel, dynamic>(
         "dbo.spSales_GetByLastName",
         new { lastName },
-        connectionStringName,
-        true);
+        connectionStringName, true);
     }
 
-    public List<SaleSearchModel> GetSalesByEmailAddress(string emailAddress)
+    public List<SaleSearchModel> Sales_GetByEmailAddress(string emailAddress)
     {
       return _sqlDb.LoadData<SaleSearchModel, dynamic>(
         "dbo.spSales_GetByEmailAddress",
         new { emailAddress },
-        connectionStringName,
-        true);
+        connectionStringName, true);
     }
 
-    public List<SaleSearchModel> GetSalesByPhoneNumber(string phoneNumber)
+    public List<SaleSearchModel> Sales_GetByPhoneNumber(string phoneNumber)
     {
       return _sqlDb.LoadData<SaleSearchModel, dynamic>(
         "dbo.spSales_GetByPhoneNumber",
         new { phoneNumber },
-        connectionStringName,
-        true);
+        connectionStringName, true);
     }
 
-    public int CreateSale()
+    public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>(
         "dbo.spSales_Insert",
         new { },
-        connectionStringName,
-        true).First();
+        connectionStringName, true).First();
     }
 
-    public List<SaleLineModel> GetSaleLinesBySaleId(int saleId)
+    public List<SaleLineModel> SaleLines_GetBySaleId(int saleId)
     {
       return _sqlDb.LoadData<SaleLineModel, dynamic>(
         "dbo.spSaleLines_GetBySaleId",
         new { saleId },
-        connectionStringName,
-        true);
+        connectionStringName, true);
+    }
+
+    public void SaleLines_Update(int id, int qty, int discAmt, int discPct)
+    {
+      _sqlDb.SaveData(
+        "spSaleLines_Update", 
+        new { id, qty, discAmt, discPct }, 
+        connectionStringName, true);
+    }
+
+    public int Products_GetByValues(string sku, string upc, float cost, float price, string allName)
+    {
+      return _sqlDb.LoadData<int, dynamic>(
+        "dbo.spProducts_GetByValues",
+        new { sku, upc, cost, price, allName },
+        connectionStringName, true).First();
+    }
+
+    public void SaleLines_Insert(int saleId, int productId, int qty, int discAmt, int discPct, int refundQty)
+    {
+      _sqlDb.SaveData(
+        "dbo.spSaleLines_Insert",
+        new { saleId, productId, qty, discAmt, discPct, refundQty },
+        connectionStringName, true);
+    }
+
+    public void SaleLines_Delete(int id)
+    {
+      _sqlDb.SaveData(
+        $"DELETE FROM dbo.SaleLines WHERE id = { id };",
+        new { },
+        connectionStringName, false);
     }
   }
 }

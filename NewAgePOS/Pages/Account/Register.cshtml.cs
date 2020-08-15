@@ -20,14 +20,12 @@ namespace NewAgePOS.Pages.Account
     private readonly UserManager<EmployeeModel> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<RegisterModel> _logger;
-    private readonly LogRegContext _context;
 
     public RegisterModel(UserManager<EmployeeModel> userManager, IEmailSender emailSender, ILogger<RegisterModel> logger, LogRegContext context)
     {
       _userManager = userManager;
       _emailSender = emailSender;
       _logger = logger;
-      _context = context;
     }
 
     [BindProperty]

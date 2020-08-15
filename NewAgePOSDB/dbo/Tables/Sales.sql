@@ -6,5 +6,5 @@
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
 	CONSTRAINT [FK_Sales_Customers] FOREIGN KEY (CustomerId) REFERENCES Customers(Id),
-	CONSTRAINT [FK_Sales_Taxes] FOREIGN KEY (TaxId) REFERENCES Taxes(id)
+	CONSTRAINT [FK_Sales_Taxes] FOREIGN KEY (TaxId) REFERENCES Taxes(Id)
 )

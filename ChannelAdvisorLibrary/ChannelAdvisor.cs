@@ -145,9 +145,7 @@ namespace ChannelAdvisorLibrary
             Price = item[_attributes]
             .FirstOrDefault(i => i[_name].ToString() == _bcprice)[_Value]
             .ToObject<float>(),
-            Qty = 1,
-            DiscAmt = 0,
-            DiscPct = 0,
+            Qty = 1
           };
 
           products.Add(product);

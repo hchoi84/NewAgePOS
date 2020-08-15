@@ -37,25 +37,79 @@ namespace NewAgePOS.Pages
 
     public void OnGet()
     {
-      if (SaleId.HasValue)
-      {
-        SaleLines = _sqlDb.GetSaleLinesBySaleId(SaleId.Value);
-      }
-      else
-      {
-        SaleId = _sqlDb.CreateSale();
-      }
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId.Value);
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPost()
     {
+      if (!ModelState.IsValid)
+      {
+        return Page();
+      }
+
+      if (!string.IsNullOrEmpty(Codes))
+      {
+        List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
+        Dictionary<string, int> uniqueCodes = new Dictionary<string, int>();
+
+        // Edit existing. Code exists in SaleLines
+        List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
+        foreach (var code in groupedCodes)
+        {
+          SaleLineModel saleLine = new SaleLineModel();
+          if (code.Key.Contains("_"))
+            saleLine = SaleLines.FirstOrDefault(s => s.Sku == code.Key);
+          else
+            saleLine = SaleLines.FirstOrDefault(s => s.Upc == code.Key);
+
+          if (saleLine != null)
+          {
+            saleLine.Qty += code.Count();
+            saleLine.IsUpdated = true;
+            // Update saleLine to DB
+            _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
+            continue;
+          }
+          uniqueCodes.Add(code.Key, code.Count());
+        }
+
+        // Create new. Code doesnt exist in SaleLines
+        List<ProductModel> products = new List<ProductModel>();
+        products.AddRange(await _ca.GetProductsByCodeAsync(uniqueCodes.Select(u => u.Key).ToList()));
+        foreach (var product in products)
+        {
+          // Check if product info exists in DB
+          // If so, retrieve Products Id and insert SaleLines
+          // If not, insert, retrieve Products Id, and insert SaleLines
+          int productId = _sqlDb.Products_GetByValues(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
+          KeyValuePair<string, int> code = uniqueCodes.FirstOrDefault(u => u.Key == product.Sku || u.Key == product.Upc);
+          _sqlDb.SaleLines_Insert(SaleId.Value, productId, code.Value, 0, 0, 0);
+        }
+      }
+
+      for (int i = SaleLines.Count - 1; i >= 0; i--)
+      {
+        if (SaleLines[i].Qty == 0)
+        {
+          // Delete from DB
+          _sqlDb.SaleLines_Delete(SaleLines[i].Id);
+          SaleLines.RemoveAt(i);
+          continue;
+        }
+
+        // Update to DB
+        if (!SaleLines[i].IsUpdated)
+        {
+          _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
+        }
+      }
+
       return RedirectToPage();
     }
 
     private async Task<IActionResult> TempArchive()
     {
       List<ProductModel> Products = new List<ProductModel>();
-
 
       // For OnPost()
       if (!string.IsNullOrEmpty(Codes))

@@ -1,28 +1,29 @@
-﻿@page "{saleid}"
+﻿@page "{saleid:min(1)}"
 @model NewAgePOS.Pages.CartModel
 @{
   ViewData["Title"] = "Sales";
 }
 
+<h1>Order Id: @Model.SaleId</h1>
+
 <h3>ADD PRODUCTS</h3>
 <form method="post">
   <div class="form-group">
     <label asp-for="Codes"></label>
-    <textarea asp-for="Codes" class="form-control" rows="5"></textarea>
+    <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
   </div>
   <button type="submit" class="btn btn-primary">Update</button>
 
   <h3 class="mt-5">PRODUCTS</h3>
   @for (var i = 0; i < Model.SaleLines.Count; i++)
   {
-    float lineTotal = (Model.SaleLines[i].Price - Model.SaleLines[i].DiscAmt) * (1 - Model.SaleLines[i].DiscPct / 100) * Model.SaleLines[i].Qty;
-
     if (i != 0)
     {
       <div class="mt-5"></div>
     }
 
     <div class="form-row">
+      <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
       <div class="col">
         <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
       </div>
@@ -38,29 +39,35 @@
     <div class="form-row">
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Cost"></label>
-        <input readonly asp-for="@Model.SaleLines[i].Cost" class="form-control">
+        <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
+        <input readonly value="@Model.SaleLines[i].Cost.ToString("C2")" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Price"></label>
-        <input readonly asp-for="@Model.SaleLines[i].Price" class="form-control">
+        <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
+        <input readonly value="@Model.SaleLines[i].Price.ToString("C2")" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Qty"></label>
         <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
+        <span asp-validation-for="@Model.SaleLines[i].Qty" class="text-danger"></span>
       </div>
     </div>
     <div class="form-row">
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
         <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
+        <span asp-validation-for="@Model.SaleLines[i].DiscAmt" class="text-danger"></span>
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscPct"></label>
         <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
+        <span asp-validation-for="@Model.SaleLines[i].DiscPct" class="text-danger"></span>
       </div>
       <div class="col">
-        <label>Line Total</label>
-        <input class="form-control" value="@lineTotal">
+        <label asp-for="@Model.SaleLines[i].LineTotal"></label>
+        <input hidden asp-for="@Model.SaleLines[i].LineTotal" class="form-control">
+        <input readonly value="@Model.SaleLines[i].LineTotal.ToString("C2")" class="form-control">
       </div>
     </div>
   }

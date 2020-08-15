@@ -1,5 +1,5 @@
-﻿CREATE PROCEDURE [dbo].[spSales_GetBySaleId]
-	@id int
+﻿CREATE PROCEDURE [dbo].[spSales_GetById]
+	@id INT
 AS
 BEGIN
 	SET NOCOUNT ON;
