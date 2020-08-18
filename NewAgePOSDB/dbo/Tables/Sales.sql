@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Sales]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
-	[CustomerId] INT NOT NULL,
+	[CustomerId] INT,
 	[TaxId] INT NOT NULL,
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),

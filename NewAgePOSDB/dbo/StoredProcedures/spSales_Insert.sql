@@ -2,15 +2,15 @@
 AS
 BEGIN
 	SET NOCOUNT ON;
-	
-	DECLARE @customerId int;
-	DECLARE @taxId int;
 
-	SELECT @customerId = MIN(Id) FROM dbo.Customers;
+	DECLARE @CustomerId int;
+	DECLARE @TaxId int;
 
-	SELECT @taxId = MIN(Id) FROM dbo.Taxes;
+	SELECT @CustomerId = Id FROM dbo.Customers WHERE EmailAddress = 'guest@email.com';
+
+	SELECT @TaxId = Id FROM dbo.Taxes WHERE IsDefault = 1
 
 	INSERT INTO dbo.Sales (CustomerId, TaxId)
 	OUTPUT inserted.Id
-	VALUES (@customerId, @taxId);
+	VALUES (@customerId, @TaxId);
 END

@@ -1,14 +1,11 @@
 ﻿CREATE PROCEDURE [dbo].[spSaleLines_Insert]
-	@saleId INT,
-	@productId INT,
-	@qty INT,
-	@discAmt INT,
-	@discPct INT,
-	@refundQty INT
+	@saleId int, 
+	@productId int, 
+	@qty int
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.SaleLines(SaleId, ProductId, Qty, DiscAmt, DiscPct, RefundQty)
-	VALUES (@saleId, @productId, @qty, @discAmt, @discPct, @refundQty)
+	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, RefundQty)
+	VALUES (@saleId, @productId, @qty, 0, 0, 0);
 END

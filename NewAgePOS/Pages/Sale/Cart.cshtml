@@ -2,6 +2,10 @@
 @model NewAgePOS.Pages.CartModel
 @{
   ViewData["Title"] = "Sales";
+  float subtotal = Model.SaleLines.Sum(sl => sl.LineTotal);
+  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * sl.DiscPct / 100)));
+  float tax = (subtotal - discount) * (Model.TaxPct / 100);
+  float total = subtotal - discount + tax;
 }
 
 <h1>Order Id: @Model.SaleId</h1>
@@ -12,7 +16,7 @@
     <label asp-for="Codes"></label>
     <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
   </div>
-  <button type="submit" class="btn btn-primary">Update</button>
+  <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
 
   <h3 class="mt-5">PRODUCTS</h3>
   @for (var i = 0; i < Model.SaleLines.Count; i++)
@@ -71,37 +75,26 @@
       </div>
     </div>
   }
-  <button type="submit" class="btn btn-primary mt-3">Update</button>
+  <button asp-page-handler="Update" type="submit" class="btn btn-primary mt-3">Save</button>
 </form>
 
-<h3 class="mt-5">CUSTOMER INFO</h3>
-<div class="form-group">
-  <label>First Name</label>
-  <input class="form-control">
-</div>
-<div class="form-group">
-  <label>Last Name</label>
-  <input class="form-control">
-</div>
-<div class="form-group">
-  <label>Email Address</label>
-  <input class="form-control">
-</div>
-<div class="form-group">
-  <label>Phone Number</label>
-  <input class="form-control">
+<div class="mt-5" style="max-width: 400px;">
+  <div class="row">
+    <div class="col-4 h4">Subtotal</div>
+    <div class="col-5 h4 text-right">@subtotal.ToString("C2")</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Discount</div>
+    <div class="col-5 h4 text-right">@discount.ToString("C2")</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Tax @Model.TaxPct.ToString("P2")</div>
+    <div class="col-5 h4 text-right">@tax.ToString("C2")</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Total</div>
+    <div class="col-5 h4 text-right">@total.ToString("C2")</div>
+  </div>
 </div>
 
-<h3 class="mt-5">PAYMENT</h3>
-<div class="form-group col-md-4">
-  <label for="inputState">Payment Type</label>
-  <select id="inputState" class="form-control">
-    <option>Choose...</option>
-    <option selected>Cash</option>
-    <option>Credit Card</option>
-  </select>
-</div>
-<div class="form-group col-md-2">
-  <label for="inputZip">Amount</label>
-  <input type="text" class="form-control" id="inputZip">
-</div>
+<a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Proceed</a>

@@ -13,7 +13,7 @@ Post-Deployment Script Template
 IF NOT EXISTS (SELECT 1 FROM dbo.Customers)
 BEGIN
   INSERT INTO dbo.Customers(FirstName, LastName,  EmailAddress,         PhoneNumber)
-                     VALUES ('Unknown', 'Unknown', 'unknown@email.com', '5555555555');
+                     VALUES ('guest', 'guest', 'guest@email.com', '5555555555');
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Products)
@@ -26,5 +26,5 @@ END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Taxes)
 BEGIN
-  INSERT INTO dbo.Taxes(TaxPct) VALUES (0.00);
+  INSERT INTO dbo.Taxes(TaxPct, IsDefault) VALUES (0.00, 1);
 END

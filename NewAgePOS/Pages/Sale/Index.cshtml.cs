@@ -37,14 +37,14 @@ namespace NewAgePOS.Pages.Sale
 
     public void OnGet()
     {
-      if (SaleId > 0)
-        SearchResults = _sqlDb.Sales_GetById(SaleId.ToString());
-      else if (!string.IsNullOrEmpty(LastName))
-        SearchResults = _sqlDb.Sales_GetByLastName(LastName);
-      else if (!string.IsNullOrEmpty(EmailAddress))
-        SearchResults = _sqlDb.Sales_GetByEmailAddress(EmailAddress);
-      else if (PhoneNumber > 0)
-        SearchResults = _sqlDb.Sales_GetByPhoneNumber(PhoneNumber.ToString());
+      //if (SaleId > 0)
+      //  SearchResults = _sqlDb.Sales_GetById(SaleId.ToString());
+      //else if (!string.IsNullOrEmpty(LastName))
+      //  SearchResults = _sqlDb.Sales_GetByLastName(LastName);
+      //else if (!string.IsNullOrEmpty(EmailAddress))
+      //  SearchResults = _sqlDb.Sales_GetByEmailAddress(EmailAddress);
+      //else if (PhoneNumber > 0)
+      //  SearchResults = _sqlDb.Sales_GetByPhoneNumber(PhoneNumber.ToString());
     }
 
     public IActionResult OnPost()
@@ -60,7 +60,7 @@ namespace NewAgePOS.Pages.Sale
     public IActionResult OnPostCreateNewSale()
     {
       int saleId = _sqlDb.Sales_Insert();
-      return RedirectToPage("cart", new { saleId });
+      return RedirectToPage("Cart", new { saleId });
     }
   }
 }

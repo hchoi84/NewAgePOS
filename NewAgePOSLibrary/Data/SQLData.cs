@@ -17,84 +17,61 @@ namespace NewAgePOSLibrary.Data
       _sqlDb = sqlDb;
     }
 
-    public List<SaleSearchModel> Sales_GetById(string id)
-    {
-      return _sqlDb.LoadData<SaleSearchModel, dynamic>(
-        "dbo.spSales_GetBySaleId",
-        new { id },
-        connectionStringName, true);
-    }
-
-    public List<SaleSearchModel> Sales_GetByLastName(string lastName)
-    {
-      return _sqlDb.LoadData<SaleSearchModel, dynamic>(
-        "dbo.spSales_GetByLastName",
-        new { lastName },
-        connectionStringName, true);
-    }
-
-    public List<SaleSearchModel> Sales_GetByEmailAddress(string emailAddress)
-    {
-      return _sqlDb.LoadData<SaleSearchModel, dynamic>(
-        "dbo.spSales_GetByEmailAddress",
-        new { emailAddress },
-        connectionStringName, true);
-    }
-
-    public List<SaleSearchModel> Sales_GetByPhoneNumber(string phoneNumber)
-    {
-      return _sqlDb.LoadData<SaleSearchModel, dynamic>(
-        "dbo.spSales_GetByPhoneNumber",
-        new { phoneNumber },
-        connectionStringName, true);
-    }
-
     public int Sales_Insert()
     {
-      return _sqlDb.LoadData<int, dynamic>(
-        "dbo.spSales_Insert",
-        new { },
-        connectionStringName, true).First();
+      return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert", new { }, connectionStringName, true).FirstOrDefault();
     }
 
     public List<SaleLineModel> SaleLines_GetBySaleId(int saleId)
     {
-      return _sqlDb.LoadData<SaleLineModel, dynamic>(
-        "dbo.spSaleLines_GetBySaleId",
-        new { saleId },
-        connectionStringName, true);
+      return _sqlDb.LoadData<SaleLineModel, dynamic>("spSaleLines_GetBySaleId", new { saleId }, connectionStringName, true);
+    }
+
+    public int Taxes_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<int, dynamic>("dbo.spTaxes_GetBySaleId", new { saleId }, connectionStringName, true).FirstOrDefault();
     }
 
     public void SaleLines_Update(int id, int qty, int discAmt, int discPct)
     {
-      _sqlDb.SaveData(
-        "spSaleLines_Update", 
-        new { id, qty, discAmt, discPct }, 
-        connectionStringName, true);
+      _sqlDb.SaveData("dbo.spSaleLines_Update", new { id, qty, discAmt, discPct }, connectionStringName, true);
     }
 
     public int Products_GetByValues(string sku, string upc, float cost, float price, string allName)
     {
-      return _sqlDb.LoadData<int, dynamic>(
-        "dbo.spProducts_GetByValues",
-        new { sku, upc, cost, price, allName },
-        connectionStringName, true).First();
+      return _sqlDb.LoadData<int, dynamic>("dbo.spProducts_GetByValues", new { sku, upc, cost, price, allName }, connectionStringName, true).FirstOrDefault();
     }
 
-    public void SaleLines_Insert(int saleId, int productId, int qty, int discAmt, int discPct, int refundQty)
+    public void SaleLines_Insert(int saleId, int productId, int qty)
     {
-      _sqlDb.SaveData(
-        "dbo.spSaleLines_Insert",
-        new { saleId, productId, qty, discAmt, discPct, refundQty },
-        connectionStringName, true);
+      _sqlDb.SaveData("dbo.spSaleLines_Insert", new { saleId, productId, qty }, connectionStringName, true);
     }
 
     public void SaleLines_Delete(int id)
     {
-      _sqlDb.SaveData(
-        $"DELETE FROM dbo.SaleLines WHERE id = { id };",
-        new { },
-        connectionStringName, false);
+      string query = "DELETE FROM dbo.Taxes WHERE id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
+
+    public CustomerModel Customers_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<CustomerModel, dynamic>("dbo.spCustomers_GetBySaleId", new { saleId }, connectionStringName, true).FirstOrDefault();
+    }
+
+    public void Sales_UpdateCustomerIdToGuest(int saleId)
+    {
+      _sqlDb.SaveData("dbo.spSales_UpdateCustomerIdToGuest", new { saleId }, connectionStringName, true);
+    }
+
+    public int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber)
+    {
+      return _sqlDb.LoadData<int, dynamic>("dbo.spCustomers_Insert", new { firstName, lastName, emailAddress, phoneNumber }, connectionStringName, true).FirstOrDefault();
+    }
+
+    public void Sales_UpdateCustomerId(int saleId, int customerId)
+    {
+      string query = "UPDATE dbo.Sales SET CustomerId = @customerId WHERE Id = @saleId";
+      _sqlDb.SaveData(query, new { saleId, customerId }, connectionStringName, false);
     }
   }
 }
