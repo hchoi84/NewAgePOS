@@ -32,6 +32,9 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public CustomerModel Customer { get; set; }
 
+    [BindProperty]
+    public SaleTransactionModel SaleTransaction { get; set; }
+
     public void OnGet()
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -47,6 +50,20 @@ namespace NewAgePOS.Pages.Sale
         Customer.FirstName = ti.ToTitleCase(Customer.FirstName);
         Customer.LastName = ti.ToTitleCase(Customer.LastName);
       }
+    }
+
+    public void OnPost()
+    {
+      // Create SaleTransaction
+      _sqlDb.SaleTransaction_Insert(SaleId, SaleTransaction.Amount, SaleTransaction.PaymentType);
+
+      // Remove product(s) from SkuVault
+
+
+      // Calculate change
+      float change = SaleTransaction.Amount - SaleLines.Sum(s => s.LineTotal);
+
+      // Redirect to Receipt page
     }
   }
 }

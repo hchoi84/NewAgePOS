@@ -13,6 +13,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "NewAgePOSDB", "NewAgePOSDB\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChannelAdvisorLibrary", "ChannelAdvisorLibrary\ChannelAdvisorLibrary.csproj", "{B47E78B8-AFA4-4036-9863-29AA8388B83F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkuVaultLibrary", "SkuVaultLibrary\SkuVaultLibrary.csproj", "{A56FAD65-4601-4816-B087-C75D1127541D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{B47E78B8-AFA4-4036-9863-29AA8388B83F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B47E78B8-AFA4-4036-9863-29AA8388B83F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B47E78B8-AFA4-4036-9863-29AA8388B83F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A56FAD65-4601-4816-B087-C75D1127541D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A56FAD65-4601-4816-B087-C75D1127541D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A56FAD65-4601-4816-B087-C75D1127541D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A56FAD65-4601-4816-B087-C75D1127541D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

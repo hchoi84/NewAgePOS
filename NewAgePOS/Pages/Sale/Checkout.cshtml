@@ -67,18 +67,25 @@ else
 }
 
 <h3 class="mt-5">PAYMENT</h3>
-<div class="form-group col-md-4">
-  <label for="inputState">Payment Type</label>
-  <select id="inputState" class="form-control">
-    <option>Choose...</option>
-    <option selected>Cash</option>
-    <option>Credit Card</option>
-  </select>
-</div>
-<div class="form-group col-md-2">
-  <label for="inputZip">Amount</label>
-  <input type="text" class="form-control" id="inputZip">
-</div>
+<form method="post">
+  <div class="form-group col-md-4">
+    <label asp-for="@Model.SaleTransaction.PaymentType"></label>
+    <select asp-for="@Model.SaleTransaction.PaymentType" class="form-control">
+      <option>Choose...</option>
+      <option selected>Cash</option>
+      <option>Credit Card</option>
+    </select>
+  </div>
+  <div class="form-group col-md-2">
+    <label asp-for="@Model.SaleTransaction.Amount"></label>
+    <input asp-for="@Model.SaleTransaction.Amount" class="form-control">
+  </div>
+  <div class="form-group">
+    <label asp-for="@Model.SaleTransaction.Message"></label>
+    <textarea asp-for="@Model.SaleTransaction.Message" rows="2" class="form-control" />
+  </div>
+  <button type="submit" class="btn btn-primary">Complete</button>
+</form>
 
 <div class="mt-5" style="max-width: 400px;">
   <div class="row">
