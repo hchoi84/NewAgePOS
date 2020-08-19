@@ -9,9 +9,9 @@
 }
 
 <h3 class="mt-5">PRODUCTS</h3>
-@foreach (NewAgePOSLibrary.Models.SaleLineModel saleLine in Model.SaleLines)
+@foreach (var saleLine in Model.SaleLines)
 {
-  float priceAfterDisc = (saleLine.Price - saleLine.DiscAmt) - (1 - Model.TaxPct / 100);
+  float priceAfterDisc = (saleLine.Price - saleLine.DiscAmt) * (1 - saleLine.DiscPct / 100f);
 
   @if (saleLine != Model.SaleLines.First())
   {
@@ -82,7 +82,7 @@ else
   </div>
   <div class="form-group">
     <label asp-for="@Model.SaleTransaction.Message"></label>
-    <textarea asp-for="@Model.SaleTransaction.Message" rows="2" class="form-control" />
+    <textarea asp-for="@Model.SaleTransaction.Message" rows="2" class="form-control"></textarea>
   </div>
   <button type="submit" class="btn btn-primary">Complete</button>
 </form>

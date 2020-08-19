@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.Internal;
 using NewAgePOSLibrary.Data;
 using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace NewAgePOS.Pages.Sale
 {
@@ -19,42 +21,39 @@ namespace NewAgePOS.Pages.Sale
 
     [BindProperty(SupportsGet = true)]
     [Display(Name = "Sale Id")]
+    [Range(0, int.MaxValue)]
     public int SaleId { get; set; }
 
     [BindProperty(SupportsGet = true)]
     [Display(Name = "Last Name")]
+    [MinLength(2, ErrorMessage = "Min {1} characters")]
     public string LastName { get; set; }
 
     [BindProperty(SupportsGet = true)]
     [Display(Name = "Email Address")]
+    [DataType(DataType.EmailAddress)]
     public string EmailAddress { get; set; }
 
     [BindProperty(SupportsGet = true)]
     [Display(Name = "Phone Number")]
-    public long PhoneNumber { get; set; }
+    [StringLength(10, MinimumLength = 10)]
+    public string PhoneNumber { get; set; }
 
-    public List<SaleSearchModel> SearchResults { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public List<SaleSearchResultModel> Results { get; set; }
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
-      //if (SaleId > 0)
-      //  SearchResults = _sqlDb.Sales_GetById(SaleId.ToString());
-      //else if (!string.IsNullOrEmpty(LastName))
-      //  SearchResults = _sqlDb.Sales_GetByLastName(LastName);
-      //else if (!string.IsNullOrEmpty(EmailAddress))
-      //  SearchResults = _sqlDb.Sales_GetByEmailAddress(EmailAddress);
-      //else if (PhoneNumber > 0)
-      //  SearchResults = _sqlDb.Sales_GetByPhoneNumber(PhoneNumber.ToString());
-    }
+      Results = _sqlDb.SearchSales(SaleId, LastName, EmailAddress, PhoneNumber);
+      
+      if (Results != null)
+      {
+        TextInfo ti = new CultureInfo("en-US", false).TextInfo;
 
-    public IActionResult OnPost()
-    {
-      if (SaleId > 0) return RedirectToPage(new { SaleId });
-      else if (!string.IsNullOrEmpty(LastName)) return RedirectToPage(new { LastName });
-      else if (!string.IsNullOrEmpty(EmailAddress)) return RedirectToPage(new { EmailAddress });
-      else if (PhoneNumber > 0) return RedirectToPage(new { PhoneNumber });
+        Results.ForEach(r => r.FullName = ti.ToTitleCase(r.FullName));
+      }
 
-      return RedirectToPage();
+      return Page();
     }
 
     public IActionResult OnPostCreateNewSale()

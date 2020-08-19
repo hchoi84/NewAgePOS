@@ -43,7 +43,7 @@ namespace NewAgePOS.Pages
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) - (1 - TaxPct / 100) * s.Qty);
+      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty);
     }
 
     public async Task<IActionResult> OnPostAddAsync()
@@ -78,8 +78,12 @@ namespace NewAgePOS.Pages
       foreach (var product in products)
       {
         int productId = _sqlDb.Products_GetByValues(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
-        KeyValuePair<string, int> code = uniqueCodes.FirstOrDefault(u => u.Key == product.Sku || u.Key == product.Upc);
-        int qty = code.Value;
+
+        int qty1 = uniqueCodes.ContainsKey(product.Sku) ? uniqueCodes[product.Sku] : 0;
+        int qty2 = uniqueCodes.ContainsKey(product.Upc) ? uniqueCodes[product.Upc] : 0;
+
+        int qty = qty1 + qty2;
+
         _sqlDb.SaleLines_Insert(SaleId, productId, qty);
       }
 

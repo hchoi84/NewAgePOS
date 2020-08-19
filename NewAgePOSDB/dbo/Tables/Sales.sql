@@ -1,8 +1,10 @@
 ﻿CREATE TABLE [dbo].[Sales]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
-	[CustomerId] INT,
+	[CustomerId] INT NOT NULL,
 	[TaxId] INT NOT NULL,
+	[IsComplete] INT NOT NULL DEFAULT(0),
+	[Message] VARCHAR(200),
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
 	CONSTRAINT [FK_Sales_Customers] FOREIGN KEY (CustomerId) REFERENCES Customers(Id),

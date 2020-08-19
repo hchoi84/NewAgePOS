@@ -43,7 +43,7 @@ namespace NewAgePOSLibrary.Data
 
     public void SaleLines_Delete(int id)
     {
-      string query = "DELETE FROM dbo.Taxes WHERE id = @id";
+      string query = "DELETE FROM dbo.SaleLines WHERE id = @id";
 
       _sqlDb.SaveData(query, new { id },
                       connectionStringName, false);
@@ -70,6 +70,13 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
+    public SaleModel Sales_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.Sales WHERE Id = @id;";
+
+      return _sqlDb.LoadData<SaleModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
+    }
+
     public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",
@@ -94,10 +101,17 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
-    public void SaleTransaction_Insert(int saleId, float amount, string paymentType)
+    public List<SaleTransactionModel> SaleTransaction_GetBySaleId(int saleId)
+    {
+      string query = "SELECT * FROM dbo.SaleTransactions WHERE SaleId = @saleId";
+
+      return _sqlDb.LoadData<SaleTransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
+    }
+    
+    public void SaleTransaction_Insert(int saleId, float amount, string paymentType, string reason, string message)
     {
       _sqlDb.SaveData("dbo.spSaleTransaction_Insert",
-                      new { saleId, amount, paymentType },
+                      new { saleId, amount, paymentType, reason, message },
                       connectionStringName, true);
     }
 
@@ -106,6 +120,11 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<int, dynamic>("dbo.spTaxes_GetBySaleId",
                                            new { saleId },
                                            connectionStringName, true).FirstOrDefault();
+    }
+
+    public List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber)
+    {
+      return _sqlDb.LoadData<SaleSearchResultModel, dynamic>("dbo.spSearchSales", new { saleId, lastName, emailAddress, phoneNumber }, connectionStringName, true);
     }
   }
 }

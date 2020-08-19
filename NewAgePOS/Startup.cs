@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EmailSenderLibrary;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,11 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NewAgePOS.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using ChannelAdvisorLibrary;
 using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Data;
+using SkuVaultLibrary;
 
 namespace NewAgePOS
 {
@@ -57,6 +51,7 @@ namespace NewAgePOS
       services.AddTransient<ISQLDataAccess, SQLDataAccess>();
 
       services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
+      services.AddScoped<ISkuVault, SkuVault>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

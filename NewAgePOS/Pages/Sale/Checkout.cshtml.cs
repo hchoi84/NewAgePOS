@@ -1,23 +1,23 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
 using NewAgePOSLibrary.Models;
+using SkuVaultLibrary;
 
 namespace NewAgePOS.Pages.Sale
 {
   public class CheckoutModel : PageModel
   {
     private readonly ISQLData _sqlDb;
+    private readonly ISkuVault _skuVault;
 
-    public CheckoutModel(ISQLData sqlDb)
+    public CheckoutModel(ISQLData sqlDb, ISkuVault skuVault)
     {
       _sqlDb = sqlDb;
+      _skuVault = skuVault;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -38,9 +38,9 @@ namespace NewAgePOS.Pages.Sale
     public void OnGet()
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) - (1 - TaxPct / 100) * s.Qty);
-
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+
+      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100) * s.Qty);
 
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       if (Customer != null)
@@ -55,12 +55,17 @@ namespace NewAgePOS.Pages.Sale
     public void OnPost()
     {
       // Create SaleTransaction
-      _sqlDb.SaleTransaction_Insert(SaleId, SaleTransaction.Amount, SaleTransaction.PaymentType);
+      _sqlDb.SaleTransaction_Insert(SaleId, SaleTransaction.Amount, SaleTransaction.PaymentType, "Checkout", SaleTransaction.Message);
+
+      // Mark Sale as Complete
 
       // Remove product(s) from SkuVault
+      // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
+      //Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
+      //SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
+      //_skuVault.RemoveProducts(productsToRemove);
 
-
-      // Calculate change
+      // Calculate change. Move this to the Receipt page
       float change = SaleTransaction.Amount - SaleLines.Sum(s => s.LineTotal);
 
       // Redirect to Receipt page

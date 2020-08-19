@@ -18,6 +18,7 @@
     <ProjectReference Include="..\ChannelAdvisorLibrary\ChannelAdvisorLibrary.csproj" />
     <ProjectReference Include="..\EmailSenderLibrary\EmailSenderLibrary.csproj" />
     <ProjectReference Include="..\NewAgePOSLibrary\NewAgePOSLibrary.csproj" />
+    <ProjectReference Include="..\SkuVaultLibrary\SkuVaultLibrary.csproj" />
   </ItemGroup>
 
 </Project>

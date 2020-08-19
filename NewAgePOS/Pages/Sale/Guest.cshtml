@@ -6,25 +6,37 @@
 
 <form method="post">
   <h3 class="mt-5">CUSTOMER INFO</h3>
-  <div class="form-group">
-    <label asp-for="@Model.Customer.FirstName"></label>
-    <input asp-for="@Model.Customer.FirstName" class="form-control">
+  <div class="form-row">
+    <div class="form-group col">
+      <label asp-for="@Model.Customer.FirstName"></label>
+      <input asp-for="@Model.Customer.FirstName" class="form-control">
+      <span asp-validation-for="@Model.Customer.FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group col">
+      <label asp-for="@Model.Customer.LastName"></label>
+      <input asp-for="@Model.Customer.LastName" class="form-control">
+      <span asp-validation-for="@Model.Customer.LastName" class="text-danger"></span>
+    </div>
   </div>
-  <div class="form-group">
-    <label asp-for="@Model.Customer.LastName"></label>
-    <input asp-for="@Model.Customer.LastName" class="form-control">
-  </div>
-  <div class="form-group">
-    <label asp-for="@Model.Customer.EmailAddress"></label>
-    <input asp-for="@Model.Customer.EmailAddress" class="form-control">
-  </div>
-  <div class="form-group">
-    <label asp-for="@Model.Customer.PhoneNumber"></label>
-    <input asp-for="@Model.Customer.PhoneNumber" class="form-control">
+  <div class="form-row">
+    <div class="form-group col">
+      <label asp-for="@Model.Customer.EmailAddress"></label>
+      <input asp-for="@Model.Customer.EmailAddress" class="form-control">
+      <span asp-validation-for="@Model.Customer.EmailAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group col">
+      <label asp-for="@Model.Customer.PhoneNumber"></label>
+      <input asp-for="@Model.Customer.PhoneNumber" class="form-control">
+      <span asp-validation-for="@Model.Customer.PhoneNumber" class="text-danger"></span>
+    </div>
   </div>
 
-  <button asp-page-handler="UseInput" type="submit" class="btn btn-primary">Change</button>
+  <div class="text-info">@TempData["Message"]</div>
+  <button asp-page-handler="UseInput" type="submit" class="btn btn-primary">Submit New Customer</button>
+  @if (Model.Customer.EmailAddress == "guest@email.com")
+  {
   <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Use Guest</a>
+  }
 </form>
 
-<a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Proceed</a>
+<a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Proceed to Checkout</a>

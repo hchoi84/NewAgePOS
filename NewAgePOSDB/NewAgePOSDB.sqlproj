@@ -78,6 +78,8 @@
     <Build Include="dbo\StoredProcedures\spSales_UpdateCustomerIdToGuest.sql" />
     <Build Include="dbo\StoredProcedures\spCustomers_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spSaleTransaction_Insert.sql" />
+    <Build Include="dbo\StoredProcedures\spSearchSales.sql" />
+    <Build Include="dbo\StoredProcedures\spProducts_GetByValues.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

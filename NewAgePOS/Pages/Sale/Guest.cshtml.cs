@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NewAgePOSLibrary.Data;
 using NewAgePOSLibrary.Models;
 
@@ -24,7 +25,8 @@ namespace NewAgePOS.Pages.Sale
     public void OnGet()
     {
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
-      if (Customer != null)
+      if (Customer.EmailAddress == "guest@email.com") Customer = null;
+      else if (Customer != null)
       {
         TextInfo ti = new CultureInfo("en-US", false).TextInfo;
 
@@ -35,6 +37,8 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPostUseInput()
     {
+      if (!ModelState.IsValid) return Page();
+
       bool isCorrectFormat = long.TryParse(Customer.PhoneNumber, out long result);
 
       // TODO: Add error message
@@ -47,7 +51,11 @@ namespace NewAgePOS.Pages.Sale
 
       _sqlDb.Sales_UpdateCustomerId(SaleId, customerId);
 
+      TempData["Message"] = "Customer has been added";
+
       return RedirectToPage();
     }
+
+    // TODO: Implement updating customer information
   }
 }
