@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
@@ -44,7 +41,7 @@ namespace NewAgePOS.Pages.Sale
       FullName = _sqlDb.Customers_GetBySaleId(SaleId).FirstName;
       Transactions = _sqlDb.SaleTransaction_GetBySaleId(SaleId);
 
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) - (1 - TaxPct / 100) * s.Qty);
+      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty);
     }
   }
 }

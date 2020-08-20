@@ -7,6 +7,7 @@
 <form method="post">
   <h3 class="mt-5">CUSTOMER INFO</h3>
   <div class="form-row">
+    <input hidden asp-for="@Model.Customer.Id" />
     <div class="form-group col">
       <label asp-for="@Model.Customer.FirstName"></label>
       <input asp-for="@Model.Customer.FirstName" class="form-control">
@@ -31,12 +32,20 @@
     </div>
   </div>
 
-  <div class="text-info">@TempData["Message"]</div>
-  <button asp-page-handler="UseInput" type="submit" class="btn btn-primary">Submit New Customer</button>
-  @if (Model.Customer.EmailAddress == "guest@email.com")
+  @if (TempData["Message"] != null)
   {
-  <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Use Guest</a>
+    <div class="text-info">@TempData["Message"]</div>
+  }
+  @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+  <button asp-page-handler="UseInput" type="submit" class="btn btn-primary m-1">Submit New Customer</button>
+  @if (Model.Customer != null)
+  {
+    <button asp-page-handler="Edit" type="submit" class="btn btn-primary m-1">Edit Customer</button>
+  }
+  @if (Model.Customer == null)
+  {
+    <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary m-1">Use Guest</a>
   }
 </form>
 
-<a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Proceed to Checkout</a>
+<a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-primary m-1">Proceed to Checkout</a>

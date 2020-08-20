@@ -1,21 +1,10 @@
 ﻿@page "{saleid:min(1)}"
-@model NewAgePOS.Pages.CartModel
+@model NewAgePOS.Pages.Sale.RefundModel
 @{
-  ViewData["Title"] = "Sales";
-  float subtotal = Model.SaleLines.Sum(sl => sl.LineTotal);
-  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * sl.DiscPct / 100))) * -1;
-  float tax = (subtotal - discount) * (Model.TaxPct / 100);
-  float total = subtotal - discount + tax;
+  ViewData["Title"] = "Refund";
 }
 
-<h3>ADD PRODUCTS</h3>
 <form method="post">
-  <div class="form-group">
-    <label asp-for="Codes"></label>
-    <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
-  </div>
-  <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
-
   <h3 class="mt-5">PRODUCTS</h3>
   @for (var i = 0; i < Model.SaleLines.Count; i++)
   {
@@ -23,7 +12,7 @@
     {
       <div class="mt-5"></div>
     }
-
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" });
     <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
     <div class="form-row">
       <div class="col">
@@ -51,20 +40,19 @@
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Qty"></label>
-        <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].Qty" class="text-danger"></span>
+        <input readonly asp-for="@Model.SaleLines[i].Qty" class="form-control">
       </div>
     </div>
     <div class="form-row">
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
-        <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].DiscAmt" class="text-danger"></span>
+        <input hidden asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
+        <input readonly value="@Model.SaleLines[i].DiscAmt.ToString("C2")" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscPct"></label>
-        <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].DiscPct" class="text-danger"></span>
+        <input hidden asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
+        <input readonly value="@Model.SaleLines[i].DiscPct.ToString("P2")" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].LineTotal"></label>
@@ -72,27 +60,32 @@
         <input readonly value="@Model.SaleLines[i].LineTotal.ToString("C2")" class="form-control">
       </div>
     </div>
+    @if (Model.SaleLines[i].Qty > 0)
+    {
+      <div class="form-row">
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].RefundQty"></label>
+          <input asp-for="@Model.SaleLines[i].RefundQty" class="form-control">
+        </div>
+      </div>
+    }
+    else
+    {
+      <div class="form-row">
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].RefundQty"></label>
+          <input value="Fully Refunded" class="form-control text-info">
+        </div>
+      </div>
+    }
   }
-  <button asp-page-handler="Update" type="submit" class="btn btn-primary mt-3">Save</button>
+
+  <div class="form-row">
+    <div class="col">
+      <label asp-for="@Model.Message"></label>
+      <textarea asp-for="@Model.Message" class="form-control" rows="2"></textarea>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Refund</button>
 </form>
-
-<div class="mt-5" style="max-width: 400px;">
-  <div class="row">
-    <div class="col-4 h4">Subtotal</div>
-    <div class="col-5 h4 text-right">@subtotal.ToString("C2")</div>
-  </div>
-  <div class="row">
-    <div class="col-4 h4">Discount</div>
-    <div class="col-5 h4 text-right">@discount.ToString("C2")</div>
-  </div>
-  <div class="row">
-    <div class="col-4 h4">Tax @Model.TaxPct.ToString("P2")</div>
-    <div class="col-5 h4 text-right">@tax.ToString("C2")</div>
-  </div>
-  <div class="row">
-    <div class="col-4 h4">Total</div>
-    <div class="col-5 h4 text-right">@total.ToString("C2")</div>
-  </div>
-</div>
-
-<a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-primary">Proceed</a>

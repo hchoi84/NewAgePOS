@@ -28,6 +28,12 @@ namespace NewAgePOSLibrary.Models
 
     [DisplayName("Line Total")]
     public float LineTotal { get; set; }
+
+    [DisplayName("Ref. Qty")]
+    public int RefundQty { get; set; }
+
+    public float RefundLineTotal { get; set; }
+
     public bool IsUpdated { get; set; } = false;
   }
 }

@@ -38,12 +38,21 @@ namespace NewAgePOS.Pages
     public float TaxPct { get; set; }
 
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
+      bool isComplete = _sqlDb.Sales_GetStatus(SaleId);
+      if (isComplete)
+      {
+        TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";
+        return RedirectToPage("Index");
+      }
+
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
       SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty);
+
+      return Page();
     }
 
     public async Task<IActionResult> OnPostAddAsync()

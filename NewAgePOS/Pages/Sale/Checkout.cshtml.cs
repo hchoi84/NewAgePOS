@@ -37,6 +37,13 @@ namespace NewAgePOS.Pages.Sale
 
     public void OnGet()
     {
+      bool isComplete = _sqlDb.Sales_GetStatus(SaleId);
+      if (isComplete)
+      {
+        TempData["Message"] = $"Cannot access Checkout because Sale Id { SaleId } was completed.";
+        RedirectToPage("Index");
+      }
+
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
@@ -52,12 +59,13 @@ namespace NewAgePOS.Pages.Sale
       }
     }
 
-    public void OnPost()
+    public IActionResult OnPost()
     {
       // Create SaleTransaction
       _sqlDb.SaleTransaction_Insert(SaleId, SaleTransaction.Amount, SaleTransaction.PaymentType, "Checkout", SaleTransaction.Message);
 
       // Mark Sale as Complete
+      _sqlDb.Sales_MarkComplete(SaleId);
 
       // Remove product(s) from SkuVault
       // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
@@ -65,10 +73,8 @@ namespace NewAgePOS.Pages.Sale
       //SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
       //_skuVault.RemoveProducts(productsToRemove);
 
-      // Calculate change. Move this to the Receipt page
-      float change = SaleTransaction.Amount - SaleLines.Sum(s => s.LineTotal);
-
       // Redirect to Receipt page
+      return RedirectToPage("Receipt", new { SaleId });
     }
   }
 }

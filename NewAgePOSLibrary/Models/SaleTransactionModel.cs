@@ -9,6 +9,7 @@ namespace NewAgePOSLibrary.Models
   public class SaleTransactionModel
   {
     [Required]
+    [Range(0.00, 100.00)]
     public float Amount { get; set; }
 
     [Required]

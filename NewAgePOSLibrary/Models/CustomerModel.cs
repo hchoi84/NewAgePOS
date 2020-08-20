@@ -5,6 +5,8 @@ namespace NewAgePOSLibrary.Models
 {
   public class CustomerModel
   {
+    public int Id { get; set; }
+
     [Required]
     [DisplayName("First Name")]
     [MinLength(2, ErrorMessage = "Min {1} Characters")]

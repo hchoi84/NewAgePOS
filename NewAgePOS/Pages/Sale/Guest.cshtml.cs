@@ -51,11 +51,26 @@ namespace NewAgePOS.Pages.Sale
 
       _sqlDb.Sales_UpdateCustomerId(SaleId, customerId);
 
-      TempData["Message"] = "Customer has been added";
+      TempData["Message"] = "Customer has been created";
 
       return RedirectToPage();
     }
 
     // TODO: Implement updating customer information
+    public IActionResult OnPostEdit()
+    {
+      if (!ModelState.IsValid) return Page();
+
+      if (_sqlDb.Customers_GetByEmailOrPhone(Customer.EmailAddress, Customer.PhoneNumber) > 1)
+      {
+        ModelState.AddModelError(string.Empty, "Customer with the Email Address or Phone Number already exists");
+        return Page();
+      }
+
+      _sqlDb.Customers_Update(Customer.Id, Customer.FirstName, Customer.LastName, Customer.EmailAddress, Customer.PhoneNumber);
+      TempData["Message"] = "Customer has been updated";
+
+      return RedirectToPage();
+    }
   }
 }

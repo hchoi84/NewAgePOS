@@ -3,8 +3,8 @@
 @{
   ViewData["Title"] = "Checkout";
   float subtotal = Model.SaleLines.Sum(sl => sl.LineTotal);
-  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * sl.DiscPct / 100)));
-  float tax = (subtotal - discount) * (Model.TaxPct / 100);
+  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * sl.DiscPct / 100f)));
+  float tax = (subtotal - discount) * (Model.TaxPct / 100f);
   float total = subtotal - discount + tax;
 }
 

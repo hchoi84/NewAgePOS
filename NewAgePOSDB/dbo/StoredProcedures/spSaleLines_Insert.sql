@@ -6,6 +6,6 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, RefundQty)
-	VALUES (@saleId, @productId, @qty, 0, 0, 0);
+	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct)
+	VALUES (@saleId, @productId, @qty, 0, 0);
 END

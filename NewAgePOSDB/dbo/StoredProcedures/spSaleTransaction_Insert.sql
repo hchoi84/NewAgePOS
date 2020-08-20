@@ -1,11 +1,14 @@
 ﻿CREATE PROCEDURE [dbo].[spSaleTransaction_Insert]
 	@saleId int,
-	@amount int,
-	@paymentType varchar(15)
+	@amount float,
+	@paymentType varchar(15),
+	@reason VARCHAR(15),
+	@message VARCHAR(200)
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.SaleTransactions (SaleId, Amount, PaymentType)
-	VALUES (@saleId, @amount, @paymentType);
+	INSERT INTO dbo.SaleTransactions (SaleId, Amount, PaymentType, Reason, Message)
+	OUTPUT inserted.Id
+	VALUES (@saleId, @amount, @paymentType, @reason, @message);
 END

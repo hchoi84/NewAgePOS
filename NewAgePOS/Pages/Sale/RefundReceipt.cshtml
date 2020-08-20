@@ -1,0 +1,28 @@
+﻿@page "{saleTransactionId:min(1)}"
+@model NewAgePOS.Pages.Sale.RefundReceiptModel
+@{
+  ViewData["Title"] = "Refund receipt";
+  float subtotal = Model.Refunds.Sum(r => r.LineTotal);
+  float discount = Model.Refunds.Sum(r => (r.RefundQty * r.DiscAmt) + (r.RefundQty * (r.Price * r.DiscPct / 100f)));
+  float tax = (subtotal - discount) * (Model.Refunds.First().TaxPct / 100f);
+}
+
+<div class="container" style="max-width:250px;">
+  <div class="row">
+    <div class="col m-1 text-center">@Model.Refunds.First().SaleId</div>
+  </div>
+  <div class="row">
+    <div class="col m-1 text-center">@Model.Refunds.First().SaleTransactionId</div>
+  </div>
+  <div class="row">
+    <div class="col m-1 text-center">@Model.Refunds.First().Created.ToString("yyyy/MM/dd")</div>
+  </div>
+  <div class="row">
+    <div class="col h6 border border-dark rounded p-1 bg-dark m-1">Tax @Model.Refunds.First().TaxPct.ToString("P2")</div>
+    <div class="col h6 border border-dark rounded p-1 bg-dark m-1 text-right">@tax.ToString("C2")</div>
+  </div>
+  <div class="row">
+    <div class="col h6 border border-dark rounded p-1 bg-dark m-1">@Model.Refunds.First().PaymentType</div>
+    <div class="col h6 border border-dark rounded p-1 bg-dark m-1 text-right">@Model.Refunds.First().Amount.ToString("C2")</div>
+  </div>
+</div>

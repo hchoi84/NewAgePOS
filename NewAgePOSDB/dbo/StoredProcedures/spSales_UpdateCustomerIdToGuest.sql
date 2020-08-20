@@ -6,7 +6,7 @@ BEGIN
 
 	DECLARE @customerId int;
 
-	SELECT @customerId = id
+	SELECT @customerId = Id
 	FROM dbo.Customers
 	WHERE EmailAddress = 'guest@email.com';
 

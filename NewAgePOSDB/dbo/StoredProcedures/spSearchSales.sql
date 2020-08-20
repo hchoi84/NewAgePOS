@@ -9,7 +9,7 @@ BEGIN
 
 	IF (@saleId > 0)
 		BEGIN
-			SELECT s.Id AS SaleId, s.Created, 
+			SELECT s.Id AS SaleId, s.Created, s.IsComplete,
 						 CONCAT(c.FirstName, ' ', c.LastName) AS FullName, 
 						 c.EmailAddress, c.PhoneNumber
 			FROM dbo.Sales s
@@ -18,7 +18,7 @@ BEGIN
 		END
 	ELSE IF (@lastName <> '')
 		BEGIN
-			SELECT s.Id AS SaleId, s.Created, 
+			SELECT s.Id AS SaleId, s.Created, s.IsComplete,
 						 CONCAT(c.FirstName, ' ', c.LastName) AS FullName, 
 						 c.EmailAddress, c.PhoneNumber
 			FROM dbo.Customers c
@@ -27,7 +27,7 @@ BEGIN
 		END
 	ELSE IF (@emailAddress <> '')
 		BEGIN
-			SELECT s.Id AS SaleId, s.Created, 
+			SELECT s.Id AS SaleId, s.Created, s.IsComplete,
 						 CONCAT(c.FirstName, ' ', c.LastName) AS FullName, 
 						 c.EmailAddress, c.PhoneNumber
 			FROM dbo.Customers c
@@ -36,7 +36,7 @@ BEGIN
 		END
 	ELSE IF (@phoneNumber <> '')
 		BEGIN
-			SELECT s.Id AS SaleId, s.Created, 
+			SELECT s.Id AS SaleId, s.Created, s.IsComplete,
 						 CONCAT(c.FirstName, ' ', c.LastName) AS FullName, 
 						 c.EmailAddress, c.PhoneNumber
 			FROM dbo.Customers c
