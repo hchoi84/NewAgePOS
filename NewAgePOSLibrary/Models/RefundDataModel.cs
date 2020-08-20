@@ -7,7 +7,7 @@ namespace NewAgePOSLibrary.Models
   public class RefundDataModel
   {
     public int SaleId { get; set; }
-    public int SaleTransactionId { get; set; }
+    public int TransactionId { get; set; }
     public float Amount { get; set; }
     public string PaymentType { get; set; }
     public DateTime Created { get; set; }
@@ -16,6 +16,6 @@ namespace NewAgePOSLibrary.Models
     public int RefundQty { get; set; }
     public float Price { get; set; }
     public float TaxPct { get; set; }
-    public float LineTotal { get; set; }
+    public float LineTotal { get { return Price * RefundQty; } }
   }
 }

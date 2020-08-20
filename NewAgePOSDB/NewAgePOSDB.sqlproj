@@ -59,8 +59,8 @@
     <Folder Include="dbo" />
     <Folder Include="dbo\Tables" />
     <Folder Include="Scripts" />
-    <Folder Include="Publish" />
     <Folder Include="dbo\StoredProcedures" />
+    <Folder Include="Publish" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Taxes.sql" />
@@ -68,7 +68,7 @@
     <Build Include="dbo\Tables\Products.sql" />
     <Build Include="dbo\Tables\Sales.sql" />
     <Build Include="dbo\Tables\SaleLines.sql" />
-    <Build Include="dbo\Tables\SaleTransactions.sql" />
+    <Build Include="dbo\Tables\Transactions.sql" />
     <Build Include="dbo\StoredProcedures\spSales_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spSaleLines_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\spTaxes_GetBySaleId.sql" />
@@ -77,12 +77,12 @@
     <Build Include="dbo\StoredProcedures\spCustomers_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\spSales_UpdateCustomerIdToGuest.sql" />
     <Build Include="dbo\StoredProcedures\spCustomers_Insert.sql" />
-    <Build Include="dbo\StoredProcedures\spSaleTransaction_Insert.sql" />
+    <Build Include="dbo\StoredProcedures\spTransactions_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spSearchSales.sql" />
-    <Build Include="dbo\StoredProcedures\spProducts_GetByValues.sql" />
     <Build Include="dbo\StoredProcedures\spCustomers_Update.sql" />
     <Build Include="dbo\Tables\RefundLines.sql" />
     <Build Include="dbo\StoredProcedures\spGetRefundReceiptData.sql" />
+    <Build Include="dbo\StoredProcedures\spRefundLines_GetRefundQtyBySaleLineId.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

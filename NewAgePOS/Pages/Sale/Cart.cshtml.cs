@@ -28,13 +28,13 @@ namespace NewAgePOS.Pages
     [Display(Name = "SKUs or UPCs")]
     public string Codes { get; set; }
 
-    [BindProperty(SupportsGet = true)]
+    [BindProperty]
     public List<SaleLineModel> SaleLines { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    [BindProperty(SupportsGet = true)]
+    [BindProperty]
     public float TaxPct { get; set; }
 
 
@@ -49,8 +49,6 @@ namespace NewAgePOS.Pages
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
-
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty);
 
       return Page();
     }
@@ -86,7 +84,14 @@ namespace NewAgePOS.Pages
       products.AddRange(await _ca.GetProductsByCodeAsync(uniqueCodes.Select(u => u.Key).ToList()));
       foreach (var product in products)
       {
-        int productId = _sqlDb.Products_GetByValues(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
+        int productId = 0;
+        ProductDbModel productDb = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
+        if (productDb == null) 
+          productId = _sqlDb.Products_Insert(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
+        else if (productDb.Cost != product.Cost || productDb.Price != product.Price || productDb.AllName != product.AllName)
+          _sqlDb.Products_Update(productDb.Id, product.Cost, product.Price, product.AllName);
+        else 
+          productId = productDb.Id;
 
         int qty1 = uniqueCodes.ContainsKey(product.Sku) ? uniqueCodes[product.Sku] : 0;
         int qty2 = uniqueCodes.ContainsKey(product.Upc) ? uniqueCodes[product.Upc] : 0;

@@ -19,15 +19,14 @@ namespace NewAgePOS.Pages.Sale
     }
 
     [BindProperty(SupportsGet = true)]
-    public int SaleTransactionId { get; set; }
+    public int TransactionId { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public List<RefundDataModel> Refunds { get; set; }
 
     public void OnGet()
     {
-      Refunds = _sqlDb.GetRefundReceiptData(SaleTransactionId);
-      Refunds.ForEach(r => r.LineTotal = (r.Price - r.DiscAmt) * (1 - r.DiscPct / 100f) * r.RefundQty);
+      Refunds = _sqlDb.GetRefundReceiptData(TransactionId);
     }
   }
 }

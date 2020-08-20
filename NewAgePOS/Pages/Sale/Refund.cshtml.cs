@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
@@ -21,10 +19,10 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    [BindProperty(SupportsGet = true)]
+    [BindProperty]
     public List<SaleLineModel> SaleLines { get; set; }
 
-    [BindProperty(SupportsGet = true)]
+    [BindProperty]
     public float TaxPct { get; set; }
 
     [BindProperty]
@@ -44,8 +42,8 @@ namespace NewAgePOS.Pages.Sale
 
       SaleLines.ForEach(s =>
       {
-        s.Qty -= _sqlDb.RefundLines_GetRefundQtyBySaleLineId(s.Id);
-        s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty;
+        int refundedQty = _sqlDb.RefundLines_GetRefundQtyBySaleLineId(s.Id);
+        s.Qty -= refundedQty;
       });
 
       return Page();
@@ -71,18 +69,17 @@ namespace NewAgePOS.Pages.Sale
 
       // Update SaleLine
       List<SaleLineModel> refundsToApply = SaleLines.Where(s => s.RefundQty > 0).ToList();
-      refundsToApply.ForEach(r => r.RefundLineTotal = (r.Price - r.DiscAmt) * (1 - r.DiscPct / 100f) * r.RefundQty);
 
       float subtotal = SaleLines.Sum(sl => sl.RefundLineTotal);
-      float discount = SaleLines.Sum(sl => (sl.RefundQty * sl.DiscAmt) + (sl.RefundQty * (sl.Price * sl.DiscPct / 100))) * -1;
+      float discount = SaleLines.Sum(sl => (sl.RefundQty * sl.DiscAmt) + (sl.RefundQty * (sl.Price * (sl.DiscPct / 100f))));
       float tax = (subtotal - discount) * (TaxPct / 100f);
       float total = subtotal - discount + tax;
 
-      int saleTransactionId = _sqlDb.SaleTransaction_Insert(SaleId, total, "Cash", "Refund", Message);
+      int transactionId = _sqlDb.Transactions_Insert(SaleId, total, "Cash", "Refund", Message);
 
-      refundsToApply.ForEach(r => _sqlDb.RefundLines_Insert(r.Id, saleTransactionId, r.RefundQty));
+      refundsToApply.ForEach(r => _sqlDb.RefundLines_Insert(r.Id, transactionId, r.RefundQty));
 
-      return RedirectToPage("RefundReceipt", new { saleTransactionId });
+      return RedirectToPage("RefundReceipt", new { transactionId });
     }
   }
 }

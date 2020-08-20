@@ -33,7 +33,7 @@ namespace NewAgePOS.Pages.Sale
     public CustomerModel Customer { get; set; }
 
     [BindProperty]
-    public SaleTransactionModel SaleTransaction { get; set; }
+    public TransactionModel Transaction { get; set; }
 
     public void OnGet()
     {
@@ -47,8 +47,6 @@ namespace NewAgePOS.Pages.Sale
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100) * s.Qty);
-
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       if (Customer != null)
       {
@@ -61,8 +59,8 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPost()
     {
-      // Create SaleTransaction
-      _sqlDb.SaleTransaction_Insert(SaleId, SaleTransaction.Amount, SaleTransaction.PaymentType, "Checkout", SaleTransaction.Message);
+      // Create Transaction
+      _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.PaymentType, "Checkout", Transaction.Message);
 
       // Mark Sale as Complete
       _sqlDb.Sales_MarkComplete(SaleId);

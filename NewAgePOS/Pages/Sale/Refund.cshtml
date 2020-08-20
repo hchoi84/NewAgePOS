@@ -52,7 +52,7 @@
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscPct"></label>
         <input hidden asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-        <input readonly value="@Model.SaleLines[i].DiscPct.ToString("P2")" class="form-control">
+        <input readonly value="@Model.SaleLines[i].DiscPct %" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].LineTotal"></label>

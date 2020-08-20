@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[SaleTransactions]
+﻿CREATE TABLE [dbo].[Transactions]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[SaleId] INT NOT NULL,
@@ -8,5 +8,5 @@
 	[Message] VARCHAR(200),
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
-	CONSTRAINT [FK_SaleTransactions_Sales] FOREIGN KEY (SaleId) REFERENCES Sales(Id)
+	CONSTRAINT [FK_Transactions_Sales] FOREIGN KEY (SaleId) REFERENCES Sales(Id)
 )

@@ -31,7 +31,7 @@ namespace NewAgePOS.Pages.Sale
     public string FullName { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public List<SaleTransactionModel> Transactions { get; set; }
+    public List<TransactionModel> Transactions { get; set; }
 
     public void OnGet()
     {
@@ -39,9 +39,7 @@ namespace NewAgePOS.Pages.Sale
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
       FullName = _sqlDb.Customers_GetBySaleId(SaleId).FirstName;
-      Transactions = _sqlDb.SaleTransaction_GetBySaleId(SaleId);
-
-      SaleLines.ForEach(s => s.LineTotal = (s.Price - s.DiscAmt) * (1 - s.DiscPct / 100f) * s.Qty);
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
     }
   }
 }

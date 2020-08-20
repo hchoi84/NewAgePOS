@@ -10,10 +10,14 @@ namespace NewAgePOSLibrary.Data
     CustomerModel Customers_GetBySaleId(int saleId);
     int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber);
     void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber);
-    List<RefundDataModel> GetRefundReceiptData(int saleTransactionId);
-    int Products_GetByValues(string sku, string upc, float cost, float price, string allName);
+    List<RefundDataModel> GetRefundReceiptData(int transactionId);
+    ProductDbModel Products_GetByCode(string sku, string upc);
+    int Products_Insert(string sku, string upc, float cost, float price, string allName);
+    ProductDbModel Products_Manual_GetByCode(string sku, string upc);
+    void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName);
+    void Products_Update(int productId, float cost, float price, string allName);
     int RefundLines_GetRefundQtyBySaleLineId(int saleLineId);
-    void RefundLines_Insert(int saleId, int saleTransactionId, int refundQty);
+    void RefundLines_Insert(int saleId, int transactionId, int refundQty);
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
     void SaleLines_Insert(int saleId, int productId, int qty);
@@ -26,8 +30,8 @@ namespace NewAgePOSLibrary.Data
     void Sales_UpdateCustomerId(int saleId, int customerId);
     void Sales_UpdateCustomerIdToGuest(int saleId);
 
-    List<SaleTransactionModel> SaleTransaction_GetBySaleId(int saleId);
-    int SaleTransaction_Insert(int saleId, float amount, string paymentType, string reason, string message);
+    List<TransactionModel> Transactions_GetBySaleId(int saleId);
+    int Transactions_Insert(int saleId, float amount, string paymentType, string reason, string message);
 
     List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber);
 

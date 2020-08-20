@@ -50,29 +50,51 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData("dbo.spCustomers_Update", new { id, firstName, lastName, emailAddress, phoneNumber }, connectionStringName, true);
     }
 
-    public List<RefundDataModel> GetRefundReceiptData(int saleTransactionId)
+    public List<RefundDataModel> GetRefundReceiptData(int transactionId)
     {
-      return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { saleTransactionId }, connectionStringName, true);
+      return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
     }
 
-    public int Products_GetByValues(string sku, string upc, float cost, float price, string allName)
+    public ProductDbModel Products_GetByCode(string sku, string upc)
     {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spProducts_GetByValues",
-                                           new { sku, upc, cost, price, allName },
-                                           connectionStringName,
-                                           true).FirstOrDefault();
+      string query = "SELECT * FROM dbo.Products WHERE Sku = @sku OR UPC = @upc;";
+      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public int Products_Insert(string sku, string upc, float cost, float price, string allName)
+    {
+      string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) OUTPUT inserted.Id VALUES (@sku, @upc, @cost, @price, @allName, 'API');";
+      return _sqlDb.LoadData<int, dynamic>(query, new { sku, upc, cost, price, allName }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public void Products_Update(int productId, float cost, float price, string allName)
+    {
+      string updateDate = DateTime.Now.ToShortDateString();
+      string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Update = @updateDate WHERE Id = @productId;";
+      _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
+    }
+
+    public ProductDbModel Products_Manual_GetByCode(string sku, string upc)
+    {
+      string query = "SELECT * FROM dbo.Products WHERE Source = 'Manual' AND Sku = @sku AND Upc = @upc";
+      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName)
+    {
+      string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) VALUES (@sku, @upc, @cost, @price, @allName, 'Manual');";
+      _sqlDb.SaveData(query, new { sku, upc, cost, price, allName }, connectionStringName, false);
     }
 
     public int RefundLines_GetRefundQtyBySaleLineId(int saleLineId)
     {
-      string query = "SELECT SUM(Qty) FROM dbo.RefundLines WHERE SaleLineId = @saleLineId";
-      return _sqlDb.LoadData<int, dynamic>(query, new { saleLineId }, connectionStringName, false).FirstOrDefault();
+      return _sqlDb.LoadData<int, dynamic>("dbo.spRefundLines_GetRefundQtyBySaleLineId", new { saleLineId }, connectionStringName, true).FirstOrDefault();
     }
 
-    public void RefundLines_Insert(int saleId, int saleTransactionId, int refundQty)
+    public void RefundLines_Insert(int saleId, int transactionId, int refundQty)
     {
-      string q = "INSERT INTO dbo.RefundLines (SaleLineId, SaleTransactionId, Qty) VALUES (@saleId, @saleTransactionId, @refundQty);";
-      _sqlDb.SaveData(q, new { saleId, saleTransactionId, refundQty }, connectionStringName, false);
+      string q = "INSERT INTO dbo.RefundLines (SaleLineId, TransactionId, Qty) VALUES (@saleId, @transactionId, @refundQty);";
+      _sqlDb.SaveData(q, new { saleId, transactionId, refundQty }, connectionStringName, false);
     }
 
     public void SaleLines_Delete(int id)
@@ -148,16 +170,16 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
-    public List<SaleTransactionModel> SaleTransaction_GetBySaleId(int saleId)
+    public List<TransactionModel> Transactions_GetBySaleId(int saleId)
     {
-      string query = "SELECT * FROM dbo.SaleTransactions WHERE SaleId = @saleId";
+      string query = "SELECT * FROM dbo.Transactions WHERE SaleId = @saleId";
 
-      return _sqlDb.LoadData<SaleTransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
+      return _sqlDb.LoadData<TransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
     }
     
-    public int SaleTransaction_Insert(int saleId, float amount, string paymentType, string reason, string message)
+    public int Transactions_Insert(int saleId, float amount, string paymentType, string reason, string message)
     {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spSaleTransaction_Insert",
+      return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
                       new { saleId, amount, paymentType, reason, message },
                       connectionStringName, true).FirstOrDefault();
     }

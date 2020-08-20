@@ -1,4 +1,4 @@
-﻿@page "{saleTransactionId:min(1)}"
+﻿@page "{transactionId:min(1)}"
 @model NewAgePOS.Pages.Sale.RefundReceiptModel
 @{
   ViewData["Title"] = "Refund receipt";
@@ -12,7 +12,7 @@
     <div class="col m-1 text-center">@Model.Refunds.First().SaleId</div>
   </div>
   <div class="row">
-    <div class="col m-1 text-center">@Model.Refunds.First().SaleTransactionId</div>
+    <div class="col m-1 text-center">@Model.Refunds.First().TransactionId</div>
   </div>
   <div class="row">
     <div class="col m-1 text-center">@Model.Refunds.First().Created.ToString("yyyy/MM/dd")</div>
