@@ -1,0 +1,57 @@
+﻿@page
+@model NewAgePOS.Pages.Product.SearchModel
+@{
+  ViewData["Title"] = "Search Products";
+}
+
+@if (TempData["Message"] != null)
+{
+  <div class="text-info">@TempData["Message"]</div>
+}
+
+<form method="post" class="mb-5">
+  <div class="form-group">
+    <label asp-for="Code"></label>
+    <input asp-for="Code" class="form-control" />
+  </div>
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.Products != null && Model.Products.Any())
+{
+  <h3>Results</h3>
+  <div class="text-info">
+    <ul>
+      <li>Shows products that was added to the cart once. For complete list, use ChannelAdvisor</li>
+      <li>Only manually entered products can be edited</li>
+    </ul>
+  </div>
+
+  @foreach (var product in Model.Products)
+  {
+    if (product != Model.Products.First())
+    {
+      <div class="mt-3"></div>
+    }
+
+    <div class="row">
+      <div class="col border border-dark bg-dark rounded m-1">@product.Sku</div>
+      <div class="col border border-dark bg-dark rounded m-1">@product.Upc</div>
+    </div>
+    <div class="row">
+      <div class="col border border-dark bg-dark rounded m-1">@product.AllName</div>
+    </div>
+    <div class="row">
+      <div class="col border border-dark bg-dark rounded m-1">@product.Cost.ToString("C2")</div>
+      <div class="col border border-dark bg-dark rounded m-1">@product.Price.ToString("C2")</div>
+    </div>
+    <div class="row">
+      @if (product.Source == "Manual")
+      {
+        <div class="col">
+          <a asp-page="Edit" asp-route-id="@product.Id" class="btn btn-primary">Edit</a>
+        </div>
+      }
+    </div>
+  }
+}

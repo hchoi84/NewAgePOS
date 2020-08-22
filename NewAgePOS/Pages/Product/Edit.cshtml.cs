@@ -7,21 +7,22 @@ using NewAgePOSLibrary.Models;
 
 namespace NewAgePOS.Pages.Product
 {
-  public class CreateModel : PageModel
+  public class EditModel : PageModel
   {
     private readonly ISQLData _sqlDb;
 
-    public CreateModel(ISQLData sqlDb)
+    public EditModel(ISQLData sqlDb)
     {
       _sqlDb = sqlDb;
     }
 
-    [BindProperty]
+    [BindProperty(SupportsGet = true)]
+    public int Id { get; set; }
+
     [Required]
     [RegularExpression(@"\D{3}\d{4}_\d{3}", ErrorMessage = "Must match typical SKU format (ex: AAA0001_001)")]
     public string Sku { get; set; }
 
-    [BindProperty]
     [Required]
     [StringLength(13, MinimumLength = 12, ErrorMessage = "{2} to {1} characters long")]
     [RegularExpression(@"\d{12,13}")]
@@ -43,29 +44,34 @@ namespace NewAgePOS.Pages.Product
     [StringLength(150, MinimumLength = 5, ErrorMessage = "{2} to {1} characters long")]
     public string AllName { get; set; }
 
-    [BindProperty]
-    public ProductDbModel ProductFromDb { get; set; }
-
-    public void OnGet()
+    public IActionResult OnGet()
     {
+      ProductDbModel product = _sqlDb.Products_GetById(Id);
+      if (product == null) return Page();
+      if (product.Source == "API")
+      {
+        TempData["Message"] = "That product is from API and cannot be edited. Please update product information in ChannelAdvisor";
+        return RedirectToPage("Search");
+      }
+
+      Sku = product.Sku;
+      Upc = product.Upc;
+      Cost = product.Cost;
+      Price = product.Price;
+      AllName = product.AllName;
+
+      return Page();
     }
 
     public IActionResult OnPost()
     {
       if (!ModelState.IsValid) return Page();
 
-      ProductFromDb = _sqlDb.Products_Manual_GetByCode(Sku, Upc);
+      _sqlDb.Products_Update(Id, Cost, Price, AllName);
 
-      if (ProductFromDb != null)
-      {
-        ModelState.AddModelError(string.Empty, "Product already exists in DB");
-        return Page();
-      }
+      TempData["Message"] = "Product added successfully";
 
-     _sqlDb.Products_Manual_Insert(Sku, Upc, Cost, Price, AllName);
-     TempData["Message"] = "Product added successfully";
-
-      return RedirectToPage();
+      return RedirectToPage("Search");
     }
   }
 }

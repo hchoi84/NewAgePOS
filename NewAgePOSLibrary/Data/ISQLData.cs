@@ -10,14 +10,19 @@ namespace NewAgePOSLibrary.Data
     CustomerModel Customers_GetBySaleId(int saleId);
     int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber);
     void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber);
+    // TODO: Add Customers_GetByEmailOrPhone
+
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
+
     ProductDbModel Products_GetByCode(string sku, string upc);
     int Products_Insert(string sku, string upc, float cost, float price, string allName);
     ProductDbModel Products_Manual_GetByCode(string sku, string upc);
     void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName);
     void Products_Update(int productId, float cost, float price, string allName);
+
     int RefundLines_GetRefundQtyBySaleLineId(int saleLineId);
     void RefundLines_Insert(int saleId, int transactionId, int refundQty);
+
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
     void SaleLines_Insert(int saleId, int productId, int qty);
@@ -36,5 +41,7 @@ namespace NewAgePOSLibrary.Data
     List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber);
 
     int Taxes_GetBySaleId(int saleId);
+    List<ProductDbModel> Products_GetByParentSku(string parentSku);
+    ProductDbModel Products_GetById(int id);
   }
 }

@@ -61,6 +61,19 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
+    public ProductDbModel Products_GetById(int id)
+    {
+      string q = "SELECT * FROM dbo.Products WHERE Id = @id";
+      return _sqlDb.LoadData<ProductDbModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public List<ProductDbModel> Products_GetByParentSku(string parentSku)
+    {
+      string query = "SELECT * FROM dbo.Products WHERE Sku LIKE @parentSku";
+      parentSku += "%";
+      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { parentSku }, connectionStringName, false);
+    }
+
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
     {
       string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) OUTPUT inserted.Id VALUES (@sku, @upc, @cost, @price, @allName, 'API');";

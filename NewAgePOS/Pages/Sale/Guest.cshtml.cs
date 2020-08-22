@@ -46,6 +46,7 @@ namespace NewAgePOS.Pages.Sale
     [Required]
     [Display(Name = "Phone Number")]
     [StringLength(10, MinimumLength = 10, ErrorMessage = "10 digit numbers only")]
+    [RegularExpression(@"\d{10}")]
     public string PhoneNumber { get; set; }
 
     public IActionResult OnGet()
@@ -70,12 +71,8 @@ namespace NewAgePOS.Pages.Sale
     {
       if (!ModelState.IsValid) return Page();
 
-      bool isPhoneNumber = long.TryParse(PhoneNumber, out long ph);
-      if (!isPhoneNumber) 
-      {
-        ModelState.AddModelError(string.Empty, "Digits only");
-        return Page();
-          }
+      // TODO: Add Customers_GetByEmailOrPhone
+      // If customer already exists in DB, indicate to user that customer was found with either the email or password and has been applied to the sale
 
       int customerId = _sqlDb.Customers_Insert(FirstName.Trim().ToLower(),
                               LastName.Trim().ToLower(),
