@@ -61,5 +61,12 @@ namespace NewAgePOS.Pages.Sale
       int saleId = _sqlDb.Sales_Insert();
       return RedirectToPage("Cart", new { saleId });
     }
+
+    public IActionResult OnPostCancelSale(int saleId)
+    {
+      _sqlDb.Sales_CancelById(saleId);
+      TempData["Message"] = "Sale has been cancelled";
+      return RedirectToPage("Index");
+    }
   }
 }

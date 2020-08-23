@@ -58,50 +58,95 @@ namespace NewAgePOS.Pages
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
-      Dictionary<string, int> uniqueCodes = new Dictionary<string, int>();
-
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
-      foreach (var code in groupedCodes)
+
+      UpdateCart(groupedCodes);
+
+      if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
+      if (groupedCodes.Count > 0) GetFromDb(groupedCodes);
+      if (groupedCodes.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
+        TempData["Message"] = $"Unable to find { notFoundCodes } in cart, ChannelAdvisor, and manually entered product record";
+      }
+
+      return RedirectToPage();
+    }
+
+    private void UpdateCart(List<IGrouping<string, string>> groupedCodes)
+    {
+      for (int i = groupedCodes.Count - 1; i >= 0; i--)
       {
         SaleLineModel saleLine = new SaleLineModel();
-        if (code.Key.Contains("_"))
-          saleLine = SaleLines.FirstOrDefault(s => s.Sku == code.Key);
+        if (groupedCodes[i].Key.Contains("_"))
+          saleLine = SaleLines.FirstOrDefault(s => s.Sku == groupedCodes[i].Key);
         else
-          saleLine = SaleLines.FirstOrDefault(s => s.Upc == code.Key);
+          saleLine = SaleLines.FirstOrDefault(s => s.Upc == groupedCodes[i].Key);
 
         if (saleLine != null)
         {
-          saleLine.Qty += code.Count();
+          saleLine.Qty += groupedCodes[i].Count();
           saleLine.IsUpdated = true;
           _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
-          continue;
+          groupedCodes.RemoveAt(i);
         }
-
-        uniqueCodes.Add(code.Key, code.Count());
       }
+    }
 
+    private async Task GetFromChannelAdvisor(List<IGrouping<string, string>> groupedCodes)
+    {
       List<ProductModel> products = new List<ProductModel>();
-      products.AddRange(await _ca.GetProductsByCodeAsync(uniqueCodes.Select(u => u.Key).ToList()));
+      Dictionary<string, int> uniqueCodes = groupedCodes.ToDictionary(g => g.Key, g => g.Count());
+      products.AddRange(await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList()));
       foreach (var product in products)
       {
         int productId = 0;
         ProductDbModel productDb = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
-        if (productDb == null) 
+        if (productDb == null)
           productId = _sqlDb.Products_Insert(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
         else if (productDb.Cost != product.Cost || productDb.Price != product.Price || productDb.AllName != product.AllName)
           _sqlDb.Products_Update(productDb.Id, product.Cost, product.Price, product.AllName);
-        else 
+        else
           productId = productDb.Id;
 
-        int qty1 = uniqueCodes.ContainsKey(product.Sku) ? uniqueCodes[product.Sku] : 0;
-        int qty2 = uniqueCodes.ContainsKey(product.Upc) ? uniqueCodes[product.Upc] : 0;
+        int qty1 = 0;
+        int qty2 = 0;
+
+        if (uniqueCodes.ContainsKey(product.Sku))
+        {
+          qty1 = uniqueCodes[product.Sku];
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Sku));
+        }
+
+        if (uniqueCodes.ContainsKey(product.Upc))
+        {
+          qty2 = uniqueCodes[product.Upc];
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Upc));
+        }
 
         int qty = qty1 + qty2;
 
         _sqlDb.SaleLines_Insert(SaleId, productId, qty);
       }
+    }
 
-      return RedirectToPage();
+    private void GetFromDb(List<IGrouping<string, string>> groupedCodes)
+    {
+      for (int i = groupedCodes.Count - 1; i >= 0; i--)
+      {
+        int productId;
+        if (groupedCodes[i].Key.Contains("_"))
+          productId = _sqlDb.Products_GetByCode(groupedCodes[i].Key, "").Id;
+        else
+          productId = _sqlDb.Products_GetByCode("", groupedCodes[i].Key).Id;
+
+        if (productId > 0)
+        {
+          int qty = groupedCodes[i].Count();
+          _sqlDb.SaleLines_Insert(SaleId, productId, qty);
+          groupedCodes.RemoveAt(i);
+        }
+      }
     }
 
     public IActionResult OnPostUpdate()

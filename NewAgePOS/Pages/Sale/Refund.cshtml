@@ -54,11 +54,6 @@
         <input hidden asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
         <input readonly value="@Model.SaleLines[i].DiscPct %" class="form-control">
       </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].LineTotal"></label>
-        <input hidden asp-for="@Model.SaleLines[i].LineTotal" class="form-control">
-        <input readonly value="@Model.SaleLines[i].LineTotal.ToString("C2")" class="form-control">
-      </div>
     </div>
     @if (Model.SaleLines[i].Qty > 0)
     {

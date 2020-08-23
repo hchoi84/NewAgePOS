@@ -43,5 +43,6 @@ namespace NewAgePOSLibrary.Data
     int Taxes_GetBySaleId(int saleId);
     List<ProductDbModel> Products_GetByParentSku(string parentSku);
     ProductDbModel Products_GetById(int id);
+    void Sales_CancelById(int id);
   }
 }

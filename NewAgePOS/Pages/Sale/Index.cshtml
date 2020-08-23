@@ -70,7 +70,16 @@
       }
       else
       {
-        <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-primary">Continue</a>
+        <div class="row">
+          <div class="col m-1">
+            <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-primary">Continue</a>
+          </div>
+          <div class="col m-1">
+            <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
+              <button type="submit" class="btn btn-danger">Cancel Sale</button>
+            </form>
+          </div>
+        </div>
       }
     }
   </div>

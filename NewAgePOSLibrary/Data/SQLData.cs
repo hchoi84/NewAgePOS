@@ -139,6 +139,11 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
+    public void Sales_CancelById(int id)
+    {
+      _sqlDb.SaveData("dbo.spSales_CancelById", new { id }, connectionStringName, true);
+    }
+
     public SaleModel Sales_GetById(int id)
     {
       string query = "SELECT * FROM dbo.Sales WHERE Id = @id;";
