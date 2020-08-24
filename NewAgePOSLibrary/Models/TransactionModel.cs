@@ -1,10 +1,13 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace NewAgePOSLibrary.Models
 {
   public class TransactionModel
   {
+    public int SaleId { get; set; }
+
     [Required]
     [Range(0.00, 100.00)]
     public float Amount { get; set; }
@@ -17,5 +20,7 @@ namespace NewAgePOSLibrary.Models
 
     [Range(0, 200, ErrorMessage = "{2} characters max")]
     public string Message { get; set; }
+
+    public DateTime Created { get; set; }
   }
 }

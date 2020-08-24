@@ -24,7 +24,6 @@ namespace NewAgePOS.Pages.Product
 
     public IActionResult OnGet()
     {
-      // TODO: Able to edit only if Source = Manual
       if (string.IsNullOrEmpty(Code)) return Page();
 
       if (Code.Length == 7)

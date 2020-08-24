@@ -1,0 +1,90 @@
+﻿@page
+@model NewAgePOS.Pages.Report.TransactionHistoryModel
+@{
+  ViewData["Title"] = "Transaction History";
+}
+
+<form method="get" class="mb-5">
+  <div class="form-row">
+    <div class="form-group col">
+      <label asp-for="BeginDate"></label>
+      <input asp-for="BeginDate" class="form-control" />
+    </div>
+    <div class="form-group col">
+      <label asp-for="EndDate"></label>
+      <input asp-for="EndDate" class="form-control" />
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.Transactions != null && Model.Transactions.Any())
+{
+  <h3 class="mb-3">Result</h3>
+  <div class="row">
+    <div class="col border rounded bg-dark m-1">
+      Created Date
+    </div>
+    <div class="col border rounded bg-dark m-1">
+      Sale Id
+    </div>
+  </div>
+  <div class="row">
+    <div class="col border rounded bg-dark m-1">
+      Amount
+    </div>
+    <div class="col border rounded bg-dark m-1">
+      Reason
+    </div>
+  </div>
+  <div class="row">
+    <div class="col border rounded bg-dark m-1">
+      Message
+    </div>
+  </div>
+
+  foreach (var transaction in Model.Transactions)
+  {
+    <div class="row mt-3">
+      <div class="col border rounded bg-dark m-1">
+        @transaction.Created.ToShortDateString()
+      </div>
+      <div class="col border rounded bg-dark m-1">
+        @transaction.SaleId
+      </div>
+    </div>
+    <div class="row">
+      <div class="col border rounded bg-dark m-1">
+        @transaction.Amount.ToString("C2")
+      </div>
+      <div class="col border rounded bg-dark m-1">
+        @transaction.Reason
+      </div>
+    </div>
+    <div class="row">
+      <div class="col border rounded bg-dark m-1">
+        @transaction.Message
+      </div>
+    </div>
+  }
+
+  <h3 class="mt-5 mb-3">Summary</h3>
+  <div style="max-width: 300px;">
+    <div class="row">
+      <div class="col">Transactions</div>
+      <div class="col text-right">@Model.Transactions.Count()</div>
+    </div>
+    <div class="row">
+      <div class="col">Checkout</div>
+      <div class="col text-right">@Model.Transactions.Where(t => t.Reason == "Checkout").Sum(t => t.Amount).ToString("C2")</div>
+    </div>
+    <div class="row">
+      <div class="col">Refund</div>
+      <div class="col text-right">@Model.Transactions.Where(t => t.Reason == "Refund").Sum(t => t.Amount).ToString("C2")</div>
+    </div>
+    <div class="row">
+      <div class="col">Total</div>
+      <div class="col text-right">@Model.Transactions.Sum(t => t.Amount).ToString("C2")</div>
+    </div>
+  </div>
+} 

@@ -67,9 +67,9 @@ namespace NewAgePOS.Pages.Sale
 
       // Remove product(s) from SkuVault
       // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
-      //Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
-      //SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
-      //_skuVault.RemoveProducts(productsToRemove);
+      Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
+      SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
+      _skuVault.RemoveProducts(productsToRemove);
 
       // Redirect to Receipt page
       return RedirectToPage("Receipt", new { SaleId });

@@ -17,10 +17,10 @@ namespace NewAgePOSLibrary.Data
       _sqlDb = sqlDb;
     }
 
-    public int Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber)
+    public List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber)
     {
-      string query = "SELECT COUNT(*) FROM dbo.Customers WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber";
-      return _sqlDb.LoadData<int, dynamic>(query, new { emailAddress, phoneNumber }, connectionStringName, false).FirstOrDefault();
+      string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { emailAddress, phoneNumber }, connectionStringName, false);
     }
 
     public CustomerModel Customers_GetBySaleId(int saleId)
@@ -194,7 +194,16 @@ namespace NewAgePOSLibrary.Data
 
       return _sqlDb.LoadData<TransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
     }
-    
+
+    public List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate)
+    {
+      string q = "SELECT * FROM dbo.Transactions WHERE Created >= @beginDate AND Created <= @endDate;";
+      return _sqlDb.LoadData<TransactionModel, dynamic>(q,
+                                                        new { beginDate = beginDate.ToShortDateString(), endDate = endDate.ToShortDateString() },
+                                                        connectionStringName,
+                                                        false);
+    }
+
     public int Transactions_Insert(int saleId, float amount, string paymentType, string reason, string message)
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",

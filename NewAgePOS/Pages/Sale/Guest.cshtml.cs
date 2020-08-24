@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -71,8 +73,13 @@ namespace NewAgePOS.Pages.Sale
     {
       if (!ModelState.IsValid) return Page();
 
-      // TODO: Add Customers_GetByEmailOrPhone
-      // If customer already exists in DB, indicate to user that customer was found with either the email or password and has been applied to the sale
+      List<CustomerModel> customers = _sqlDb.Customers_GetByEmailOrPhone(EmailAddress, PhoneNumber);
+      if (customers != null)
+      {
+        TempData["Message"] = "Customer with the Email Address or Phone Number already exists. Information from the database have been used";
+        _sqlDb.Sales_UpdateCustomerId(SaleId, customers.First().Id);
+        return RedirectToPage();
+      }
 
       int customerId = _sqlDb.Customers_Insert(FirstName.Trim().ToLower(),
                               LastName.Trim().ToLower(),
@@ -86,12 +93,12 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage();
     }
 
-    // TODO: Implement updating customer information
     public IActionResult OnPostEdit()
     {
       if (!ModelState.IsValid) return Page();
 
-      if (_sqlDb.Customers_GetByEmailOrPhone(EmailAddress, PhoneNumber) > 1)
+      List<CustomerModel> customers = _sqlDb.Customers_GetByEmailOrPhone(EmailAddress, PhoneNumber);
+      if (customers.Count() > 1)
       {
         ModelState.AddModelError(string.Empty, "Customer with the Email Address or Phone Number already exists");
         return Page();

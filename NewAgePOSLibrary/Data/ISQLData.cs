@@ -1,16 +1,16 @@
 ﻿using NewAgePOSLibrary.Models;
+using System;
 using System.Collections.Generic;
 
 namespace NewAgePOSLibrary.Data
 {
   public interface ISQLData
   {
-    int Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber);
+    List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber);
     CustomerModel Customers_GetById(int id);
     CustomerModel Customers_GetBySaleId(int saleId);
     int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber);
     void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber);
-    // TODO: Add Customers_GetByEmailOrPhone
 
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
 
@@ -44,5 +44,6 @@ namespace NewAgePOSLibrary.Data
     List<ProductDbModel> Products_GetByParentSku(string parentSku);
     ProductDbModel Products_GetById(int id);
     void Sales_CancelById(int id);
+    List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
   }
 }
