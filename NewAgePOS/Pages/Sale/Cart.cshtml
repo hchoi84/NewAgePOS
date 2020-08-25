@@ -21,59 +21,62 @@
   </div>
   <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
 
-  <h3 class="mt-5">PRODUCTS</h3>
-  @for (var i = 0; i < Model.SaleLines.Count; i++)
+  @if (Model.SaleLines != null && Model.SaleLines.Any())
   {
-    if (i != 0)
+    <h3 class="mt-5">PRODUCTS</h3>
+    @for (var i = 0; i < Model.SaleLines.Count; i++)
     {
-      <div class="mt-5"></div>
-    }
+      if (i != 0)
+      {
+        <div class="mt-5"></div>
+      }
 
-    <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
-    <div class="form-row">
-      <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
+      <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
+      <div class="form-row">
+        <div class="col">
+          <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
+        </div>
+        <div class="col">
+          <input readonly asp-for="@Model.SaleLines[i].Upc" class="form-control">
+        </div>
       </div>
-      <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].Upc" class="form-control">
+      <div class="form-row">
+        <div class="col">
+          <input readonly asp-for="@Model.SaleLines[i].AllName" class="form-control">
+        </div>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].AllName" class="form-control">
+      <div class="form-row">
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].Cost"></label>
+          <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
+          <input readonly value="@Model.SaleLines[i].Cost.ToString("C2")" class="form-control">
+        </div>
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].Price"></label>
+          <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
+          <input readonly value="@Model.SaleLines[i].Price.ToString("C2")" class="form-control">
+        </div>
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].Qty"></label>
+          <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
+          <span asp-validation-for="@Model.SaleLines[i].Qty" class="text-danger"></span>
+        </div>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Cost"></label>
-        <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Cost.ToString("C2")" class="form-control">
+      <div class="form-row">
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
+          <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
+          <span asp-validation-for="@Model.SaleLines[i].DiscAmt" class="text-danger"></span>
+        </div>
+        <div class="col">
+          <label asp-for="@Model.SaleLines[i].DiscPct"></label>
+          <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
+          <span asp-validation-for="@Model.SaleLines[i].DiscPct" class="text-danger"></span>
+        </div>
       </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Price"></label>
-        <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Price.ToString("C2")" class="form-control">
-      </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Qty"></label>
-        <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].Qty" class="text-danger"></span>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
-        <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].DiscAmt" class="text-danger"></span>
-      </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].DiscPct"></label>
-        <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-        <span asp-validation-for="@Model.SaleLines[i].DiscPct" class="text-danger"></span>
-      </div>
-    </div>
+    }
+    <button asp-page-handler="Update" type="submit" class="btn btn-primary mt-3">Update</button>
   }
-  <button asp-page-handler="Update" type="submit" class="btn btn-primary mt-3">Update</button>
 </form>
 
 <div class="mt-5" style="max-width: 400px;">

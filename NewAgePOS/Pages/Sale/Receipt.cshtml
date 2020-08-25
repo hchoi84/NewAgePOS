@@ -3,7 +3,7 @@
 @{
   ViewData["Title"] = "Receipt";
   float subtotal = Model.SaleLines.Sum(sl => sl.LineTotal);
-  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty* (sl.Price * (sl.DiscPct/100f))));
+  float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * (sl.DiscPct / 100f))));
   float tax = (subtotal - discount) * (Model.TaxPct / 100f);
   float total = subtotal - discount + tax;
   float change = Model.Transactions.First().Amount - total;
@@ -45,3 +45,14 @@
     <div class="col h6 border border-dark rounded p-1 bg-dark m-1 text-right">@change.ToString("C2")</div>
   </div>
 </div>
+
+@if (TempData["Message"] != null)
+{
+<div class="mt-5 text-danger hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</div>
+}
+
+@section Scripts{ 
+<style media="print">
+  .hideInPrint { display: none; }
+</style>
+}

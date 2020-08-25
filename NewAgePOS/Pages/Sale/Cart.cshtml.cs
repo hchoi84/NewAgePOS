@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -96,7 +97,8 @@ namespace NewAgePOS.Pages
     private async Task GetFromChannelAdvisor(List<IGrouping<string, string>> groupedCodes)
     {
       List<ProductModel> products = new List<ProductModel>();
-      Dictionary<string, int> uniqueCodes = groupedCodes.ToDictionary(g => g.Key, g => g.Count());
+      Dictionary<string, int> uniqueCodes = uniqueCodes = groupedCodes
+        .ToDictionary(g => g.Key, g => g.Count(), StringComparer.InvariantCultureIgnoreCase);
       products.AddRange(await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList()));
       foreach (var product in products)
       {
@@ -115,7 +117,7 @@ namespace NewAgePOS.Pages
         if (uniqueCodes.ContainsKey(product.Sku))
         {
           qty1 = uniqueCodes[product.Sku];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Sku));
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Sku.ToLower() || g.Key == product.Sku.ToUpper()));
         }
 
         if (uniqueCodes.ContainsKey(product.Upc))

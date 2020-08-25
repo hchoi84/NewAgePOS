@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
 using NewAgePOSLibrary.Models;
+using Newtonsoft.Json.Linq;
 using SkuVaultLibrary;
 
 namespace NewAgePOS.Pages.Sale
@@ -23,13 +26,10 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    [BindProperty(SupportsGet = true)]
     public List<SaleLineModel> SaleLines { get; set; }
 
-    [BindProperty(SupportsGet = true)]
     public float TaxPct { get; set; }
 
-    [BindProperty(SupportsGet = true)]
     public CustomerModel Customer { get; set; }
 
     [BindProperty]
@@ -57,19 +57,31 @@ namespace NewAgePOS.Pages.Sale
       }
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPost()
     {
+      // Remove product(s) from SkuVault
+      // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
+      SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
+      JObject result = await _skuVault.RemoveProducts(productsToRemove);
+      List<string> errorMsgs = new List<string>();
+
+      if (result["Errors"].ToObject<JArray>().Any())
+      {
+        foreach (var e in (JArray)result["Errors"])
+        {
+          errorMsgs.Add($"{ e["Sku"] }: { e["ErrorMessages"][0] } { e["LocationCode"] }");
+        }
+      }
+
+      TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
+
       // Create Transaction
       _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.PaymentType, "Checkout", Transaction.Message);
 
       // Mark Sale as Complete
       _sqlDb.Sales_MarkComplete(SaleId);
-
-      // Remove product(s) from SkuVault
-      // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
-      Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
-      SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
-      _skuVault.RemoveProducts(productsToRemove);
 
       // Redirect to Receipt page
       return RedirectToPage("Receipt", new { SaleId });

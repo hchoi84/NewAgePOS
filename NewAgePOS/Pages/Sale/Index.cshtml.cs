@@ -66,7 +66,7 @@ namespace NewAgePOS.Pages.Sale
     {
       _sqlDb.Sales_CancelById(saleId);
       TempData["Message"] = "Sale has been cancelled";
-      return RedirectToPage("Index");
+      return RedirectToPage();
     }
   }
 }

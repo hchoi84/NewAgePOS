@@ -74,7 +74,7 @@ namespace NewAgePOS.Pages.Sale
       if (!ModelState.IsValid) return Page();
 
       List<CustomerModel> customers = _sqlDb.Customers_GetByEmailOrPhone(EmailAddress, PhoneNumber);
-      if (customers != null)
+      if (customers != null && customers.Any())
       {
         TempData["Message"] = "Customer with the Email Address or Phone Number already exists. Information from the database have been used";
         _sqlDb.Sales_UpdateCustomerId(SaleId, customers.First().Id);

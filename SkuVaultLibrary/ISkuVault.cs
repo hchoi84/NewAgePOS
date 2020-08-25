@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SkuVaultLibrary
 {
   public interface ISkuVault
   {
-    Task RemoveProducts(Dictionary<string, int> productsToRemove);
+    Task<JObject> RemoveProducts(Dictionary<string, int> productsToRemove);
   }
 }

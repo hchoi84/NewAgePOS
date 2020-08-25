@@ -32,16 +32,21 @@ namespace NewAgePOS
         options.UseSqlServer(Configuration.GetConnectionString("EmployeeDBConnection"));
       });
 
-      services.AddRazorPages();
-
-      services.AddIdentity<EmployeeModel, IdentityRole>()
+      services.AddIdentity<EmployeeModel, IdentityRole>(options => 
+        options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<LogRegContext>()
         .AddDefaultTokenProviders();
+
+      services.AddRazorPages(options =>
+      {
+        options.Conventions.AuthorizeFolder("/Product");
+        options.Conventions.AuthorizeFolder("/Report");
+        options.Conventions.AuthorizeFolder("/Sale");
+      });
 
       services.ConfigureApplicationCookie(options =>
       {
         options.AccessDeniedPath = new PathString("/AccessDenied");
-        options.LoginPath = new PathString("/Account/Login");
       });
 
       services.AddSession();
@@ -52,6 +57,12 @@ namespace NewAgePOS
 
       services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
       services.AddScoped<ISkuVault, SkuVault>();
+
+      services.AddAuthorization(options =>
+      {
+        options.AddPolicy("Manager", policy => policy
+          .RequireClaim("Manager", "true"));
+      });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +84,7 @@ namespace NewAgePOS
 
       app.UseRouting();
 
+      app.UseAuthentication();
       app.UseAuthorization();
 
       app.UseSession();

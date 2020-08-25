@@ -84,7 +84,7 @@ namespace SkuVaultLibrary
       return code;
     }
 
-    public async Task RemoveProducts(Dictionary<string, int> productsToRemove)
+    public async Task<JObject> RemoveProducts(Dictionary<string, int> productsToRemove)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/removeItemBulk";
       int warehouseId = await GetWarehouseId("WALNUT");
@@ -111,7 +111,7 @@ namespace SkuVaultLibrary
 
       StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
 
-      await PostDataAsync(reqUri, content);
+      return await PostDataAsync(reqUri, content);
     }
   }
 }

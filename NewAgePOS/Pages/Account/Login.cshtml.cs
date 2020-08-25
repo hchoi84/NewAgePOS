@@ -20,22 +20,28 @@ namespace NewAgePOS.Pages.Account
       _signInManager = signInManager;
     }
 
+    [BindProperty]
     [Required]
     [Display(Name = "Email Address")]
     public string EmailAddress { get; set; }
 
+    [BindProperty]
     [Required]
     [DataType(DataType.Password)]
     public string Password { get; set; }
 
+    [BindProperty]
     [Display(Name = "Remember Me")]
     public bool RememberMe { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string ReturnUrl { get; set; }
 
     public void OnGet()
     {
     }
 
-    public async Task<IActionResult> OnPostAsync(string returnUrl)
+    public async Task<IActionResult> OnPostAsync()
     {
       if (!ModelState.IsValid) return Page();
 
@@ -43,14 +49,21 @@ namespace NewAgePOS.Pages.Account
 
       if (signInResult.Succeeded)
       {
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-          return RedirectToPage(returnUrl);
+        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+          return Redirect(ReturnUrl);
         else
-          return RedirectToPage("Sale");
+          return RedirectToPage("/Sale/Index");
       }
 
       ModelState.AddModelError(string.Empty, "Invalid login attempt");
       return Page();
+    }
+
+    public async Task<IActionResult> OnPostLogOutAsync()
+    {
+      await _signInManager.SignOutAsync();
+
+      return RedirectToPage("/Account/Login");
     }
   }
 }
