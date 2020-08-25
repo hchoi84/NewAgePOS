@@ -29,11 +29,7 @@
       <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary">Search</button>
-</form>
-
-<form method="post" asp-page-handler="CreateNewSale">
-  <button type="submit" class="btn btn-primary">New Sale</button>
+  <button type="submit" class="btn btn-primary m-1">Search</button>
 </form>
 
 @if (Model.Results != null)
@@ -62,25 +58,20 @@
         <div class="col-6 border rounded bg-dark">@result.EmailAddress</div>
       </div>
       <div class="row">
-      </div>
 
-      @if (result.IsComplete)
-      {
-        <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-primary">Refund</a>
-      }
-      else
-      {
-        <div class="row">
-          <div class="col m-1">
-            <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-primary">Continue</a>
-          </div>
-          <div class="col m-1">
-            <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
-              <button type="submit" class="btn btn-danger">Cancel Sale</button>
-            </form>
-          </div>
-        </div>
-      }
+        @if (result.IsComplete)
+        {
+          <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-warning mt-1">Refund</a>
+        }
+        else
+        {
+          <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-success mt-1">Continue</a>
+
+          <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
+            <button type="submit" class="btn btn-danger ml-1 mt-1">Cancel Sale</button>
+          </form>
+        }
+      </div>
     }
   </div>
 }

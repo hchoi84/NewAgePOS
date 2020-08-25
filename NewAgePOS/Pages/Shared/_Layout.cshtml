@@ -27,9 +27,23 @@
               </div>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link text-dark dropdown-toggle" id="sale-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sales</a>
+              <div class="dropdown-menu" aria-labelledby="sale-dropdown">
+                <a asp-page="/Sale/Index" class="dropdown-item">Search</a>
+                <form method="post" asp-page="/Sale/Index" asp-page-handler="CreateNewSale">
+                  <button type="submit" class="dropdown-item">New</button>
+                </form>
+              </div>
             </li>
+
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link text-dark dropdown-toggle" id="report-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reports</a>
+              <div class="dropdown-menu" aria-labelledby="report-dropdown">
+                <a asp-page="/Report/TransactionHistory" class="dropdown-item">Transaction</a>
+              </div>
+            </li>
+
           </ul>
         </div>
       </div>
