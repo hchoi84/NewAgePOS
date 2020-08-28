@@ -2,6 +2,7 @@
 @model NewAgePOS.Pages.Product.SearchModel
 @{
   ViewData["Title"] = "Search Products";
+  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 @if (TempData["Message"] != null)
@@ -42,8 +43,8 @@
       <div class="col border border-dark bg-dark rounded m-1">@product.AllName</div>
     </div>
     <div class="row">
-      <div class="col border border-dark bg-dark rounded m-1">@product.Cost.ToString("C2")</div>
-      <div class="col border border-dark bg-dark rounded m-1">@product.Price.ToString("C2")</div>
+      <div class="col border border-dark bg-dark rounded m-1">@product.Cost.ToString("C2", dollar)</div>
+      <div class="col border border-dark bg-dark rounded m-1">@product.Price.ToString("C2", dollar)</div>
     </div>
     <div class="row">
       @if (product.Source == "Manual")

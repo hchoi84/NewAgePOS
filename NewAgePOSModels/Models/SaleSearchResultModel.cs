@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System;
 
-namespace NewAgePOSLibrary.Models
+namespace NewAgePOSModels.Models
 {
   public class SaleSearchResultModel
   {

@@ -1,8 +1,8 @@
-﻿using EmailSenderLibrary.Securities;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MimeKit;
 using System;
 using System.Security.Authentication;
+using NewAgePOSModels.Securities;
 
 namespace EmailSenderLibrary
 {

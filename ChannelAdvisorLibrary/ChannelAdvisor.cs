@@ -1,5 +1,4 @@
-﻿using ChannelAdvisorLibrary.Models;
-using ChannelAdvisorLibrary.Securities;
+﻿using NewAgePOSModels.Securities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using NewAgePOSModels.Models;
 
 namespace ChannelAdvisorLibrary
 {
@@ -18,21 +18,14 @@ namespace ChannelAdvisorLibrary
     private readonly string _appForm = "application/x-www-form-urlencoded";
     private readonly string _appJson = "application/json";
     private readonly string _odataNextLink = "@odata.nextLink";
-    //private readonly string _profileId = "ProfileID";
-    //private readonly string _dcQuantities = "DCQuantities";
-    //private readonly string _distributionCenterID = "DistributionCenterID";
     private readonly string _sku = "Sku";
     private readonly string _upc = "UPC";
     private readonly string _cost = "Cost";
     private readonly string _bcprice = "BCPrice";
-    //private readonly string _lastSaleDateUtc = "LastSaleDateUtc";
-    //private readonly string _availableQuantity = "AvailableQuantity";
     private readonly string _attributes = "Attributes";
     private readonly string _name = "Name";
     private readonly string _allName = "All Name";
     private readonly string _Value = "Value";
-    //private readonly string _itemName = "Item Name";
-    //private readonly string _labels = "Labels";
 
     private readonly List<string> _labelNames = new List<string>
     {
@@ -144,8 +137,7 @@ namespace ChannelAdvisorLibrary
             Cost = item[_cost] == null ? 0 : item[_cost].ToObject<float>(),
             Price = item[_attributes]
             .FirstOrDefault(i => i[_name].ToString() == _bcprice)[_Value]
-            .ToObject<float>(),
-            Qty = 1
+            .ToObject<float>()
           };
 
           products.Add(product);

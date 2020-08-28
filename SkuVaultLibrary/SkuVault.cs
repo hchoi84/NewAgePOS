@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using NewAgePOSModels.Securities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SkuVaultLibrary.Securities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -22,10 +21,10 @@ namespace SkuVaultLibrary
     private readonly string _appjson = "application/json";
     private readonly string _tenantToken = "TenantToken";
     private readonly string _userToken = "UserToken";
-    private readonly string _locationCode = "LocationCode";
-    private readonly string _store = "STORE";
-    private readonly string _quantity = "Quantity";
-    private readonly string _items = "Items";
+    //private readonly string _locationCode = "LocationCode";
+    //private readonly string _store = "STORE";
+    //private readonly string _quantity = "Quantity";
+    //private readonly string _items = "Items";
     #endregion
 
     private async Task GetTokensAsync()

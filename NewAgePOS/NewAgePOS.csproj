@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>80f1d6f4-d017-484b-ad22-95dda290ddaf</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +13,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="MimeKit" Version="2.9.1" />
   </ItemGroup>
 
@@ -18,6 +21,7 @@
     <ProjectReference Include="..\ChannelAdvisorLibrary\ChannelAdvisorLibrary.csproj" />
     <ProjectReference Include="..\EmailSenderLibrary\EmailSenderLibrary.csproj" />
     <ProjectReference Include="..\NewAgePOSLibrary\NewAgePOSLibrary.csproj" />
+    <ProjectReference Include="..\NewAgePOSModels\NewAgePOSModels.csproj" />
     <ProjectReference Include="..\SkuVaultLibrary\SkuVaultLibrary.csproj" />
   </ItemGroup>
 

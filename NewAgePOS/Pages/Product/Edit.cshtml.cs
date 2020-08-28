@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 
 namespace NewAgePOS.Pages.Product
 {
@@ -46,7 +46,7 @@ namespace NewAgePOS.Pages.Product
 
     public IActionResult OnGet()
     {
-      ProductDbModel product = _sqlDb.Products_GetById(Id);
+      ProductModel product = _sqlDb.Products_GetById(Id);
       if (product == null) return Page();
       if (product.Source == "API")
       {

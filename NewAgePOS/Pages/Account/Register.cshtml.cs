@@ -8,10 +8,9 @@ using EmailSenderLibrary;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NewAgePOS.Models;
-using NewAgePOS.Securities;
+using NewAgePOSModels.Securities;
 
 namespace NewAgePOS.Pages.Account
 {

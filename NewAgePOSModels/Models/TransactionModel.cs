@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace NewAgePOSLibrary.Models
+namespace NewAgePOSModels.Models
 {
   public class TransactionModel
   {

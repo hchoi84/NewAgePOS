@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Internal;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Databases;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;

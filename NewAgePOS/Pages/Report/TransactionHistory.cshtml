@@ -3,6 +3,7 @@
 @{
   ViewData["Title"] = "Transaction History";
   float totalCheckout = 0, totalRefund = 0, total = 0;
+  CultureInfo dollar = new CultureInfo("en-US");
   if (Model.Transactions != null && Model.Transactions.Any())
   {
     totalCheckout = Model.Transactions.Where(t => t.Reason == "Checkout").Sum(t => t.Amount);
@@ -46,7 +47,7 @@
       </div>
       <div class="col pl-0">
         <div class="border rounded bg-dark pl-1">
-          @amount.ToString("C2")
+          @amount.ToString("C2", dollar)
         </div>
       </div>
     </div>
@@ -70,15 +71,15 @@
     </div>
     <div class="row">
       <div class="col">Checkout</div>
-      <div class="col text-right">@totalCheckout.ToString("C2")</div>
+      <div class="col text-right">@totalCheckout.ToString("C2", dollar)</div>
     </div>
     <div class="row">
       <div class="col">Refund</div>
-      <div class="col text-right">@totalRefund.ToString("C2")</div>
+      <div class="col text-right">@totalRefund.ToString("C2", dollar)</div>
     </div>
     <div class="row">
       <div class="col">Total</div>
-      <div class="col text-right">@total.ToString("C2")</div>
+      <div class="col text-right">@total.ToString("C2", dollar)</div>
     </div>
   </div>
 }

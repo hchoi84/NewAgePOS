@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 
 namespace NewAgePOS.Pages.Sale
 {

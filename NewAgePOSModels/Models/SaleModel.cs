@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NewAgePOSLibrary.Models
+namespace NewAgePOSModels.Models
 {
   public class SaleModel
   {

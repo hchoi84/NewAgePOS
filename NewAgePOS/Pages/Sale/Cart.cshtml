@@ -2,6 +2,7 @@
 @model NewAgePOS.Pages.CartModel
 @{
   ViewData["Title"] = "Sales";
+  CultureInfo dollar = new CultureInfo("en-US");
   float subtotal = Model.SaleLines.Sum(sl => sl.LineTotal);
   float discount = Model.SaleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * (sl.DiscPct / 100f))));
   float tax = (subtotal - discount) * (Model.TaxPct / 100);
@@ -49,12 +50,12 @@
         <div class="col">
           <label asp-for="@Model.SaleLines[i].Cost"></label>
           <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
-          <input readonly value="@Model.SaleLines[i].Cost.ToString("C2")" class="form-control">
+          <input readonly value="@Model.SaleLines[i].Cost.ToString("C2", dollar)" class="form-control">
         </div>
         <div class="col">
           <label asp-for="@Model.SaleLines[i].Price"></label>
           <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
-          <input readonly value="@Model.SaleLines[i].Price.ToString("C2")" class="form-control">
+          <input readonly value="@Model.SaleLines[i].Price.ToString("C2", dollar)" class="form-control">
         </div>
         <div class="col">
           <label asp-for="@Model.SaleLines[i].Qty"></label>
@@ -79,22 +80,22 @@
   }
 </form>
 
-<div class="mt-5" style="max-width: 400px;">
+<div class="mt-5" style="max-width: 425px;">
   <div class="row">
     <div class="col-4 h4">Subtotal</div>
-    <div class="col-5 h4 text-right">@subtotal.ToString("C2")</div>
+    <div class="col-5 h4 text-right">@subtotal.ToString("C2", dollar)</div>
   </div>
   <div class="row">
     <div class="col-4 h4">Discount</div>
-    <div class="col-5 h4 text-right">@discount.ToString("C2")</div>
+    <div class="col-5 h4 text-right">@discount.ToString("C2", dollar)</div>
   </div>
   <div class="row">
-    <div class="col-4 h4">Tax @Model.TaxPct.ToString("P2")</div>
-    <div class="col-5 h4 text-right">@tax.ToString("C2")</div>
+    <div class="col-4 h4">Tax @Model.TaxPct %</div>
+    <div class="col-5 h4 text-right">@tax.ToString("C2", dollar)</div>
   </div>
   <div class="row">
     <div class="col-4 h4">Total</div>
-    <div class="col-5 h4 text-right">@total.ToString("C2")</div>
+    <div class="col-5 h4 text-right">@total.ToString("C2", dollar)</div>
   </div>
   <div class="row mt-3">
     <div class="col">

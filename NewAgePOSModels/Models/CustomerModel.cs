@@ -1,4 +1,4 @@
-﻿namespace NewAgePOSLibrary.Models
+﻿namespace NewAgePOSModels.Models
 {
   public class CustomerModel
   {

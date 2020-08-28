@@ -1,9 +1,8 @@
 ﻿using NewAgePOSLibrary.Databases;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace NewAgePOSLibrary.Data
 {
@@ -55,23 +54,23 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
     }
 
-    public ProductDbModel Products_GetByCode(string sku, string upc)
+    public ProductModel Products_GetByCode(string sku, string upc)
     {
       string query = "SELECT * FROM dbo.Products WHERE Sku = @sku OR UPC = @upc;";
-      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
-    public ProductDbModel Products_GetById(int id)
+    public ProductModel Products_GetById(int id)
     {
       string q = "SELECT * FROM dbo.Products WHERE Id = @id";
-      return _sqlDb.LoadData<ProductDbModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
+      return _sqlDb.LoadData<ProductModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
-    public List<ProductDbModel> Products_GetByParentSku(string parentSku)
+    public List<ProductModel> Products_GetByParentSku(string parentSku)
     {
       string query = "SELECT * FROM dbo.Products WHERE Sku LIKE @parentSku";
       parentSku += "%";
-      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { parentSku }, connectionStringName, false);
+      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { parentSku }, connectionStringName, false);
     }
 
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
@@ -87,10 +86,10 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
     }
 
-    public ProductDbModel Products_Manual_GetByCode(string sku, string upc)
+    public ProductModel Products_Manual_GetByCode(string sku, string upc)
     {
       string query = "SELECT * FROM dbo.Products WHERE Source = 'Manual' AND Sku = @sku AND Upc = @upc";
-      return _sqlDb.LoadData<ProductDbModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
     public void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName)

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 
 namespace NewAgePOS.Pages.Sale
 {

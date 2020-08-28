@@ -12,6 +12,7 @@ using ChannelAdvisorLibrary;
 using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Data;
 using SkuVaultLibrary;
+using NewAgePOSModels.Securities;
 
 namespace NewAgePOS
 {
@@ -29,7 +30,10 @@ namespace NewAgePOS
     {
       services.AddDbContextPool<LogRegContext>(options =>
       {
-        options.UseSqlServer(Configuration.GetConnectionString("EmployeeDBConnection"));
+        if (Secrets.DBIsLocal)
+          options.UseSqlServer(Configuration.GetConnectionString("EmployeeDBConnection"));
+        else
+          options.UseSqlServer($"Server=posacct;Database=posacct;User Id={ Secrets.DBUser };Password={ Secrets.DBPassword }");
       });
 
       services.AddIdentity<EmployeeModel, IdentityRole>(options => 
@@ -66,7 +70,7 @@ namespace NewAgePOS
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LogRegContext context)
     {
       if (env.IsDevelopment())
       {
@@ -79,7 +83,7 @@ namespace NewAgePOS
         app.UseHsts();
       }
 
-      app.UseHttpsRedirection();
+      //app.UseHttpsRedirection();
       app.UseStaticFiles();
 
       app.UseRouting();
@@ -88,6 +92,8 @@ namespace NewAgePOS
       app.UseAuthorization();
 
       app.UseSession();
+
+      context.Database.Migrate();
 
       app.UseEndpoints(endpoints =>
       {

@@ -2,6 +2,7 @@
 @model NewAgePOS.Pages.Product.CreateModel
 @{
   ViewData["Title"] = "Add Product";
+  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 @if (TempData["Message"] != null)
@@ -57,10 +58,10 @@
   </div>
   <div class="row">
     <div class="col mb-1 border rounded bg-dark">
-      @Model.ProductFromDb.Cost.ToString("C2")
+      @Model.ProductFromDb.Cost.ToString("C2", dollar)
     </div>
     <div class="col mb-1 border rounded bg-dark">
-      @Model.ProductFromDb.Price.ToString("C2")
+      @Model.ProductFromDb.Price.ToString("C2", dollar)
     </div>
     <div class="col mb-1 border rounded bg-dark">
       @Model.ProductFromDb.Created.ToString("yyyy/MM/dd")
@@ -71,4 +72,8 @@
       @Model.ProductFromDb.AllName
     </div>
   </div>
+}
+
+@section Scripts{ 
+  @{ <partial name="_ValidationScriptsPartial" /> }
 }

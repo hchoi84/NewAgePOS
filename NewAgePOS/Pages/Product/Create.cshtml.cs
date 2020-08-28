@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 
 namespace NewAgePOS.Pages.Product
 {
@@ -44,7 +44,7 @@ namespace NewAgePOS.Pages.Product
     public string AllName { get; set; }
 
     [BindProperty]
-    public ProductDbModel ProductFromDb { get; set; }
+    public ProductModel ProductFromDb { get; set; }
 
     public void OnGet()
     {

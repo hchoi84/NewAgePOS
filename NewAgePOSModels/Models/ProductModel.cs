@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace NewAgePOSLibrary.Models
+namespace NewAgePOSModels.Models
 {
-  public class ProductDbModel
+  public class ProductModel
   {
     public int Id { get; set; }
     public string Sku { get; set; }

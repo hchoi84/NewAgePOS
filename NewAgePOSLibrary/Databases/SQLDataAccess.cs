@@ -1,11 +1,10 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
-using System;
+using NewAgePOSModels.Securities;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 
 namespace NewAgePOSLibrary.Databases
 {
@@ -13,9 +12,12 @@ namespace NewAgePOSLibrary.Databases
   {
     private readonly IConfiguration _config;
 
+    private string _connectionString;
+
     public SQLDataAccess(IConfiguration config)
     {
       _config = config;
+      _connectionString = $"Server=posdb;Database=posdb;User Id={ Secrets.DBUser };Password={ Secrets.DBPassword }";
     }
 
     public List<T> LoadData<T, U>(string sqlStatement,
@@ -23,7 +25,13 @@ namespace NewAgePOSLibrary.Databases
                                   string connectionStringName,
                                   bool isStoredProcedure = false)
     {
-      string connectionString = _config.GetConnectionString(connectionStringName);
+      string connectionString;
+
+      if (Secrets.DBIsLocal)
+        connectionString = _config.GetConnectionString(connectionStringName);
+      else
+        connectionString = _connectionString;
+
       CommandType commandType = CommandType.Text;
 
       if (isStoredProcedure == true)
@@ -43,7 +51,13 @@ namespace NewAgePOSLibrary.Databases
                             string connectionStringName,
                             bool isStoredProcedure = false)
     {
-      string connectionString = _config.GetConnectionString(connectionStringName);
+      string connectionString;
+
+      if (Secrets.DBIsLocal)
+        connectionString = _config.GetConnectionString(connectionStringName);
+      else
+        connectionString = _connectionString;
+
       CommandType commandType = CommandType.Text;
 
       if (isStoredProcedure == true)

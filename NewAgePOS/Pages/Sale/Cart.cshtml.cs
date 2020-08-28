@@ -1,16 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using ChannelAdvisorLibrary;
-using ChannelAdvisorLibrary.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
-using NewAgePOSLibrary.Models;
+using NewAgePOSModels.Models;
 
 namespace NewAgePOS.Pages
 {
@@ -103,7 +100,7 @@ namespace NewAgePOS.Pages
       foreach (var product in products)
       {
         int productId = 0;
-        ProductDbModel productDb = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
+        ProductModel productDb = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
         if (productDb == null)
           productId = _sqlDb.Products_Insert(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
         else if (productDb.Cost != product.Cost || productDb.Price != product.Price || productDb.AllName != product.AllName)

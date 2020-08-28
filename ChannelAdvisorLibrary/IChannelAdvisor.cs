@@ -1,6 +1,6 @@
-﻿using ChannelAdvisorLibrary.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using NewAgePOSModels.Models;
 
 namespace ChannelAdvisorLibrary
 {

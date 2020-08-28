@@ -1,4 +1,4 @@
-﻿using NewAgePOSLibrary.Models;
+﻿using NewAgePOSModels.Models;
 using System;
 using System.Collections.Generic;
 
@@ -14,9 +14,9 @@ namespace NewAgePOSLibrary.Data
 
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
 
-    ProductDbModel Products_GetByCode(string sku, string upc);
+    ProductModel Products_GetByCode(string sku, string upc);
     int Products_Insert(string sku, string upc, float cost, float price, string allName);
-    ProductDbModel Products_Manual_GetByCode(string sku, string upc);
+    ProductModel Products_Manual_GetByCode(string sku, string upc);
     void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName);
     void Products_Update(int productId, float cost, float price, string allName);
 
@@ -41,8 +41,8 @@ namespace NewAgePOSLibrary.Data
     List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber);
 
     int Taxes_GetBySaleId(int saleId);
-    List<ProductDbModel> Products_GetByParentSku(string parentSku);
-    ProductDbModel Products_GetById(int id);
+    List<ProductModel> Products_GetByParentSku(string parentSku);
+    ProductModel Products_GetById(int id);
     void Sales_CancelById(int id);
     List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
   }

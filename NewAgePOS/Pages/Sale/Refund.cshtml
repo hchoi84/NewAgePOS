@@ -2,6 +2,7 @@
 @model NewAgePOS.Pages.Sale.RefundModel
 @{
   ViewData["Title"] = "Refund";
+  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 <form method="post">
@@ -31,12 +32,12 @@
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Cost"></label>
         <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Cost.ToString("C2")" class="form-control">
+        <input readonly value="@Model.SaleLines[i].Cost.ToString("C2", dollar)" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Price"></label>
         <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Price.ToString("C2")" class="form-control">
+        <input readonly value="@Model.SaleLines[i].Price.ToString("C2", dollar)" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].Qty"></label>
@@ -47,12 +48,12 @@
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
         <input hidden asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
-        <input readonly value="@Model.SaleLines[i].DiscAmt.ToString("C2")" class="form-control">
+        <input readonly value="@Model.SaleLines[i].DiscAmt.ToString("C2", dollar)" class="form-control">
       </div>
       <div class="col">
         <label asp-for="@Model.SaleLines[i].DiscPct"></label>
         <input hidden asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-        <input readonly value="@Model.SaleLines[i].DiscPct %" class="form-control">
+        <input readonly value="@Model.SaleLines[i].DiscPct" class="form-control">
       </div>
     </div>
     @if (Model.SaleLines[i].Qty > 0)
