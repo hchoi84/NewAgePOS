@@ -30,7 +30,5 @@ namespace NewAgePOSModels.Models
     public int RefundQty { get; set; }
 
     public float RefundLineTotal { get { return Price * RefundQty; } }
-
-    public bool IsUpdated { get; set; } = false;
   }
 }

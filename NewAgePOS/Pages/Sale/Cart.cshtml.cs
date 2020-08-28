@@ -59,7 +59,6 @@ namespace NewAgePOS.Pages
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
       UpdateCart(groupedCodes);
-
       if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
       if (groupedCodes.Count > 0) GetFromDb(groupedCodes);
       if (groupedCodes.Count > 0)
@@ -84,7 +83,6 @@ namespace NewAgePOS.Pages
         if (saleLine != null)
         {
           saleLine.Qty += groupedCodes[i].Count();
-          saleLine.IsUpdated = true;
           _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
           groupedCodes.RemoveAt(i);
         }
@@ -161,10 +159,7 @@ namespace NewAgePOS.Pages
           continue;
         }
 
-        if (!SaleLines[i].IsUpdated)
-        {
-          _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
-        }
+        _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
       }
 
       return RedirectToPage();
