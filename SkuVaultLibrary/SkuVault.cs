@@ -22,10 +22,6 @@ namespace SkuVaultLibrary
     private readonly string _appjson = "application/json";
     private readonly string _tenantToken = "TenantToken";
     private readonly string _userToken = "UserToken";
-    //private readonly string _locationCode = "LocationCode";
-    //private readonly string _store = "STORE";
-    //private readonly string _quantity = "Quantity";
-    //private readonly string _items = "Items";
     #endregion
 
     private async Task GetTokensAsync()
@@ -108,7 +104,6 @@ namespace SkuVaultLibrary
     {
       List<object> products = new List<object>();
 
-      // TODO: What error will it return if SKU or UPC wasn't found in SkuVault?
       foreach (var item in items)
       {
         if (item.Code.Contains("_"))

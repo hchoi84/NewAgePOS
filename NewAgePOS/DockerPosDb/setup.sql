@@ -62,8 +62,8 @@ CREATE TABLE [dbo].[SaleLines]
 	[Cost] MONEY NOT NULL,
 	[Price] MONEY NOT NULL,
 	[Qty] INT NOT NULL,
-	[DiscAmt] INT NOT NULL DEFAULT 0,
-	[DiscPct] INT NOT NULL DEFAULT 0,
+	[DiscAmt] MONEY NOT NULL DEFAULT 0,
+	[DiscPct] FLOAT NOT NULL DEFAULT 0,
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
 	CONSTRAINT [FK_SaleLines_Sales] FOREIGN KEY (SaleId) REFERENCES Sales(Id),
@@ -223,11 +223,73 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE [dbo].[spRefundLines_GetRefundQtyBySaleLineId]
+	@saleLineId int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @refundedQty int;
+
+	SELECT @refundedQty = SUM(Qty) FROM dbo.RefundLines WHERE SaleLineId = @saleLineId;
+
+	IF (@refundedQty IS NULL)
+		SELECT 0;
+	ELSE
+		SELECT @refundedQty;
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spSaleLines_GetBySaleId]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spSaleLines_GetBySaleId]
+	@saleId int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT sl.*, p.Sku, p.Upc, p.AllName
+	FROM dbo.SaleLines sl
+	INNER JOIN dbo.Products p ON sl.ProductId = p.Id
+	WHERE sl.SaleId = @saleId;
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spSaleLines_Insert]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[spSaleLines_Insert]
+	@saleId int, 
+	@productId int, 
+	@qty int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @cost money;
+	DECLARE @price money;
+
+	SELECT @cost = Cost, @price = Price
+	FROM dbo.Products
+	WHERE Id = @productId;
+
+	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, Cost, Price)
+	VALUES (@saleId, @productId, @qty, 0, 0, @cost, @price);
+END
+GO
+/****** Object:  StoredProcedure [dbo].[spSaleLines_Update]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spSaleLines_Update]
 	@id int,
 	@qty int,
-	@discAmt int,
-	@discPct int
+	@discAmt float,
+	@discPct float
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -237,7 +299,11 @@ BEGIN
 	WHERE Id = @id
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spSales_CancelById]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spSales_CancelById]
 	@id int
 AS
@@ -245,10 +311,16 @@ BEGIN
 	SET NOCOUNT ON;
 
 	DELETE FROM dbo.SaleLines WHERE SaleId = @id;
+
 	DELETE FROM dbo.Sales WHERE Id = @id;
+
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spSales_Insert]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spSales_Insert]
 AS
 BEGIN
@@ -266,7 +338,11 @@ BEGIN
 	VALUES (@customerId, @TaxId);
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spSales_UpdateCustomerIdToGuest]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spSales_UpdateCustomerIdToGuest]
 	@saleId int
 AS
@@ -283,7 +359,11 @@ BEGIN
 	SET CustomerId = @customerId;
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spSearchSales]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spSearchSales]
 	@saleId int, 
 	@lastName varchar(50), 
@@ -335,7 +415,11 @@ BEGIN
 		END
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spTaxes_GetBySaleId]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spTaxes_GetBySaleId]
 	@saleId int
 AS
@@ -350,7 +434,11 @@ BEGIN
 		WHERE Id = @saleId)
 END
 GO
-
+/****** Object:  StoredProcedure [dbo].[spTransactions_Insert]    Script Date: 8/31/2020 3:59:42 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE PROCEDURE [dbo].[spTransactions_Insert]
 	@saleId int,
 	@amount float,
