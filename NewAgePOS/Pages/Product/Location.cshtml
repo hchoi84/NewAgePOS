@@ -4,6 +4,12 @@
   ViewData["Title"] = "Locations";
 }
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger">@TempData["Message"]</div>
+}
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 <form method="get">
   <div class="form-group">
@@ -12,13 +18,6 @@
   </div>
   <button type="submit" class="btn btn-primary">Search</button>
 </form>
-
-@if (TempData["Message"] != null)
-{
-  <div class="text-danger">@TempData["Message"]</div>
-}
-
-@Html.ValidationSummary(true, "", new { @class = "text-danger" });
 
 @if (Model.Locations != null && Model.Locations.Any())
 {
@@ -46,67 +45,67 @@
         <input readonly value="@item.Qty" class="form-control" />
       </div>
       <div class="col pl-0">
-        <a href="#" class="btn btn-primary" onclick="confirmRemove('@id')">Remove</a>
-        <a href="#" class="btn btn-primary" onclick="confirmTransfer('@id')">Transfer</a>
+        <a href="#" id="confirmRemoveButton_@id" class="btn btn-primary" onclick="confirmRemove('@id')">Remove</a>
+        <a href="#" id="confirmTransferButton_@id" class="btn btn-primary" onclick="confirmTransfer('@id')">Transfer</a>
       </div>
     </div>
 
     @if (item.Qty == 1)
     {
-      <div id="confirmRemove_@id" style="display: none;">
+      <div id="confirmRemove_@id" class="mt-1" style="display: none;">
         <form method="post" class="form-inline" asp-page-handler="Remove" asp-route-code="@item.Code" asp-route-location="@item.Location" asp-route-qty="@item.Qty" asp-route-codes="@Model.Codes">
-          <div class="form-group col-6 px-0">
+          <div class="form-group col-4 px-0">
             <input readonly name="removeqty" class="form-control" type="number" value="@item.Qty" style="width: 100%" />
           </div>
           <div class="form-group mr-1">
-            <button type="submit" class="btn btn-primary">Confirm Removal</button>
+            <button type="submit" class="btn btn-success">Confirm Remove</button>
           </div>
           <div class="form-group">
-            <a href="#" class="btn btn-primary" onclick="confirmRemove('@id')">Cancel</a>
+            <a href="#" class="btn btn-danger" onclick="confirmRemove('@id')">Cancel</a>
           </div>
         </form>
       </div>
 
-      <div id="confirmTransfer_@id" style="display: none;">
+      <div id="confirmTransfer_@id" class="mt-1" style="display: none;">
         <form method="post" class="form-inline" asp-page-handler="Transfer" asp-route-code="@item.Code" asp-route-location="@item.Location" asp-route-qty="@item.Qty" asp-route-codes="@Model.Codes">
-          <div class="form-group col-6 px-0">
+          <div class="form-group col-4 px-0">
             <input readonly name="transferqty" class="form-control" type="number" value="@item.Qty" style="width: 100%" />
           </div>
           <div class="form-group mr-1">
-            <button type="submit" class="btn btn-primary">Confirm Transfer</button>
+            <button type="submit" class="btn btn-success">Confirm Transfer</button>
           </div>
           <div class="form-group">
-            <a href="#" class="btn btn-primary" onclick="confirmTransfer('@id')">Cancel</a>
+            <a href="#" class="btn btn-danger" onclick="confirmTransfer('@id')">Cancel</a>
           </div>
         </form>
       </div>
     }
     else
     {
-      <div id="confirmRemove_@id" style="display: none;">
+      <div id="confirmRemove_@id" class="mt-1" style="display: none;">
         <form method="post" class="form-inline" asp-page-handler="Remove" asp-route-code="@item.Code" asp-route-location="@item.Location" asp-route-qty="@item.Qty" asp-route-codes="@Model.Codes">
-          <div class="form-group col-6 px-0">
-            <input name="removeqty" class="form-control" type="number" placeholder="Enter Remove Qty" style="width: 100%"/>
+          <div class="form-group col-4 px-0">
+            <input name="removeqty" class="form-control" type="number" placeholder="Remove Qty" style="width: 100%" />
           </div>
           <div class="form-group mr-1">
-            <button type="submit" class="btn btn-primary">Confirm</button>
+            <button type="submit" class="btn btn-success">Confirm Remove</button>
           </div>
           <div class="form-group">
-            <a href="#" class="btn btn-primary" onclick="confirmRemove('@id')">Cancel</a>
+            <a href="#" class="btn btn-danger" onclick="confirmRemove('@id')">Cancel</a>
           </div>
         </form>
       </div>
 
-      <div id="confirmTransfer_@id" style="display: none;">
+      <div id="confirmTransfer_@id" class="mt-1" style="display: none;">
         <form method="post" class="form-inline" asp-page-handler="Transfer" asp-route-code="@item.Code" asp-route-location="@item.Location" asp-route-qty="@item.Qty" asp-route-codes="@Model.Codes">
-          <div class="form-group col-6 px-0">
-            <input name="transferqty" class="form-control" type="number" placeholder="Enter Transfer Qty" style="width: 100%"/>
+          <div class="form-group col-4 px-0">
+            <input name="transferqty" class="form-control" type="number" placeholder="Transfer Qty" style="width: 100%" />
           </div>
           <div class="form-group mr-1">
-            <button type="submit" class="btn btn-primary">Confirm</button>
+            <button type="submit" class="btn btn-success">Confirm Transfer</button>
           </div>
           <div class="form-group">
-            <a href="#" class="btn btn-primary" onclick="confirmTransfer('@id')">Cancel</a>
+            <a href="#" class="btn btn-danger" onclick="confirmTransfer('@id')">Cancel</a>
           </div>
         </form>
       </div>
@@ -115,36 +114,5 @@
 }
 
 @section Scripts {
-  <script>
-    function confirmRemove(id) {
-      var remElemId = ['confirmRemove', id].join('_');
-      var xferElemId = ['confirmTransfer', id].join('_');
-      var removeElem = document.getElementById(remElemId);
-      var xferElem = document.getElementById(xferElemId);
-
-      if (removeElem.style.display == 'none') {
-        removeElem.style.display = 'block';
-        xferElem.style.display = 'none';
-      }
-      else {
-        removeElem.style.display = 'none';
-      }
-    }
-
-    function confirmTransfer(id) {
-      var remElemId = ['confirmRemove', id].join('_');
-      var xferElemId = ['confirmTransfer', id].join('_');
-      var removeElem = document.getElementById(remElemId);
-      var xferElem = document.getElementById(xferElemId);
-
-      if (xferElem.style.display == 'none') {
-        xferElem.style.display = 'block';
-        removeElem.style.display = 'none';
-
-      }
-      else {
-        xferElem.style.display = 'none';
-      }
-    }
-  </script>
+  <script src="~/js/site.js"></script>
 }

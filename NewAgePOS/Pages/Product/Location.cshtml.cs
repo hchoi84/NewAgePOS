@@ -45,22 +45,48 @@ namespace NewAgePOS.Pages.Product
       }
 
       if (skus.Count > 0)
-        Locations.AddRange(await _skuVault.GetInventoryLocationsAsync(skus, true));
+      {
+        JObject result = await _skuVault.GetInventoryLocationsAsync(skus, true);
+        AddToLocations(result);
+      }
 
       if (upcs.Count > 0)
-        Locations.AddRange(await _skuVault.GetInventoryLocationsAsync(upcs, false));
-
-      Locations = Locations.Where(l => l.Location.ToLower() != "dropship").ToList();
+      {
+        JObject result = await _skuVault.GetInventoryLocationsAsync(upcs, false);
+        AddToLocations(result);
+      }
 
       return Page();
     }
 
-    // TODO: Prevent removing more than available quantity
+    private void AddToLocations(JObject result)
+    {
+      JToken items = result["Items"];
+
+      if (items != null)
+      {
+        foreach (JProperty item in items)
+        {
+          foreach (JObject i in item.Value)
+          {
+            if (i["LocationCode"].ToString() == "DROPSHIP") continue;
+
+            Locations.Add(new ProductLocationModel
+            {
+              Code = item.Name,
+              Location = i["LocationCode"].ToString(),
+              Qty = i["Quantity"].ToObject<int>()
+            });
+          }
+        }
+      }
+    }
+
     public async Task<IActionResult> OnPostRemoveAsync(string code, string location, int qty, int removeqty)
     {
       if (removeqty > qty)
       {
-        ModelState.AddModelError(string.Empty, "Can't remove more than available quantity");
+        ModelState.AddModelError(string.Empty, "Can not remove more than available quantity");
         return Page();
       }
 
@@ -94,12 +120,11 @@ namespace NewAgePOS.Pages.Product
       return RedirectToPage(new { Codes });
     }
 
-    // TODO: Prevent removing more than available quantity
     public async Task<IActionResult> OnPostTransferAsync(string code, string location, int qty, int transferqty)
     {
       if (transferqty > qty)
       {
-        ModelState.AddModelError(string.Empty, "Can't transfer more than available quantity");
+        ModelState.AddModelError(string.Empty, "Can not transfer more than available quantity");
         return Page();
       }
 

@@ -84,13 +84,10 @@ namespace NewAgePOS.Pages.Sale
 
       TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
 
-      // Create Transaction
       _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.PaymentType, "Checkout", Transaction.Message);
 
-      // Mark Sale as Complete
       _sqlDb.Sales_MarkComplete(SaleId);
 
-      // Redirect to Receipt page
       return RedirectToPage("Receipt", new { SaleId });
     }
   }

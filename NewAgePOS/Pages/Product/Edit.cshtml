@@ -4,12 +4,14 @@
   ViewData["Title"] = "Edit";
 }
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-info">@TempData["Message"]</div>
+}
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger h4" })
+
 <form method="post">
-  @if (TempData["Message"] != null)
-  {
-    <div class="text-info">@TempData["Message"]</div>
-  }
-  @Html.ValidationSummary(true, "", new { @class = "text-danger h4" })
   <div class="form-row">
     <div class="form-group col mb-1">
       <label asp-for="Sku"></label>

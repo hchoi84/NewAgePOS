@@ -85,61 +85,31 @@ namespace SkuVaultLibrary
       JObject jObject = await PostDataAsync(reqUri, content);
 
       JArray warehouses = jObject["Warehouses"].ToObject<JArray>();
-      //Secrets.WalnutWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "WALNUT")["Id"].ToObject<int>();
-      Secrets.WalnutWHID = 4007;
-      //Secrets.DropshipWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "DROPSHIP")["Id"].ToObject<int>();
+      Secrets.WalnutWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "WALNUT")["Id"].ToObject<int>();
+      Secrets.DropshipWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "DROPSHIP")["Id"].ToObject<int>();
     }
 
     public async Task<JObject> RemoveItemBulkAsync(List<AddRemoveItemBulkModel> itemsToRemove)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/removeItemBulk";
-      List<object> products = new List<object>();
-
-      // TODO: What error will it return if SKU or UPC wasn't found in SkuVault?
-      foreach (var item in itemsToRemove)
-      {
-        if (item.Code.Contains("_"))
-        {
-          products.Add(new
-          {
-            Sku = item.Code,
-            WarehouseId = Secrets.WalnutWHID,
-            item.LocationCode,
-            item.Quantity,
-            item.Reason
-          });
-        }
-        else
-        {
-          products.Add(new
-          {
-            item.Code,
-            WarehouseId = Secrets.WalnutWHID,
-            item.LocationCode,
-            item.Quantity,
-            item.Reason
-          });
-        }
-      }
-
-      string body = JsonConvert.SerializeObject(new
-      {
-        Items = products,
-        Secrets.TenantToken,
-        Secrets.UserToken
-      });
-
-      StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
-
+      StringContent content = GenerateAddRemoveContent(itemsToRemove);
       return await PostDataAsync(reqUri, content);
     }
+
 
     public async Task<JObject> AddItemBulkAsync(List<AddRemoveItemBulkModel> itemsToAdd)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/addItemBulk";
+      StringContent content = GenerateAddRemoveContent(itemsToAdd);
+      return await PostDataAsync(reqUri, content);
+    }
+
+    private StringContent GenerateAddRemoveContent(List<AddRemoveItemBulkModel> items)
+    {
       List<object> products = new List<object>();
 
-      foreach (var item in itemsToAdd)
+      // TODO: What error will it return if SKU or UPC wasn't found in SkuVault?
+      foreach (var item in items)
       {
         if (item.Code.Contains("_"))
         {
@@ -173,11 +143,10 @@ namespace SkuVaultLibrary
       });
 
       StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
-
-      return await PostDataAsync(reqUri, content);
+      return content;
     }
 
-    public async Task<List<ProductLocationModel>> GetInventoryLocationsAsync(List<string> codes, bool isSKU)
+    public async Task<JObject> GetInventoryLocationsAsync(List<string> codes, bool isSKU)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/getInventoryByLocation";
       string body;
@@ -209,28 +178,7 @@ namespace SkuVaultLibrary
 
       StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
 
-      JObject result = await PostDataAsync(reqUri, content);
-
-      var items = result["Items"];
-
-      List<ProductLocationModel> locations = new List<ProductLocationModel>();
-
-      if (items == null) return locations;
-
-      foreach (JProperty item in items)
-      {
-        foreach (JObject i in item.Value)
-        {
-          locations.Add(new ProductLocationModel
-          {
-            Code = item.Name,
-            Location = i["LocationCode"].ToString(),
-            Qty = i["Quantity"].ToObject<int>()
-          });
-        }
-      }
-
-      return locations;
+      return await PostDataAsync(reqUri, content);
     }
   }
 }
