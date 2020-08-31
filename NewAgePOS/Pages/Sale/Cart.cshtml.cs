@@ -26,8 +26,10 @@ namespace NewAgePOS.Pages
     [Display(Name = "SKUs or UPCs")]
     public string Codes { get; set; }
 
-    [BindProperty]
     public List<SaleLineModel> SaleLines { get; set; }
+
+    [BindProperty]
+    public List<CartDisctModel> CartDiscs { get; set; } = new List<CartDisctModel>();
 
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
@@ -48,12 +50,24 @@ namespace NewAgePOS.Pages
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
+      foreach (var saleLine in SaleLines)
+      {
+        CartDiscs.Add(new CartDisctModel()
+        {
+          SaleLineId = saleLine.Id,
+          DiscAmt = saleLine.DiscAmt,
+          DiscPct = saleLine.DiscPct
+        });
+      }
+
       return Page();
     }
 
     public async Task<IActionResult> OnPostAddAsync()
     {
-      if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+      //if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
@@ -94,7 +108,9 @@ namespace NewAgePOS.Pages
       List<ProductModel> products = new List<ProductModel>();
       Dictionary<string, int> uniqueCodes = uniqueCodes = groupedCodes
         .ToDictionary(g => g.Key, g => g.Count(), StringComparer.InvariantCultureIgnoreCase);
+
       products.AddRange(await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList()));
+
       foreach (var product in products)
       {
         int productId = 0;
@@ -146,23 +162,98 @@ namespace NewAgePOS.Pages
       }
     }
 
-    public IActionResult OnPostUpdate()
+    public IActionResult OnPostApplyDiscount()
     {
-      if (!ModelState.IsValid) return Page();
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      for (int i = SaleLines.Count - 1; i >= 0; i--)
+      foreach (CartDisctModel cartDisc in CartDiscs)
       {
-        if (SaleLines[i].Qty == 0)
+        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
+
+        if (cartDisc.DiscAmt > saleLine.Price)
         {
-          _sqlDb.SaleLines_Delete(SaleLines[i].Id);
-          SaleLines.RemoveAt(i);
-          continue;
+          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount amount can't be greater than the price");
+          return Page();
         }
 
-        _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
+        if (cartDisc.DiscPct > 100)
+        {
+          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount percent can't be greater than 100");
+          return Page();
+        }
+
+        if (saleLine.Price - cartDisc.DiscAmt - (cartDisc.DiscPct / 100f * saleLine.Price) < 0)
+        {
+          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount can't be greater than the price");
+          return Page();
+        }
+
+        if (saleLine.DiscAmt != cartDisc.DiscAmt || saleLine.DiscPct != cartDisc.DiscPct)
+        {
+          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscAmt, cartDisc.DiscPct);
+        }
       }
 
       return RedirectToPage();
     }
+
+    public IActionResult OnPostRemove()
+    {
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+
+      List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
+      List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
+
+      for (int i = groupedCodes.Count - 1; i >= 0; i--)
+      {
+        SaleLineModel saleLine = new SaleLineModel();
+
+        if (groupedCodes[i].Key.Contains("_"))
+          saleLine = SaleLines.FirstOrDefault(s => s.Sku == groupedCodes[i].Key);
+        else
+          saleLine = SaleLines.FirstOrDefault(s => s.Upc == groupedCodes[i].Key);
+
+        if (saleLine != null)
+        {
+          saleLine.Qty -= groupedCodes[i].Count();
+
+          if (saleLine.Qty <= 0) 
+          { 
+            _sqlDb.SaleLines_Delete(SaleLines[i].Id);
+            continue;
+          }
+
+          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
+          groupedCodes.RemoveAt(i);
+        }
+      }
+
+      if (groupedCodes.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
+        TempData["Message"] = $"Unable to find { notFoundCodes } in cart";
+      }
+
+      return RedirectToPage();
+    }
+
+    //public IActionResult OnPostUpdate()
+    //{
+    //  if (!ModelState.IsValid) return Page();
+
+    //  for (int i = SaleLines.Count - 1; i >= 0; i--)
+    //  {
+    //    if (SaleLines[i].Qty == 0)
+    //    {
+    //      _sqlDb.SaleLines_Delete(SaleLines[i].Id);
+    //      SaleLines.RemoveAt(i);
+    //      continue;
+    //    }
+
+    //    _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
+    //  }
+
+    //  return RedirectToPage();
+    //}
   }
 }

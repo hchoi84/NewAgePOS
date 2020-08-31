@@ -26,7 +26,7 @@ namespace NewAgePOSLibrary.Data
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
     void SaleLines_Insert(int saleId, int productId, int qty);
-    void SaleLines_Update(int id, int qty, int discAmt, int discPct);
+    void SaleLines_Update(int id, int qty, float discAmt, float discPct);
 
     SaleModel Sales_GetById(int id);
     bool Sales_GetStatus(int id);

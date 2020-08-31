@@ -5,82 +5,101 @@
   CultureInfo dollar = new CultureInfo("en-US");
 }
 
-<h3>ADD PRODUCTS</h3>
+<div class="row">
+  <div class="col">
+    <form method="post" asp-page-handler="Add">
+      <h3>ADD</h3>
+      <div class="form-group">
+        <label asp-for="Codes"></label>
+        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+  </div>
+
+  <div class="col">
+    <form method="post" asp-page-handler="Remove">
+      <h3>REMOVE</h3>
+      <div class="form-group" asp-page-handler="Remove">
+        <label asp-for="Codes"></label>
+        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Remove</button>
+    </form>
+  </div>
+</div>
+
 @if (TempData["Message"] != null)
 {
   <div class="text-danger">@TempData["Message"]</div>
 }
 
-<form method="post">
-  <div class="form-group">
-    <label asp-for="Codes"></label>
-    <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
-  </div>
-  <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-  <h3 class="mt-5">PRODUCTS</h3>
-  @if (Model.SaleLines != null && Model.SaleLines.Any())
-  {
-    @for (var i = 0; i < Model.SaleLines.Count; i++)
+<h3 class="mt-5">PRODUCTS</h3>
+@if (Model.CartDiscs != null && Model.CartDiscs.Any())
+{
+  <form method="post" asp-page-handler="ApplyDiscount">
+    @for (var i = 0; i < Model.CartDiscs.Count; i++)
     {
       if (i != 0)
       {
-        <div class="mt-5"></div>
+        <div class="mt-3"></div>
       }
 
-      <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
+      SaleLineModel saleLine = Model.SaleLines.FirstOrDefault(sl => sl.Id == Model.CartDiscs[i].SaleLineId);
+
+      <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
       <div class="form-row">
-        <div class="col">
-          <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
+        <div class="col pr-0">
+          <input readonly value="@saleLine.Sku" class="form-control" />
         </div>
-        <div class="col">
-          <input readonly asp-for="@Model.SaleLines[i].Upc" class="form-control">
+        <div class="col pl-0">
+          <input readonly value="@saleLine.Upc" class="form-control" />
         </div>
       </div>
       <div class="form-row">
         <div class="col">
-          <input readonly asp-for="@Model.SaleLines[i].AllName" class="form-control">
+          <input readonly value="@saleLine.AllName" class="form-control" />
         </div>
       </div>
       <div class="form-row">
-        <div class="col">
-          <label asp-for="@Model.SaleLines[i].Cost"></label>
-          <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
-          <input readonly value="@Model.SaleLines[i].Cost.ToString("C2", dollar)" class="form-control">
+        <div class="col pr-0">
+          <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control" />
         </div>
-        <div class="col">
-          <label asp-for="@Model.SaleLines[i].Price"></label>
-          <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
-          <input readonly value="@Model.SaleLines[i].Price.ToString("C2", dollar)" class="form-control">
+        <div class="col px-0">
+          <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control" />
         </div>
-        <div class="col">
-          <label asp-for="@Model.SaleLines[i].Qty"></label>
-          <input asp-for="@Model.SaleLines[i].Qty" class="form-control">
-          <span asp-validation-for="@Model.SaleLines[i].Qty" class="text-danger"></span>
+        <div class="col pl-0">
+          <input readonly value="@saleLine.Qty" class="form-control" />
         </div>
       </div>
       <div class="form-row">
-        <div class="col">
-          <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
-          <input asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
-          <span asp-validation-for="@Model.SaleLines[i].DiscAmt" class="text-danger"></span>
+        <div class="col pr-0">
+          <div class="form-group">
+            <label asp-for="@Model.CartDiscs[i].DiscAmt"></label>
+            <input asp-for="@Model.CartDiscs[i].DiscAmt" class="form-control" />
+          </div>
         </div>
-        <div class="col">
-          <label asp-for="@Model.SaleLines[i].DiscPct"></label>
-          <input asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-          <span asp-validation-for="@Model.SaleLines[i].DiscPct" class="text-danger"></span>
+        <div class="col pl-0">
+          <div class="form-group">
+            <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
+            <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
+          </div>
         </div>
       </div>
     }
-    <button asp-page-handler="Update" type="submit" class="btn btn-primary mt-3">Update</button>
-  }
-</form>
+    <button type="submit" class="btn btn-primary mt-3">Apply</button>
+  </form>
+}
 
 @await Component.InvokeAsync("SalePriceSummary", new { saleLines = Model.SaleLines, taxPct = Model.TaxPct })
 
-<div class="row mt-3">
-  <a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed</a>
-  <form method="post" asp-page="Index" asp-page-handler="CancelSale" asp-route-saleid="SaleId" style="display: inline-block;">
-    <button type="submit" class="btn btn-danger ml-1">Cancel Sale</button>
-  </form>
+<div class="container">
+  <div class="row mt-3">
+    <a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed</a>
+    <form method="post" asp-page="Index" asp-page-handler="CancelSale" asp-route-saleid="SaleId" style="display: inline-block;">
+      <button type="submit" class="btn btn-danger ml-1">Cancel Sale</button>
+    </form>
+  </div>
 </div>

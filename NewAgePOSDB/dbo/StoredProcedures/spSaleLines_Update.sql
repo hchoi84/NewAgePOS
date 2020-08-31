@@ -1,8 +1,8 @@
 ﻿CREATE PROCEDURE [dbo].[spSaleLines_Update]
 	@id int,
 	@qty int,
-	@discAmt int,
-	@discPct int
+	@discAmt float,
+	@discPct float
 AS
 BEGIN
 	SET NOCOUNT ON;

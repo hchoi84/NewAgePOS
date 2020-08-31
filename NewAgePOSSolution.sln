@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChannelAdvisorLibrary", "Ch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkuVaultLibrary", "SkuVaultLibrary\SkuVaultLibrary.csproj", "{A56FAD65-4601-4816-B087-C75D1127541D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewAgePOSModels", "NewAgePOSModels\NewAgePOSModels.csproj", "{D99B4C63-9260-4839-B6DE-53D62C24D7D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewAgePOSModels", "NewAgePOSModels\NewAgePOSModels.csproj", "{D99B4C63-9260-4839-B6DE-53D62C24D7D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

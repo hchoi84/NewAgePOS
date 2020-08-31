@@ -19,8 +19,10 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    [BindProperty]
     public List<SaleLineModel> SaleLines { get; set; }
+
+    [BindProperty]
+    public List<RefundQtyModel> Refunds { get; set; } = new List<RefundQtyModel>();
 
     [BindProperty]
     public float TaxPct { get; set; }
@@ -44,6 +46,7 @@ namespace NewAgePOS.Pages.Sale
       {
         int refundedQty = _sqlDb.RefundLines_GetRefundQtyBySaleLineId(s.Id);
         s.Qty -= refundedQty;
+        Refunds.Add(new RefundQtyModel{ SaleLineId = s.Id });
       });
 
       return Page();
@@ -51,6 +54,8 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPost()
     {
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+
       // Validate
       foreach (var saleLine in SaleLines)
       {

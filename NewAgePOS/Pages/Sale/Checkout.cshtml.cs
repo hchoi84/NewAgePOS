@@ -59,12 +59,19 @@ namespace NewAgePOS.Pages.Sale
 
     public async Task<IActionResult> OnPost()
     {
-      // Remove product(s) from SkuVault
-      // TODO: Test what'll happen if SkuVault doesn't have the quantity to remove
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      Dictionary<string, int> productsToRemove = new Dictionary<string, int>();
-      SaleLines.ForEach(s => productsToRemove.Add(s.Sku, s.Qty));
-      JObject result = await _skuVault.RemoveProducts(productsToRemove);
+      List<AddRemoveItemBulkModel> itemsToRemove = new List<AddRemoveItemBulkModel>();
+
+      itemsToRemove = SaleLines.Select(s =>
+      new AddRemoveItemBulkModel
+      {
+        Code = s.Sku,
+        LocationCode = "STORE",
+        Quantity = s.Qty,
+        Reason = "Store Sale"
+      }).ToList();
+
+      JObject result = await _skuVault.RemoveItemBulkAsync(itemsToRemove);
       List<string> errorMsgs = new List<string>();
 
       if (result["Errors"].ToObject<JArray>().Any())

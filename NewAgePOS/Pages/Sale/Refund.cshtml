@@ -5,63 +5,58 @@
   CultureInfo dollar = new CultureInfo("en-US");
 }
 
+<h3 class="mt-5">PRODUCTS</h3>
 <form method="post">
-  <h3 class="mt-5">PRODUCTS</h3>
-  @for (var i = 0; i < Model.SaleLines.Count; i++)
+  @for (var i = 0; i < Model.Refunds.Count; i++)
   {
     if (i != 0)
     {
-      <div class="mt-5"></div>
+      <div class="mt-3"></div>
     }
+
     @Html.ValidationSummary(true, "", new { @class = "text-danger" });
-    <input hidden readonly asp-for="@Model.SaleLines[i].Id" />
+
+    SaleLineModel saleLine = Model.SaleLines.FirstOrDefault(sl => sl.Id == Model.Refunds[i].SaleLineId);
+
+    <input hidden readonly value="@Model.Refunds[i].SaleLineId" />
     <div class="form-row">
-      <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].Sku" class="form-control">
+      <div class="col pr-0">
+        <input readonly value="@saleLine.Sku" class="form-control">
       </div>
-      <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].Upc" class="form-control">
+      <div class="col pl-0">
+        <input readonly value="@saleLine.Upc" class="form-control">
       </div>
     </div>
     <div class="form-row">
       <div class="col">
-        <input readonly asp-for="@Model.SaleLines[i].AllName" class="form-control">
+        <input readonly value="@saleLine.AllName" class="form-control">
       </div>
     </div>
     <div class="form-row">
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Cost"></label>
-        <input hidden asp-for="@Model.SaleLines[i].Cost" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Cost.ToString("C2", dollar)" class="form-control">
+      <div class="col pr-0">
+        <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
       </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Price"></label>
-        <input hidden asp-for="@Model.SaleLines[i].Price" class="form-control">
-        <input readonly value="@Model.SaleLines[i].Price.ToString("C2", dollar)" class="form-control">
+      <div class="col px-0">
+        <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
       </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].Qty"></label>
-        <input readonly asp-for="@Model.SaleLines[i].Qty" class="form-control">
+      <div class="col pl-0">
+        <input readonly value="@saleLine.Qty" class="form-control">
       </div>
     </div>
     <div class="form-row">
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].DiscAmt"></label>
-        <input hidden asp-for="@Model.SaleLines[i].DiscAmt" class="form-control">
-        <input readonly value="@Model.SaleLines[i].DiscAmt.ToString("C2", dollar)" class="form-control">
+      <div class="col pr-0">
+        <input readonly value="@saleLine.DiscAmt.ToString("C2", dollar)" class="form-control">
       </div>
-      <div class="col">
-        <label asp-for="@Model.SaleLines[i].DiscPct"></label>
-        <input hidden asp-for="@Model.SaleLines[i].DiscPct" class="form-control">
-        <input readonly value="@Model.SaleLines[i].DiscPct" class="form-control">
+      <div class="col pl-0">
+        <input readonly value="@saleLine.DiscPct" class="form-control">
       </div>
     </div>
-    @if (Model.SaleLines[i].Qty > 0)
+    @if (saleLine.Qty > 0)
     {
       <div class="form-row">
         <div class="col">
-          <label asp-for="@Model.SaleLines[i].RefundQty"></label>
-          <input asp-for="@Model.SaleLines[i].RefundQty" class="form-control">
+          <label asp-for="@Model.Refunds[i].RefundQty"></label>
+          <input asp-for="@Model.Refunds[i].RefundQty" class="form-control">
         </div>
       </div>
     }
@@ -69,8 +64,8 @@
     {
       <div class="form-row">
         <div class="col">
-          <label asp-for="@Model.SaleLines[i].RefundQty"></label>
-          <input value="Fully Refunded" class="form-control text-info">
+          <label asp-for="@Model.Refunds[i].RefundQty"></label>
+          <input disabled value="Fully Refunded" class="form-control text-info">
         </div>
       </div>
     }

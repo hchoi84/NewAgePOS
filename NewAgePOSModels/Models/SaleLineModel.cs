@@ -17,11 +17,11 @@ namespace NewAgePOSModels.Models
 
     [DisplayName("Disc $")]
     [Range(0, 100, ErrorMessage = "{1} and {2}")]
-    public int DiscAmt { get; set; }
+    public float DiscAmt { get; set; }
 
     [DisplayName("Disc %")]
     [Range(0, 100, ErrorMessage = "{1} and {2}")]
-    public int DiscPct { get; set; }
+    public float DiscPct { get; set; }
 
     [DisplayName("Line Total")]
     public float LineTotal { get { return Price * Qty; } }

@@ -1,4 +1,5 @@
-﻿using NewAgePOSModels.Securities;
+﻿using NewAgePOSModels.Models;
+using NewAgePOSModels.Securities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -44,6 +45,11 @@ namespace SkuVaultLibrary
         Secrets.TenantToken = tokens[_tenantToken].ToString();
         Secrets.UserToken = tokens[_userToken].ToString();
       }
+
+      if (Secrets.WalnutWHID == 0)
+      {
+        await GetWarehouseIdsAsync();
+      }
     }
 
     private async Task<JObject> PostDataAsync(string reqUri, StringContent content)
@@ -63,7 +69,7 @@ namespace SkuVaultLibrary
       return jObject;
     }
 
-    private async Task<int> GetWarehouseId(string warehouseName)
+    private async Task GetWarehouseIdsAsync()
     {
       string reqUri = "https://app.skuvault.com/api/inventory/getWarehouses";
 
@@ -78,27 +84,42 @@ namespace SkuVaultLibrary
 
       JObject jObject = await PostDataAsync(reqUri, content);
 
-      int code = jObject["Warehouses"].ToObject<JArray>().FirstOrDefault(w => w["Code"].ToString() == warehouseName)["Id"].ToObject<int>();
-
-      return code;
+      JArray warehouses = jObject["Warehouses"].ToObject<JArray>();
+      //Secrets.WalnutWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "WALNUT")["Id"].ToObject<int>();
+      Secrets.WalnutWHID = 4007;
+      //Secrets.DropshipWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "DROPSHIP")["Id"].ToObject<int>();
     }
 
-    public async Task<JObject> RemoveProducts(Dictionary<string, int> productsToRemove)
+    public async Task<JObject> RemoveItemBulkAsync(List<AddRemoveItemBulkModel> itemsToRemove)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/removeItemBulk";
-      int warehouseId = await GetWarehouseId("WALNUT");
       List<object> products = new List<object>();
 
-      foreach (var product in productsToRemove)
+      // TODO: What error will it return if SKU or UPC wasn't found in SkuVault?
+      foreach (var item in itemsToRemove)
       {
-        products.Add(new
+        if (item.Code.Contains("_"))
         {
-          Sku = product.Key,
-          WarehouseId = warehouseId,
-          LocationCode = "STORE",
-          Quantity = product.Value,
-          Reason = "Store Sale"
-        });
+          products.Add(new
+          {
+            Sku = item.Code,
+            WarehouseId = Secrets.WalnutWHID,
+            item.LocationCode,
+            item.Quantity,
+            item.Reason
+          });
+        }
+        else
+        {
+          products.Add(new
+          {
+            item.Code,
+            WarehouseId = Secrets.WalnutWHID,
+            item.LocationCode,
+            item.Quantity,
+            item.Reason
+          });
+        }
       }
 
       string body = JsonConvert.SerializeObject(new
@@ -111,6 +132,105 @@ namespace SkuVaultLibrary
       StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
 
       return await PostDataAsync(reqUri, content);
+    }
+
+    public async Task<JObject> AddItemBulkAsync(List<AddRemoveItemBulkModel> itemsToAdd)
+    {
+      string reqUri = "https://app.skuvault.com/api/inventory/addItemBulk";
+      List<object> products = new List<object>();
+
+      foreach (var item in itemsToAdd)
+      {
+        if (item.Code.Contains("_"))
+        {
+          products.Add(new
+          {
+            Sku = item.Code,
+            WarehouseId = Secrets.WalnutWHID,
+            item.LocationCode,
+            item.Quantity,
+            item.Reason
+          });
+        }
+        else
+        {
+          products.Add(new
+          {
+            item.Code,
+            WarehouseId = Secrets.WalnutWHID,
+            item.LocationCode,
+            item.Quantity,
+            item.Reason
+          });
+        }
+      }
+
+      string body = JsonConvert.SerializeObject(new
+      {
+        Items = products,
+        Secrets.TenantToken,
+        Secrets.UserToken
+      });
+
+      StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
+
+      return await PostDataAsync(reqUri, content);
+    }
+
+    public async Task<List<ProductLocationModel>> GetInventoryLocationsAsync(List<string> codes, bool isSKU)
+    {
+      string reqUri = "https://app.skuvault.com/api/inventory/getInventoryByLocation";
+      string body;
+
+      if (isSKU)
+      {
+        body = JsonConvert.SerializeObject(new
+        {
+          IsReturnByCodes = false,
+          PageNumber = 0,
+          PageSize = 1000,
+          ProductSKUs = codes.ToArray(),
+          Secrets.TenantToken,
+          Secrets.UserToken
+        });
+      }
+      else
+      {
+        body = JsonConvert.SerializeObject(new
+        {
+          IsReturnByCodes = true,
+          PageNumber = 0,
+          PageSize = 1000,
+          ProductCodes = codes.ToArray(),
+          Secrets.TenantToken,
+          Secrets.UserToken
+        });
+      }
+
+      StringContent content = new StringContent(body, Encoding.UTF8, _appjson);
+
+      JObject result = await PostDataAsync(reqUri, content);
+
+      var items = result["Items"];
+
+      List<ProductLocationModel> locations = new List<ProductLocationModel>();
+
+      if (items == null) return locations;
+
+      foreach (JProperty item in items)
+      {
+        foreach (JObject i in item.Value)
+        {
+          locations.Add(new ProductLocationModel
+          {
+            Code = item.Name,
+            Location = i["LocationCode"].ToString(),
+            Qty = i["Quantity"].ToObject<int>()
+          });
+        }
+      }
+
+      return locations;
     }
   }
 }

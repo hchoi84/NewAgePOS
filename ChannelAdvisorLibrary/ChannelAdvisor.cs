@@ -134,7 +134,7 @@ namespace ChannelAdvisorLibrary
             AllName = item[_attributes]
             .FirstOrDefault(i => i[_name].ToString() == _allName)[_Value]
             .ToString(),
-            Cost = item[_cost] == null ? 0 : item[_cost].ToObject<float>(),
+            Cost = String.IsNullOrEmpty(item[_cost].ToString()) ? 0 : item[_cost].ToObject<float>(),
             Price = item[_attributes]
             .FirstOrDefault(i => i[_name].ToString() == _bcprice)[_Value]
             .ToObject<float>()

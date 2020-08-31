@@ -82,7 +82,7 @@ namespace NewAgePOSLibrary.Data
     public void Products_Update(int productId, float cost, float price, string allName)
     {
       string updateDate = DateTime.Now.ToShortDateString();
-      string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Update = @updateDate WHERE Id = @productId;";
+      string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
     }
 
@@ -131,7 +131,7 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
-    public void SaleLines_Update(int id, int qty, int discAmt, int discPct)
+    public void SaleLines_Update(int id, int qty, float discAmt, float discPct)
     {
       _sqlDb.SaveData("dbo.spSaleLines_Update",
                       new { id, qty, discAmt, discPct },
