@@ -15,10 +15,6 @@ namespace NewAgePOSModels.Models
     [Range(0, 100, ErrorMessage = "{1} and {2}")]
     public int Qty { get; set; }
 
-    [DisplayName("Disc $")]
-    [Range(0, 100, ErrorMessage = "{1} and {2}")]
-    public float DiscAmt { get; set; }
-
     [DisplayName("Disc %")]
     [Range(0, 100, ErrorMessage = "{1} and {2}")]
     public float DiscPct { get; set; }

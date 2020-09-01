@@ -75,13 +75,7 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="col pr-0">
-          <div class="form-group">
-            <label asp-for="@Model.CartDiscs[i].DiscAmt"></label>
-            <input asp-for="@Model.CartDiscs[i].DiscAmt" class="form-control" />
-          </div>
-        </div>
-        <div class="col pl-0">
+        <div class="col">
           <div class="form-group">
             <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
             <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
@@ -98,7 +92,7 @@
 <div class="container">
   <div class="row mt-3">
     <a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed</a>
-    <form method="post" asp-page="Index" asp-page-handler="CancelSale" asp-route-saleid="SaleId" style="display: inline-block;">
+    <form method="post" asp-page="Search" asp-page-handler="CancelSale" asp-route-saleid="@Model.SaleId" style="display: inline-block;">
       <button type="submit" class="btn btn-danger ml-1">Cancel Sale</button>
     </form>
   </div>

@@ -5,7 +5,7 @@
   CultureInfo dollar = new CultureInfo("en-US");
 }
 
-@Html.ValidationSummary(true, "", new { @class = "text-danger" });
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 <h3 class="mt-5">PRODUCTS</h3>
 <form method="post">
@@ -45,10 +45,7 @@
       </div>
     </div>
     <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@saleLine.DiscAmt.ToString("C2", dollar)" class="form-control">
-      </div>
-      <div class="col pl-0">
+      <div class="col">
         <input readonly value="@saleLine.DiscPct" class="form-control">
       </div>
     </div>

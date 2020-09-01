@@ -4,7 +4,7 @@
   ViewData["Title"] = "Refund receipt";
   CultureInfo dollar = new CultureInfo("en-US");
   float subtotal = Model.Refunds.Sum(r => r.LineTotal);
-  float discount = Model.Refunds.Sum(r => (r.RefundQty * r.DiscAmt) + (r.RefundQty * (r.Price * r.DiscPct / 100f)));
+  float discount = Model.Refunds.Sum(r => r.RefundQty * (r.Price * r.DiscPct / 100f));
   float tax = (subtotal - discount) * (Model.Refunds.First().TaxPct / 100f);
 }
 

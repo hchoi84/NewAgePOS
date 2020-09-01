@@ -46,13 +46,5 @@
       <div class="col border border-dark bg-dark rounded m-1">@product.Cost.ToString("C2", dollar)</div>
       <div class="col border border-dark bg-dark rounded m-1">@product.Price.ToString("C2", dollar)</div>
     </div>
-    <div class="row">
-      @if (product.Source == "Manual")
-      {
-        <div class="col">
-          <a asp-page="Edit" asp-route-id="@product.Id" class="btn btn-primary">Edit</a>
-        </div>
-      }
-    </div>
   }
 }

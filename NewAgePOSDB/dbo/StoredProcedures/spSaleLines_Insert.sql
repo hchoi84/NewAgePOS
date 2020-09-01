@@ -13,6 +13,6 @@ BEGIN
 	FROM dbo.Products
 	WHERE Id = @productId;
 
-	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, Cost, Price)
-	VALUES (@saleId, @productId, @qty, 0, 0, @cost, @price);
+	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscPct, Cost, Price)
+	VALUES (@saleId, @productId, @qty, 15, @cost, @price);
 END

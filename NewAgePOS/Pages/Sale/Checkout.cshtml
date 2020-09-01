@@ -8,7 +8,7 @@
 <h3 class="mt-5">PRODUCTS</h3>
 @foreach (var saleLine in Model.SaleLines)
 {
-  float priceAfterDisc = (saleLine.Price - saleLine.DiscAmt) * (1 - saleLine.DiscPct / 100f);
+  float priceAfterDisc = saleLine.Price * (1 - saleLine.DiscPct / 100f);
 
   @if (saleLine != Model.SaleLines.First())
   {

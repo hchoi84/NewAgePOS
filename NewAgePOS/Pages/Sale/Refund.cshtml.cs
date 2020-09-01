@@ -36,7 +36,7 @@ namespace NewAgePOS.Pages.Sale
       if (!isComplete)
       {
         TempData["Message"] = $"Sale Id { SaleId } is not complete. Refund is unavailable.";
-        return RedirectToPage("Index");
+        return RedirectToPage("Search");
       }
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -76,7 +76,7 @@ namespace NewAgePOS.Pages.Sale
       List<SaleLineModel> refundsToApply = SaleLines.Where(s => s.RefundQty > 0).ToList();
 
       float subtotal = SaleLines.Sum(sl => sl.RefundLineTotal);
-      float discount = SaleLines.Sum(sl => (sl.RefundQty * sl.DiscAmt) + (sl.RefundQty * (sl.Price * (sl.DiscPct / 100f))));
+      float discount = SaleLines.Sum(sl => sl.RefundQty * (sl.Price * (sl.DiscPct / 100f)));
       float tax = (subtotal - discount) * (TaxPct / 100f);
       float total = subtotal - discount + tax;
 

@@ -44,7 +44,7 @@ namespace NewAgePOS.Pages
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";
-        return RedirectToPage("Index");
+        return RedirectToPage("Search");
       }
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -55,7 +55,6 @@ namespace NewAgePOS.Pages
         CartDiscs.Add(new CartDisctModel()
         {
           SaleLineId = saleLine.Id,
-          DiscAmt = saleLine.DiscAmt,
           DiscPct = saleLine.DiscPct
         });
       }
@@ -97,7 +96,7 @@ namespace NewAgePOS.Pages
         if (saleLine != null)
         {
           saleLine.Qty += groupedCodes[i].Count();
-          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
+          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
           groupedCodes.RemoveAt(i);
         }
       }
@@ -170,27 +169,15 @@ namespace NewAgePOS.Pages
       {
         SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
 
-        if (cartDisc.DiscAmt > saleLine.Price)
-        {
-          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount amount can't be greater than the price");
-          return Page();
-        }
-
         if (cartDisc.DiscPct > 100)
         {
           ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount percent can't be greater than 100");
           return Page();
         }
 
-        if (saleLine.Price - cartDisc.DiscAmt - (cartDisc.DiscPct / 100f * saleLine.Price) < 0)
+        if (saleLine.DiscPct != cartDisc.DiscPct)
         {
-          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount can't be greater than the price");
-          return Page();
-        }
-
-        if (saleLine.DiscAmt != cartDisc.DiscAmt || saleLine.DiscPct != cartDisc.DiscPct)
-        {
-          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscAmt, cartDisc.DiscPct);
+          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscPct);
         }
       }
 
@@ -223,7 +210,7 @@ namespace NewAgePOS.Pages
             continue;
           }
 
-          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscAmt, saleLine.DiscPct);
+          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
           groupedCodes.RemoveAt(i);
         }
       }
@@ -236,24 +223,5 @@ namespace NewAgePOS.Pages
 
       return RedirectToPage();
     }
-
-    //public IActionResult OnPostUpdate()
-    //{
-    //  if (!ModelState.IsValid) return Page();
-
-    //  for (int i = SaleLines.Count - 1; i >= 0; i--)
-    //  {
-    //    if (SaleLines[i].Qty == 0)
-    //    {
-    //      _sqlDb.SaleLines_Delete(SaleLines[i].Id);
-    //      SaleLines.RemoveAt(i);
-    //      continue;
-    //    }
-
-    //    _sqlDb.SaleLines_Update(SaleLines[i].Id, SaleLines[i].Qty, SaleLines[i].DiscAmt, SaleLines[i].DiscPct);
-    //  }
-
-    //  return RedirectToPage();
-    //}
   }
 }

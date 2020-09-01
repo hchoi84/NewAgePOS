@@ -6,7 +6,6 @@
 	[Cost] MONEY NOT NULL,
 	[Price] MONEY NOT NULL,
 	[Qty] INT NOT NULL,
-	[DiscAmt] MONEY NOT NULL DEFAULT 0,
 	[DiscPct] FLOAT NOT NULL DEFAULT 0,
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),

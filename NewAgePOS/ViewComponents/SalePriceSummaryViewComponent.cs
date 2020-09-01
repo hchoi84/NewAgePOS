@@ -11,7 +11,7 @@ namespace NewAgePOS.ViewComponents
     {
       SalePriceSummaryModel model = new SalePriceSummaryModel();
       model.Subtotal = saleLines.Sum(sl => sl.LineTotal);
-      model.Discount = saleLines.Sum(sl => (sl.Qty * sl.DiscAmt) + (sl.Qty * (sl.Price * (sl.DiscPct / 100f))));
+      model.Discount = saleLines.Sum(sl => sl.Qty * (sl.Price * (sl.DiscPct / 100f)));
       model.TaxPct = taxPct;
       model.Tax = (model.Subtotal - model.Discount) * (taxPct / 100f);
       model.Total = model.Subtotal - model.Discount + model.Tax;

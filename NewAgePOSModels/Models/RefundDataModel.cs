@@ -11,7 +11,6 @@ namespace NewAgePOSModels.Models
     public float Amount { get; set; }
     public string PaymentType { get; set; }
     public DateTime Created { get; set; }
-    public int DiscAmt { get; set; }
     public int DiscPct { get; set; }
     public int RefundQty { get; set; }
     public float Price { get; set; }

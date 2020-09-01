@@ -60,11 +60,11 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
-    public ProductModel Products_GetById(int id)
-    {
-      string q = "SELECT * FROM dbo.Products WHERE Id = @id";
-      return _sqlDb.LoadData<ProductModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
-    }
+    //public ProductModel Products_GetById(int id)
+    //{
+    //  string q = "SELECT * FROM dbo.Products WHERE Id = @id";
+    //  return _sqlDb.LoadData<ProductModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
+    //}
 
     public List<ProductModel> Products_GetByParentSku(string parentSku)
     {
@@ -86,17 +86,17 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
     }
 
-    public ProductModel Products_Manual_GetByCode(string sku, string upc)
-    {
-      string query = "SELECT * FROM dbo.Products WHERE Source = 'Manual' AND Sku = @sku AND Upc = @upc";
-      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
-    }
+    //public ProductModel Products_Manual_GetByCode(string sku, string upc)
+    //{
+    //  string query = "SELECT * FROM dbo.Products WHERE Source = 'Manual' AND Sku = @sku AND Upc = @upc";
+    //  return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+    //}
 
-    public void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName)
-    {
-      string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) VALUES (@sku, @upc, @cost, @price, @allName, 'Manual');";
-      _sqlDb.SaveData(query, new { sku, upc, cost, price, allName }, connectionStringName, false);
-    }
+    //public void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName)
+    //{
+    //  string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) VALUES (@sku, @upc, @cost, @price, @allName, 'Manual');";
+    //  _sqlDb.SaveData(query, new { sku, upc, cost, price, allName }, connectionStringName, false);
+    //}
 
     public int RefundLines_GetRefundQtyBySaleLineId(int saleLineId)
     {
@@ -131,10 +131,10 @@ namespace NewAgePOSLibrary.Data
                       connectionStringName, true);
     }
 
-    public void SaleLines_Update(int id, int qty, float discAmt, float discPct)
+    public void SaleLines_Update(int id, int qty, float discPct)
     {
       _sqlDb.SaveData("dbo.spSaleLines_Update",
-                      new { id, qty, discAmt, discPct },
+                      new { id, qty, discPct },
                       connectionStringName, true);
     }
 

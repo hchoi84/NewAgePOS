@@ -41,7 +41,7 @@ namespace NewAgePOS.Pages.Sale
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Checkout because Sale Id { SaleId } was completed.";
-        RedirectToPage("Index");
+        RedirectToPage("Search");
       }
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);

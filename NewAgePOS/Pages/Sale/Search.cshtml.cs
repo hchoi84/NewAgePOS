@@ -8,11 +8,11 @@ using System.Globalization;
 
 namespace NewAgePOS.Pages.Sale
 {
-  public class IndexModel : PageModel
+  public class SearchModel : PageModel
   {
     private readonly ISQLData _sqlDb;
 
-    public IndexModel(ISQLData sqlDb)
+    public SearchModel(ISQLData sqlDb)
     {
       _sqlDb = sqlDb;
     }
@@ -60,11 +60,11 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage("Cart", new { saleId });
     }
 
-    public IActionResult OnPostCancelSale(int saleId)
+    public IActionResult OnPostCancelSale()
     {
-      _sqlDb.Sales_CancelById(saleId);
+      _sqlDb.Sales_CancelById(SaleId);
       TempData["Message"] = "Sale has been cancelled";
-      return RedirectToPage();
+      return RedirectToPage(new { SaleId, LastName, EmailAddress, PhoneNumber });
     }
   }
 }

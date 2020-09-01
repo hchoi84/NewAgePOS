@@ -62,7 +62,6 @@ CREATE TABLE [dbo].[SaleLines]
 	[Cost] MONEY NOT NULL,
 	[Price] MONEY NOT NULL,
 	[Qty] INT NOT NULL,
-	[DiscAmt] MONEY NOT NULL DEFAULT 0,
 	[DiscPct] FLOAT NOT NULL DEFAULT 0,
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
@@ -163,63 +162,13 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.PaymentType, st.Created, sl.DiscAmt, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
+	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.PaymentType, st.Created, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
 	FROM dbo.Transactions st
 	INNER JOIN dbo.RefundLines rl ON st.Id = rl.TransactionId
 	INNER JOIN dbo.SaleLines sl ON rl.SaleLineId = sl.Id
 	INNER JOIN dbo.Sales s ON st.SaleId = s.Id
 	INNER JOIN dbo.Taxes t ON s.TaxId = t.Id
 	WHERE st.Id = @transactionId;
-END
-GO
-
-CREATE PROCEDURE [dbo].[spRefundLines_GetRefundQtyBySaleLineId]
-	@saleLineId int
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @refundedQty int;
-
-	SELECT @refundedQty = SUM(Qty) FROM dbo.RefundLines WHERE SaleLineId = @saleLineId;
-
-	IF (@refundedQty IS NULL)
-		SELECT 0;
-	ELSE
-		SELECT @refundedQty;
-END
-GO
-
-CREATE PROCEDURE [dbo].[spSaleLines_GetBySaleId]
-	@saleId int
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	SELECT sl.*, p.Sku, p.Upc, p.AllName
-	FROM dbo.SaleLines sl
-	INNER JOIN dbo.Products p ON sl.ProductId = p.Id
-	WHERE sl.SaleId = @saleId;
-END
-GO
-
-CREATE PROCEDURE [dbo].[spSaleLines_Insert]
-	@saleId int, 
-	@productId int, 
-	@qty int
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @cost money;
-	DECLARE @price money;
-
-	SELECT @cost = Cost, @price = Price
-	FROM dbo.Products
-	WHERE Id = @productId;
-
-	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, Cost, Price)
-	VALUES (@saleId, @productId, @qty, 0, 0, @cost, @price);
 END
 GO
 
@@ -276,8 +225,8 @@ BEGIN
 	FROM dbo.Products
 	WHERE Id = @productId;
 
-	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscAmt, DiscPct, Cost, Price)
-	VALUES (@saleId, @productId, @qty, 0, 0, @cost, @price);
+	INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscPct, Cost, Price)
+	VALUES (@saleId, @productId, @qty, 15, @cost, @price);
 END
 GO
 /****** Object:  StoredProcedure [dbo].[spSaleLines_Update]    Script Date: 8/31/2020 3:59:42 PM ******/
@@ -288,14 +237,13 @@ GO
 CREATE PROCEDURE [dbo].[spSaleLines_Update]
 	@id int,
 	@qty int,
-	@discAmt float,
 	@discPct float
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	UPDATE dbo.SaleLines
-	SET Qty = @qty, DiscAmt = @discAmt, DiscPct = @discPct
+	SET Qty = @qty, DiscPct = @discPct
 	WHERE Id = @id
 END
 GO

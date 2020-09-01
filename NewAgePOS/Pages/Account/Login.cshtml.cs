@@ -52,7 +52,7 @@ namespace NewAgePOS.Pages.Account
         if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
           return Redirect(ReturnUrl);
         else
-          return RedirectToPage("/Sale/Index");
+          return RedirectToPage("/Sale/Search");
       }
 
       ModelState.AddModelError(string.Empty, "Invalid login attempt");

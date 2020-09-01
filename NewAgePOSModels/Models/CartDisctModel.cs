@@ -6,10 +6,6 @@ namespace NewAgePOSModels.Models
   {
     public int SaleLineId { get; set; }
 
-    [Display(Name = "Disc $")]
-    [Range(0f, float.MaxValue)]
-    public float DiscAmt { get; set; }
-
     [Display(Name = "Disc %")]
     [Range(0f, float.MaxValue)]
     public float DiscPct { get; set; }

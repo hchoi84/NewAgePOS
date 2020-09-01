@@ -15,7 +15,7 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnGet()
     {
-      return Redirect("/Sale");
+      return Redirect("/Sale/Search");
     }
   }
 }
