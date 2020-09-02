@@ -95,14 +95,14 @@ namespace ChannelAdvisorLibrary
     public async Task<List<JObject>> GetProductsByCodeAsync(List<string> codes)
     {
       string expand = "Attributes";
-      string select = "Sku,Upc,Cost";
-      List<ProductModel> products = new List<ProductModel>();
+      string select = "Sku,Upc,Cost,WarehouseLocation";
       List<string> filterContents = new List<string>();
       List<JObject> jObjects = new List<JObject>();
 
       foreach (var code in codes)
       {
-        if (code.Contains('_')) filterContents.Add($"Sku eq '{ code }'");
+        if (code.Length == 7) filterContents.Add($"ParentSku eq '{ code }'");
+        else if (code.Contains('_')) filterContents.Add($"Sku eq '{ code }'");
         else filterContents.Add($"Upc eq '{ code }'");
       }
 

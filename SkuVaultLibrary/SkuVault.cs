@@ -92,7 +92,6 @@ namespace SkuVaultLibrary
       return await PostDataAsync(reqUri, content);
     }
 
-
     public async Task<JObject> AddItemBulkAsync(List<AddRemoveItemBulkModel> itemsToAdd)
     {
       string reqUri = "https://app.skuvault.com/api/inventory/addItemBulk";

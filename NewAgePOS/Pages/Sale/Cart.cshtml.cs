@@ -47,7 +47,6 @@ namespace NewAgePOS.Pages
     [BindProperty]
     public List<CartDisctModel> CartDiscs { get; set; } = new List<CartDisctModel>();
 
-
     public IActionResult OnGet()
     {
       bool isComplete = _sqlDb.Sales_GetStatus(SaleId);

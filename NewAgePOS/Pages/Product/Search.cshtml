@@ -7,13 +7,13 @@
 
 @if (TempData["Message"] != null)
 {
-  <div class="text-info">@TempData["Message"]</div>
+  <div class="text-info mb-3">@TempData["Message"]</div>
 }
 
-<form method="post" class="mb-5">
+<form method="get" class="mb-5">
   <div class="form-group">
-    <label asp-for="Code"></label>
-    <input asp-for="Code" class="form-control" />
+    <label asp-for="Codes"></label>
+    <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
   </div>
   <button type="submit" class="btn btn-primary">Search</button>
 </form>
@@ -21,13 +21,6 @@
 @if (Model.Products != null && Model.Products.Any())
 {
   <h3>Results</h3>
-  <div class="text-info">
-    <ul>
-      <li>Shows products that was added to the cart once. For complete list, use ChannelAdvisor</li>
-      <li>Only manually entered products can be edited</li>
-    </ul>
-  </div>
-
   @foreach (var product in Model.Products)
   {
     if (product != Model.Products.First())
@@ -36,15 +29,55 @@
     }
 
     <div class="row">
-      <div class="col border border-dark bg-dark rounded m-1">@product.Sku</div>
-      <div class="col border border-dark bg-dark rounded m-1">@product.Upc</div>
+      <div class="col px-0">
+        <input value="@product.Sku" class="form-control" readonly>
+      </div>
+      <div class="col px-0">
+        <input value="@product.Upc" class="form-control" readonly>
+      </div>
     </div>
     <div class="row">
-      <div class="col border border-dark bg-dark rounded m-1">@product.AllName</div>
+      <div class="col px-0">
+        <input value="@product.AllName" class="form-control" readonly>
+      </div>
     </div>
-    <div class="row">
-      <div class="col border border-dark bg-dark rounded m-1">@product.Cost.ToString("C2", dollar)</div>
-      <div class="col border border-dark bg-dark rounded m-1">@product.Price.ToString("C2", dollar)</div>
-    </div>
+    @foreach (var loc in product.Location)
+    {
+      string id = $"{ product.Sku }_{ loc.Key }";
+
+      <div class="row">
+        <div class="col px-0">
+          <input value="@loc.Key" class="form-control" readonly>
+        </div>
+        <div class="col px-0">
+          <input value="@loc.Value" class="form-control" readonly>
+        </div>
+        @if (loc.Key != "STORE")
+        {
+          <a href="#" id="confirmTransferButton_@id" class="btn btn-primary" onclick="confirmTransfer('@id')">Transfer</a>
+        }
+      </div>
+
+      @if (loc.Key != "STORE")
+      {
+        <div id="confirmTransfer_@id" class="mt-1" style="display: none;">
+          <form method="post" class="form-inline" asp-page-handler="Transfer" asp-route-code="@product.Sku" asp-route-location="@loc.Key" asp-route-qty="@loc.Value" asp-route-codes="@Model.Codes">
+            <div class="form-group col-4 px-0">
+              <input name="transferqty" class="form-control" type="number" value="1" style="width: 100%" />
+            </div>
+            <div class="form-group mr-1">
+              <button type="submit" class="btn btn-success">Confirm Transfer</button>
+            </div>
+            <div class="form-group">
+              <a href="#confirmTransfer_@id" class="btn btn-danger" onclick="confirmTransfer('@id')">Cancel</a>
+            </div>
+          </form>
+        </div>
+      }
+    }
   }
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
 }
