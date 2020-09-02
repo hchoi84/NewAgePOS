@@ -22,20 +22,20 @@ namespace NewAgePOS.Pages
       _sqlDb = sqlDb;
     }
 
-    [BindProperty]
-    [Display(Name = "SKUs or UPCs")]
-    public string Codes { get; set; }
-
     public List<SaleLineModel> SaleLines { get; set; }
 
     [BindProperty]
-    public List<CartDisctModel> CartDiscs { get; set; } = new List<CartDisctModel>();
+    public float TaxPct { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
     [BindProperty]
-    public float TaxPct { get; set; }
+    [Display(Name = "SKUs or UPCs")]
+    public string Codes { get; set; }
+
+    [BindProperty]
+    public List<CartDisctModel> CartDiscs { get; set; } = new List<CartDisctModel>();
 
 
     public IActionResult OnGet()
@@ -64,7 +64,7 @@ namespace NewAgePOS.Pages
 
     public async Task<IActionResult> OnPostAddAsync()
     {
-      //if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+      if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
@@ -73,7 +73,6 @@ namespace NewAgePOS.Pages
 
       UpdateCart(groupedCodes);
       if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
-      if (groupedCodes.Count > 0) GetFromDb(groupedCodes);
       if (groupedCodes.Count > 0)
       {
         string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
@@ -139,26 +138,6 @@ namespace NewAgePOS.Pages
         int qty = qty1 + qty2;
 
         _sqlDb.SaleLines_Insert(SaleId, productId, qty);
-      }
-    }
-
-    // TODO: Remove this method since no products will be created manually
-    private void GetFromDb(List<IGrouping<string, string>> groupedCodes)
-    {
-      for (int i = groupedCodes.Count - 1; i >= 0; i--)
-      {
-        int productId;
-        if (groupedCodes[i].Key.Contains("_"))
-          productId = _sqlDb.Products_GetByCode(groupedCodes[i].Key, "").Id;
-        else
-          productId = _sqlDb.Products_GetByCode("", groupedCodes[i].Key).Id;
-
-        if (productId > 0)
-        {
-          int qty = groupedCodes[i].Count();
-          _sqlDb.SaleLines_Insert(SaleId, productId, qty);
-          groupedCodes.RemoveAt(i);
-        }
       }
     }
 
