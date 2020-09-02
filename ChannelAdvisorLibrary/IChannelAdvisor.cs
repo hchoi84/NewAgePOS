@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NewAgePOSModels.Models;
+using Newtonsoft.Json.Linq;
 
 namespace ChannelAdvisorLibrary
 {
   public interface IChannelAdvisor
   {
-    Task<List<ProductModel>> GetProductsByCodeAsync(List<string> codes);
+    Task<List<JObject>> GetProductsByCodeAsync(List<string> codes);
   }
 }

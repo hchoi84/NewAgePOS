@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
+using Newtonsoft.Json.Linq;
 
 namespace NewAgePOS.Pages
 {
@@ -21,6 +22,15 @@ namespace NewAgePOS.Pages
       _ca = ca;
       _sqlDb = sqlDb;
     }
+
+    private readonly string _sku = "Sku";
+    private readonly string _upc = "UPC";
+    private readonly string _cost = "Cost";
+    private readonly string _bcprice = "BCPrice";
+    private readonly string _attributes = "Attributes";
+    private readonly string _name = "Name";
+    private readonly string _allName = "All Name";
+    private readonly string _Value = "Value";
 
     public List<SaleLineModel> SaleLines { get; set; }
 
@@ -107,32 +117,42 @@ namespace NewAgePOS.Pages
       Dictionary<string, int> uniqueCodes = uniqueCodes = groupedCodes
         .ToDictionary(g => g.Key, g => g.Count(), StringComparer.InvariantCultureIgnoreCase);
 
-      products.AddRange(await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList()));
+      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList());
 
-      foreach (var product in products)
+      foreach (var item in jObjects)
       {
         int productId = 0;
-        ProductModel productDb = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
+        string sku = item[_sku].ToString();
+        string upc = item[_upc].ToString();
+        float cost = String.IsNullOrEmpty(item[_cost].ToString()) ? 0 : item[_cost].ToObject<float>();
+        float price = item[_attributes]
+          .FirstOrDefault(i => i[_name].ToString() == _bcprice)[_Value]
+          .ToObject<float>();
+        string allName = item[_attributes]
+          .FirstOrDefault(i => i[_name].ToString() == _allName)[_Value]
+          .ToString();
+
+        ProductModel productDb = _sqlDb.Products_GetByCode(sku, upc);
         if (productDb == null)
-          productId = _sqlDb.Products_Insert(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
-        else if (productDb.Cost != product.Cost || productDb.Price != product.Price || productDb.AllName != product.AllName)
-          _sqlDb.Products_Update(productDb.Id, product.Cost, product.Price, product.AllName);
+          productId = _sqlDb.Products_Insert(sku, upc, cost, price, allName);
+        else if (productDb.Cost != cost || productDb.Price != price || productDb.AllName != allName)
+          _sqlDb.Products_Update(productDb.Id, cost, price, allName);
         else
           productId = productDb.Id;
 
         int qty1 = 0;
         int qty2 = 0;
 
-        if (uniqueCodes.ContainsKey(product.Sku))
+        if (uniqueCodes.ContainsKey(sku))
         {
-          qty1 = uniqueCodes[product.Sku];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Sku.ToLower() || g.Key == product.Sku.ToUpper()));
+          qty1 = uniqueCodes[sku];
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == sku.ToLower() || g.Key == sku.ToUpper()));
         }
 
-        if (uniqueCodes.ContainsKey(product.Upc))
+        if (uniqueCodes.ContainsKey(upc))
         {
-          qty2 = uniqueCodes[product.Upc];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == product.Upc));
+          qty2 = uniqueCodes[upc];
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == upc));
         }
 
         int qty = qty1 + qty2;
