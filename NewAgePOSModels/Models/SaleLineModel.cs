@@ -21,10 +21,5 @@ namespace NewAgePOSModels.Models
 
     [DisplayName("Line Total")]
     public float LineTotal { get { return Price * Qty; } }
-
-    [DisplayName("Ref. Qty")]
-    public int RefundQty { get; set; }
-
-    public float RefundLineTotal { get { return Price * RefundQty; } }
   }
 }

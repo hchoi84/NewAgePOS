@@ -5,70 +5,88 @@
   CultureInfo dollar = new CultureInfo("en-US");
 }
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger">@TempData["Message"]</div>
+}
+
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
+<div class="row">
+  <div class="col">
+    <form method="post" asp-page-handler="Add">
+      <h3>ADD</h3>
+      <div class="form-group">
+        <label asp-for="Codes"></label>
+        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+  </div>
+
+  <div class="col">
+    <form method="post" asp-page-handler="Remove">
+      <h3>REMOVE</h3>
+      <div class="form-group" asp-page-handler="Remove">
+        <label asp-for="Codes"></label>
+        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Remove</button>
+    </form>
+  </div>
+</div>
+
 <h3 class="mt-5">PRODUCTS</h3>
-<form method="post">
-  @for (var i = 0; i < Model.Refunds.Count; i++)
+@foreach (SaleLineModel saleLine in Model.SaleLines)
+{
+  if (saleLine != Model.SaleLines.First())
   {
-    if (i != 0)
-    {
-      <div class="mt-3"></div>
-    }
-
-
-    SaleLineModel saleLine = Model.SaleLines.FirstOrDefault(sl => sl.Id == Model.Refunds[i].SaleLineId);
-
-    <input hidden readonly value="@Model.Refunds[i].SaleLineId" />
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@saleLine.Sku" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@saleLine.Upc" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <input readonly value="@saleLine.AllName" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
-      </div>
-      <div class="col px-0">
-        <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@saleLine.Qty" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <input readonly value="@saleLine.DiscPct" class="form-control">
-      </div>
-    </div>
-    @if (saleLine.Qty > 0)
-    {
-      <div class="form-row">
-        <div class="col">
-          <label asp-for="@Model.Refunds[i].RefundQty"></label>
-          <input asp-for="@Model.Refunds[i].RefundQty" class="form-control">
-        </div>
-      </div>
-    }
-    else
-    {
-      <div class="form-row">
-        <div class="col">
-          <label asp-for="@Model.Refunds[i].RefundQty"></label>
-          <input disabled value="Fully Refunded" class="form-control text-info">
-        </div>
-      </div>
-    }
+    <div class="mt-3"></div>
   }
 
+  List<RefundLineModel> refundedLines = Model.RefundLines.Where(r => r.TransactionId != 0 && r.SaleLineId == saleLine.Id).ToList();
+  RefundLineModel refundingLine = Model.RefundLines.FirstOrDefault(r => r.TransactionId == 0 && r.SaleLineId == saleLine.Id);
+  int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
+  int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+
+  <div class="form-row">
+    <div class="col pr-0">
+      <input readonly value="@saleLine.Sku" class="form-control">
+    </div>
+    <div class="col pl-0">
+      <input readonly value="@saleLine.Upc" class="form-control">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col">
+      <input readonly value="@saleLine.AllName" class="form-control">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col pr-0">
+      <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
+    </div>
+    <div class="col px-0">
+      <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
+    </div>
+    <div class="col pl-0">
+      <input readonly value="@saleLine.DiscPct %" class="form-control">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col pr-0">
+      <input readonly value="@saleLine.Qty" class="form-control">
+    </div>
+    <div class="col px-0">
+      <input readonly value="@refundedQty" class="form-control">
+    </div>
+    <div class="col pl-0">
+      <input readonly value="@refundingQty" class="form-control font-weight-bold text-info">
+    </div>
+  </div>
+}
+
+<form method="post">
   <div class="form-row mt-3">
     <div class="col">
       <label asp-for="@Model.Message"></label>

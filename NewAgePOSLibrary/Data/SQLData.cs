@@ -98,15 +98,20 @@ namespace NewAgePOSLibrary.Data
     //  _sqlDb.SaveData(query, new { sku, upc, cost, price, allName }, connectionStringName, false);
     //}
 
-    public int RefundLines_GetRefundQtyBySaleLineId(int saleLineId)
+    public List<RefundLineModel> RefundLines_GetBySaleLineId(int saleLineId)
     {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spRefundLines_GetRefundQtyBySaleLineId", new { saleLineId }, connectionStringName, true).FirstOrDefault();
+      string query = "SELECT * FROM dbo.RefundLines WHERE SaleLineId = @saleLineId";
+      return _sqlDb.LoadData<RefundLineModel, dynamic>(query, new { saleLineId }, connectionStringName, false);
     }
 
-    public void RefundLines_Insert(int saleId, int transactionId, int refundQty)
+    public void RefundLines_Insert(int saleLineId, int refundQty)
     {
-      string q = "INSERT INTO dbo.RefundLines (SaleLineId, TransactionId, Qty) VALUES (@saleId, @transactionId, @refundQty);";
-      _sqlDb.SaveData(q, new { saleId, transactionId, refundQty }, connectionStringName, false);
+      _sqlDb.SaveData("dbo.spRefundLines_Insert", new { saleLineId, refundQty }, connectionStringName, true);
+    }
+
+    public void RefundLines_SubtractQty(int id, int subtractQty)
+    {
+      _sqlDb.SaveData("dbo.spRefundLines_SubtractQty", new { id, subtractQty }, connectionStringName, true);
     }
 
     public void SaleLines_Delete(int id)

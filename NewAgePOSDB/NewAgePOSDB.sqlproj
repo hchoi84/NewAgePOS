@@ -84,6 +84,8 @@
     <Build Include="dbo\StoredProcedures\spGetRefundReceiptData.sql" />
     <Build Include="dbo\StoredProcedures\spRefundLines_GetRefundQtyBySaleLineId.sql" />
     <Build Include="dbo\StoredProcedures\spSales_CancelById.sql" />
+    <Build Include="dbo\StoredProcedures\spRefundLines_Insert.sql" />
+    <Build Include="dbo\StoredProcedures\spRefundLines_SubtractQty.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

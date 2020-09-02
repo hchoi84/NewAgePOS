@@ -2,7 +2,7 @@
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[SaleLineId] INT NOT NULL,
-	[TransactionId] INT NOT NULL,
+	[TransactionId] INT,
 	[Qty] INT NOT NULL,
 	[Created] DATE NOT NULL DEFAULT(getdate()),
 	[Updated] DATE NOT NULL DEFAULT(getdate()),
