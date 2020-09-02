@@ -142,6 +142,7 @@ namespace NewAgePOS.Pages
       }
     }
 
+    // TODO: Remove this method since no products will be created manually
     private void GetFromDb(List<IGrouping<string, string>> groupedCodes)
     {
       for (int i = groupedCodes.Count - 1; i >= 0; i--)

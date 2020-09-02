@@ -43,5 +43,6 @@ namespace NewAgePOSLibrary.Data
 
     int Taxes_GetBySaleId(int saleId);
     void RefundLines_SubtractQty(int id, int subtractQty);
+    void RefundLines_MarkComplete(int id, int transactionId);
   }
 }

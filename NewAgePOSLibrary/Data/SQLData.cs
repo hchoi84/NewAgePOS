@@ -114,6 +114,12 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData("dbo.spRefundLines_SubtractQty", new { id, subtractQty }, connectionStringName, true);
     }
 
+    public void RefundLines_MarkComplete(int id, int transactionId)
+    {
+      string query = "UPDATE dbo.RefundLines SET TransactionId = @transactionId WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, transactionId }, connectionStringName, false);
+    }
+
     public void SaleLines_Delete(int id)
     {
       string query = "DELETE FROM dbo.SaleLines WHERE id = @id";

@@ -3,6 +3,8 @@
 @{
   ViewData["Title"] = "Refund";
   CultureInfo dollar = new CultureInfo("en-US");
+  float tax = Model.Subtotal * (Model.TaxPct / 100f);
+  float total = Model.Subtotal + tax;
 }
 
 @if (TempData["Message"] != null)
@@ -87,12 +89,27 @@
 }
 
 <form method="post">
+  <input hidden name="total" value="@total" type="number" />
   <div class="form-row mt-3">
     <div class="col">
       <label asp-for="@Model.Message"></label>
       <textarea asp-for="@Model.Message" class="form-control" rows="2"></textarea>
     </div>
   </div>
-
   <button type="submit" class="btn btn-warning mt-1">Refund</button>
 </form>
+
+<div class="mt-5" style="max-width: 425px;">
+  <div class="row">
+    <div class="col-4 h4">Subtotal</div>
+    <div class="col-5 h4 text-right">@Model.Subtotal.ToString("C2", dollar)</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Tax @Model.TaxPct %</div>
+    <div class="col-5 h4 text-right">@tax.ToString("C2", dollar)</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Total</div>
+    <div class="col-5 h4 text-right">@total.ToString("C2", dollar)</div>
+  </div>
+</div>

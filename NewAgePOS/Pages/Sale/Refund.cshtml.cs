@@ -24,6 +24,7 @@ namespace NewAgePOS.Pages.Sale
     public List<SaleLineModel> SaleLines { get; set; }
     public List<RefundLineModel> RefundLines { get; set; } = new List<RefundLineModel>();
     public float TaxPct { get; set; }
+    public float Subtotal { get; set; }
 
     [BindProperty]
     [Display(Name = "SKUs or UPCs")]
@@ -44,9 +45,41 @@ namespace NewAgePOS.Pages.Sale
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
-      SaleLines.ForEach(s => RefundLines.AddRange(_sqlDb.RefundLines_GetBySaleLineId(s.Id)));
+      SaleLines.ForEach(s =>
+      {
+        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
+        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
+        RefundLines.AddRange(refundLines);
+      });
 
       return Page();
+    }
+
+    public IActionResult OnPost(float total)
+    {
+      if (total <= 0)
+      {
+        TempData["Message"] = "Nothing to refund";
+        return Page();
+      }
+
+      int transactionId = _sqlDb.Transactions_Insert(SaleId, total, "Cash", "Refund", Message);
+
+      _sqlDb.SaleLines_GetBySaleId(SaleId).ForEach(s =>
+      {
+        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
+        RefundLineModel refundingLine = refundLines != null ?
+          refundLines.FirstOrDefault(r => r.TransactionId == 0) : null;
+        
+        if (refundingLine != null)
+        {
+          _sqlDb.RefundLines_MarkComplete(refundingLine.Id, transactionId);
+        }
+      });
+
+      return RedirectToPage("RefundReceipt");
     }
 
     public IActionResult OnPostAdd()
