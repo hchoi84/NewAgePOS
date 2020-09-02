@@ -10,38 +10,50 @@
   <div class="mt-5 text-danger hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</div>
 }
 
-<div class="container" style="max-width: 300px;">
-  <div class="form-group row">
-    <input readonly asp-for="SaleId" class="form-control  text-center" />
+<div style="max-width: 300px; margin: auto;">
+  <div class="text-center">
+    <img src="~/images/Golfio_Logo.png" />
   </div>
-  <div class="form-group row">
-    <input readonly asp-for="Created" class="form-control text-center" />
+  <div class="my-3">
+    <p class="text-center m-0">19950 E Walnut Dr. N</p>
+    <p class="text-center m-0">Walnut, CA 91789</p>
+    <p class="text-center m-0">909-460-8788</p>
   </div>
-  <div class="form-group row">
+  <div>
+    <h4 class="text-center">Sale Receipt</h4>
+  </div>
+  <div class="mb-3">
+    <p class="text-center m-0">@Model.SaleId</p>
+    <p class="text-center m-0">@Model.Created</p>
+  </div>
+  <div class="form-group row mb-1">
     <label asp-for="TotalQty" class="col col-form-label"></label>
     <div class="col">
       <input readonly asp-for="TotalQty" class="form-control text-right" />
     </div>
   </div>
-  <div class="form-group row">
+  @*<div class="form-group row mb-1">
     <label asp-for="Subtotal" class="col col-form-label"></label>
     <div class="col">
       <input readonly value="@Model.Subtotal.ToString("C2", dollar)" class="form-control text-right" />
     </div>
   </div>
-  <div class="form-group row">
+  <div class="form-group row mb-1">
     <label asp-for="Discount" class="col col-form-label"></label>
     <div class="col">
       <input readonly value="@Model.Discount.ToString("C2", dollar)" class="form-control text-right" />
     </div>
-  </div>
-  <div class="form-group row">
-    <label class="col col-form-label">Tax @Model.TaxPct %</label>
-    <div class="col">
-      <input readonly value="@Model.Tax.ToString("C2", dollar)" class="form-control text-right" />
+  </div>*@
+  @if (Model.TaxPct != 0)
+  {
+    <div class="form-group row mb-1">
+      <label class="col col-form-label">Tax @Model.TaxPct %</label>
+      <div class="col">
+        <input readonly value="@Model.Tax.ToString("C2", dollar)" class="form-control text-right" />
+      </div>
     </div>
-  </div>
-  <div class="form-group row">
+  }
+  <div class="form-group row mb-1">
     <label asp-for="Total" class="col col-form-label"></label>
     <div class="col">
       <input readonly value="@Model.Total.ToString("C2", dollar)" class="form-control text-right" />
@@ -49,20 +61,28 @@
   </div>
   @foreach (var transaction in Model.Transactions)
   {
-    <div class="form-group row">
+    <div class="form-group row mb-1">
       <label class="col col-form-label">@transaction.PaymentType</label>
       <div class="col">
         <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control text-right" />
       </div>
     </div>
   }
+
+  <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
+
   <div class="form-group row">
     <label asp-for="Change" class="col col-form-label"></label>
     <div class="col">
       <input readonly value="@Model.Change.ToString("C2", dollar)" class="form-control text-right" />
     </div>
   </div>
+  <div class="my-5">
+    <p class="text-center">All sales are final</p>
+    <p class="text-center">Thank you!</p>
+  </div>
 </div>
+
 
 @section Scripts{
   <style media="print">
