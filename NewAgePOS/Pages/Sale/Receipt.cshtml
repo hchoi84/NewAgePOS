@@ -62,7 +62,7 @@
   @foreach (var transaction in Model.Transactions)
   {
     <div class="form-group row mb-1">
-      <label class="col col-form-label">@transaction.PaymentType</label>
+      <label class="col col-form-label">@transaction.Method</label>
       <div class="col">
         <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control text-right" />
       </div>

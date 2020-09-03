@@ -84,7 +84,7 @@ namespace NewAgePOS.Pages.Sale
 
       TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
 
-      _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.PaymentType, "Checkout", Transaction.Message);
+      _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.Method, "Checkout", Transaction.Message);
 
       _sqlDb.Sales_MarkComplete(SaleId);
 

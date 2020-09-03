@@ -70,8 +70,8 @@ else
 <h3 class="mt-5">PAYMENT</h3>
 <form method="post">
   <div class="form-group">
-    <label asp-for="@Model.Transaction.PaymentType"></label>
-    <select asp-for="@Model.Transaction.PaymentType" class="form-control">
+    <label asp-for="@Model.Transaction.Method"></label>
+    <select asp-for="@Model.Transaction.Method" class="form-control">
       <option>Choose...</option>
       <option selected>Cash</option>
       <option>Credit Card</option>

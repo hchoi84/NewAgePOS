@@ -75,8 +75,8 @@ CREATE TABLE [dbo].[Transactions]
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[SaleId] INT NOT NULL,
 	[Amount] MONEY NOT NULL,
-	[PaymentType] VARCHAR(15) NOT NULL,
-	[Reason] VARCHAR(15) NOT NULL,
+	[Method] VARCHAR(15) NOT NULL,
+	[Type] VARCHAR(15) NOT NULL,
 	[Message] VARCHAR(200),
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate(),
@@ -162,7 +162,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.PaymentType, st.Created, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
+	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.Method, st.Created, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
 	FROM dbo.Transactions st
 	INNER JOIN dbo.RefundLines rl ON st.Id = rl.TransactionId
 	INNER JOIN dbo.SaleLines sl ON rl.SaleLineId = sl.Id
@@ -390,16 +390,16 @@ GO
 CREATE PROCEDURE [dbo].[spTransactions_Insert]
 	@saleId int,
 	@amount float,
-	@paymentType varchar(15),
-	@reason VARCHAR(15),
+	@method varchar(15),
+	@type VARCHAR(15),
 	@message VARCHAR(200)
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.Transactions (SaleId, Amount, PaymentType, Reason, Message)
+	INSERT INTO dbo.Transactions (SaleId, Amount, Method, Type, Message)
 	OUTPUT inserted.Id
-	VALUES (@saleId, @amount, @paymentType, @reason, @message);
+	VALUES (@saleId, @amount, @method, @type, @message);
 END
 GO
 

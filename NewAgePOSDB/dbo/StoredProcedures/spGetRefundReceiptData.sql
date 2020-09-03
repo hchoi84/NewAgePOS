@@ -4,7 +4,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.PaymentType, st.Created, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
+	SELECT s.Id AS SaleId, st.Id AS TransactionId, st.Amount, st.Method, st.Created, sl.DiscPct, rl.Qty AS RefundQty, sl.Price, t.TaxPct
 	FROM dbo.Transactions st
 	INNER JOIN dbo.RefundLines rl ON st.Id = rl.TransactionId
 	INNER JOIN dbo.SaleLines sl ON rl.SaleLineId = sl.Id

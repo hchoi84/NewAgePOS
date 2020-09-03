@@ -23,7 +23,7 @@
     <div class="col h6 border border-dark rounded p-1 bg-dark m-1 text-right">@tax.ToString("C2", dollar)</div>
   </div>
   <div class="row">
-    <div class="col h6 border border-dark rounded p-1 bg-dark m-1">@Model.Refunds.First().PaymentType</div>
+    <div class="col h6 border border-dark rounded p-1 bg-dark m-1">@Model.Refunds.First().Method</div>
     <div class="col h6 border border-dark rounded p-1 bg-dark m-1 text-right">@Model.Refunds.First().Amount.ToString("C2", dollar)</div>
   </div>
 </div>

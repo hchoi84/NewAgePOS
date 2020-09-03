@@ -13,10 +13,9 @@ namespace NewAgePOSModels.Models
     public float Amount { get; set; }
 
     [Required]
-    [DisplayName("Payment Type")]
-    public string PaymentType { get; set; }
+    public string Method { get; set; }
 
-    public string Reason { get; set; }
+    public string Type { get; set; }
 
     [Range(0, 200, ErrorMessage = "{2} characters max")]
     public string Message { get; set; }

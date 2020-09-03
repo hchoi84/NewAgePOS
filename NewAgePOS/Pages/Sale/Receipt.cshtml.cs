@@ -51,7 +51,7 @@ namespace NewAgePOS.Pages.Sale
       Tax = (Subtotal - Discount) * (TaxPct / 100f);
       Total = Subtotal - Discount + Tax;
 
-      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId).Where(t => t.Reason == "Checkout").ToList();
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId).Where(t => t.Type == "Checkout").ToList();
       Change = Transactions.Sum(t => t.Amount) - Total;
     }
   }

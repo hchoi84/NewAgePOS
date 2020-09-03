@@ -214,10 +214,10 @@ namespace NewAgePOSLibrary.Data
                                                         false);
     }
 
-    public int Transactions_Insert(int saleId, float amount, string paymentType, string reason, string message)
+    public int Transactions_Insert(int saleId, float amount, string method, string type, string message)
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
-                      new { saleId, amount, paymentType, reason, message },
+                      new { saleId, amount, method, type, message },
                       connectionStringName, true).FirstOrDefault();
     }
 

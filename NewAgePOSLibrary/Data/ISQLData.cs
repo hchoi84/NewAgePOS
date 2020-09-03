@@ -37,7 +37,7 @@ namespace NewAgePOSLibrary.Data
 
     List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
     List<TransactionModel> Transactions_GetBySaleId(int saleId);
-    int Transactions_Insert(int saleId, float amount, string paymentType, string reason, string message);
+    int Transactions_Insert(int saleId, float amount, string method, string type, string message);
 
     List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber);
 

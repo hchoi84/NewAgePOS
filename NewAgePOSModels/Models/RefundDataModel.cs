@@ -9,7 +9,7 @@ namespace NewAgePOSModels.Models
     public int SaleId { get; set; }
     public int TransactionId { get; set; }
     public float Amount { get; set; }
-    public string PaymentType { get; set; }
+    public string Method { get; set; }
     public DateTime Created { get; set; }
     public int DiscPct { get; set; }
     public int RefundQty { get; set; }
