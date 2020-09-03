@@ -5,6 +5,11 @@
   CultureInfo dollar = new CultureInfo("en-US");
 }
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger">@TempData["Message"]</div>
+}
+
 <h3 class="mt-5">PRODUCTS</h3>
 @foreach (var saleLine in Model.SaleLines)
 {

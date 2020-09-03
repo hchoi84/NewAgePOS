@@ -16,6 +16,7 @@ namespace NewAgePOSLibrary.Data
       _sqlDb = sqlDb;
     }
 
+    #region Customers
     public List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber)
     {
       string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber";
@@ -48,12 +49,9 @@ namespace NewAgePOSLibrary.Data
     {
       _sqlDb.SaveData("dbo.spCustomers_Update", new { id, firstName, lastName, emailAddress, phoneNumber }, connectionStringName, true);
     }
+    #endregion
 
-    public List<RefundDataModel> GetRefundReceiptData(int transactionId)
-    {
-      return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
-    }
-
+    #region Products
     public ProductModel Products_GetByCode(string sku, string upc)
     {
       string query = "SELECT * FROM dbo.Products WHERE Sku = @sku OR UPC = @upc;";
@@ -79,7 +77,9 @@ namespace NewAgePOSLibrary.Data
       string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
     }
+    #endregion
 
+    #region RefundLines
     public List<RefundLineModel> RefundLines_GetBySaleLineId(int saleLineId)
     {
       string query = "SELECT * FROM dbo.RefundLines WHERE SaleLineId = @saleLineId";
@@ -101,7 +101,9 @@ namespace NewAgePOSLibrary.Data
       string query = "UPDATE dbo.RefundLines SET TransactionId = @transactionId WHERE Id = @id";
       _sqlDb.SaveData(query, new { id, transactionId }, connectionStringName, false);
     }
+    #endregion
 
+    #region SaleLines
     public void SaleLines_Delete(int id)
     {
       string query = "DELETE FROM dbo.SaleLines WHERE id = @id";
@@ -130,7 +132,9 @@ namespace NewAgePOSLibrary.Data
                       new { id, qty, discPct },
                       connectionStringName, true);
     }
+    #endregion
 
+    #region Sales
     public void Sales_CancelById(int id)
     {
       _sqlDb.SaveData("dbo.spSales_CancelById", new { id }, connectionStringName, true);
@@ -173,7 +177,9 @@ namespace NewAgePOSLibrary.Data
                       new { saleId },
                       connectionStringName, true);
     }
+    #endregion
 
+    #region Transactions
     public List<TransactionModel> Transactions_GetBySaleId(int saleId)
     {
       string query = "SELECT * FROM dbo.Transactions WHERE SaleId = @saleId";
@@ -197,12 +203,43 @@ namespace NewAgePOSLibrary.Data
                     new { saleId, giftCardId, amount, method, type, message },
                     connectionStringName, true).FirstOrDefault();
     }
+    #endregion
 
+    #region Taxes
     public int Taxes_GetBySaleId(int saleId)
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spTaxes_GetBySaleId",
                                            new { saleId },
                                            connectionStringName, true).FirstOrDefault();
+    }
+    #endregion
+
+    #region GiftCards
+    public GiftCardModel GiftCards_GetByCode(string code)
+    {
+      string query = "SELECT * FROM dbo.GiftCards WHERE Code = @code";
+      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { code }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public int GiftCards_Insert(string code, float amount) =>
+     _sqlDb.LoadData<int, dynamic>("dbo.spGiftCards_Insert", new { code, amount }, connectionStringName, true).FirstOrDefault();
+
+    public void GiftCards_Update(int id, float amount)
+    {
+      string query = "UPDATE dbo.GiftCards SET Amount = @amount WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, amount }, connectionStringName, false);
+    }
+
+    public void GiftCards_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.GiftCards WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
+    #endregion
+
+    public List<RefundDataModel> GetRefundReceiptData(int transactionId)
+    {
+      return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
     }
 
     public List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber)

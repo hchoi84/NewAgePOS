@@ -87,6 +87,7 @@
     <Build Include="dbo\StoredProcedures\spRefundLines_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spRefundLines_SubtractQty.sql" />
     <Build Include="dbo\Tables\GiftCards.sql" />
+    <Build Include="dbo\StoredProcedures\spGiftCards_Insert.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />
