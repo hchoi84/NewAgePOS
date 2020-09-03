@@ -35,7 +35,7 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnGet()
     {
-      bool isComplete = _sqlDb.Sales_GetStatus(SaleId);
+      bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
       if (!isComplete)
       {
         TempData["Message"] = $"Sale Id { SaleId } is not complete. Refund is unavailable.";
@@ -65,7 +65,7 @@ namespace NewAgePOS.Pages.Sale
         return Page();
       }
 
-      int transactionId = _sqlDb.Transactions_Insert(SaleId, total, "Cash", "Refund", Message);
+      int transactionId = _sqlDb.Transactions_Insert(SaleId, null, total, "Cash", "Refund", Message);
 
       _sqlDb.SaleLines_GetBySaleId(SaleId).ForEach(s =>
       {

@@ -29,7 +29,6 @@ namespace NewAgePOSLibrary.Data
 
     SaleModel Sales_GetById(int id);
     void Sales_CancelById(int id);
-    bool Sales_GetStatus(int id);
     int Sales_Insert();
     void Sales_MarkComplete(int id);
     void Sales_UpdateCustomerId(int saleId, int customerId);
@@ -37,7 +36,7 @@ namespace NewAgePOSLibrary.Data
 
     List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
     List<TransactionModel> Transactions_GetBySaleId(int saleId);
-    int Transactions_Insert(int saleId, float amount, string method, string type, string message);
+    int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message);
 
     List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber);
 

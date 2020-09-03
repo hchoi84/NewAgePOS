@@ -49,20 +49,20 @@
 }
 else
 {
-  <div class="row">
-    <div class="col rounded border border-dark p-1 bg-dark m-1">
-      @Model.Customer.FirstName
+  <div class="form-row">
+    <div class="col pr-0">
+      <input readonly value="@Model.Customer.FirstName" class="form-control border-dark" />
     </div>
-    <div class="col rounded border border-dark p-1 bg-dark m-1">
-      @Model.Customer.LastName
+    <div class="col pl-0">
+      <input readonly value="@Model.Customer.LastName" class="form-control border-dark" />
     </div>
   </div>
-  <div class="row">
-    <div class="col rounded border border-dark p-1 bg-dark m-1">
-      @Model.Customer.EmailAddress
+  <div class="form-row">
+    <div class="col pr-0">
+      <input readonly value="@Model.Customer.EmailAddress" class="form-control border-dark" />
     </div>
-    <div class="col rounded border border-dark p-1 bg-dark m-1">
-      @Model.Customer.PhoneNumber
+    <div class="col pl-0">
+      <input readonly value="@Model.Customer.PhoneNumber" class="form-control border-dark" />
     </div>
   </div>
 }

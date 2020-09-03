@@ -43,12 +43,12 @@
 
   @if (@Model.Id != 0)
   {
-    <button asp-page-handler="Edit" type="submit" class="btn btn-primary ml-1">Edit Customer</button>
+    <button asp-page-handler="Edit" type="submit" class="btn btn-primary">Edit Customer</button>
   }
   else
   {
     <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-secondary">Use Guest</a>
   }
 
-  <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-success mt-3">Proceed to Checkout</a>
+  <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed to Checkout</a>
 </form>

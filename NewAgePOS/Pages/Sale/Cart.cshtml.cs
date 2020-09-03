@@ -49,7 +49,7 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnGet()
     {
-      bool isComplete = _sqlDb.Sales_GetStatus(SaleId);
+      bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";

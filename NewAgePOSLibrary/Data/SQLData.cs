@@ -60,12 +60,6 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
-    //public ProductModel Products_GetById(int id)
-    //{
-    //  string q = "SELECT * FROM dbo.Products WHERE Id = @id";
-    //  return _sqlDb.LoadData<ProductModel, dynamic>(q, new { id }, connectionStringName, false).FirstOrDefault();
-    //}
-
     public List<ProductModel> Products_GetByParentSku(string parentSku)
     {
       string query = "SELECT * FROM dbo.Products WHERE Sku LIKE @parentSku";
@@ -75,7 +69,7 @@ namespace NewAgePOSLibrary.Data
 
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
     {
-      string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) OUTPUT inserted.Id VALUES (@sku, @upc, @cost, @price, @allName, 'API');";
+      string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName) OUTPUT inserted.Id VALUES (@sku, @upc, @cost, @price, @allName);";
       return _sqlDb.LoadData<int, dynamic>(query, new { sku, upc, cost, price, allName }, connectionStringName, false).FirstOrDefault();
     }
 
@@ -85,18 +79,6 @@ namespace NewAgePOSLibrary.Data
       string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
     }
-
-    //public ProductModel Products_Manual_GetByCode(string sku, string upc)
-    //{
-    //  string query = "SELECT * FROM dbo.Products WHERE Source = 'Manual' AND Sku = @sku AND Upc = @upc";
-    //  return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
-    //}
-
-    //public void Products_Manual_Insert(string sku, string upc, float cost, float price, string allName)
-    //{
-    //  string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName, Source) VALUES (@sku, @upc, @cost, @price, @allName, 'Manual');";
-    //  _sqlDb.SaveData(query, new { sku, upc, cost, price, allName }, connectionStringName, false);
-    //}
 
     public List<RefundLineModel> RefundLines_GetBySaleLineId(int saleLineId)
     {
@@ -161,12 +143,6 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
-    public bool Sales_GetStatus(int id)
-    {
-      string query = "SELECT IsComplete FROM dbo.Sales WHERE Id = @id";
-      return _sqlDb.LoadData<bool, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
-    }
-
     public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",
@@ -214,11 +190,12 @@ namespace NewAgePOSLibrary.Data
                                                         false);
     }
 
-    public int Transactions_Insert(int saleId, float amount, string method, string type, string message)
+    public int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message)
     {
+      // TODO: Will giftCardId be processed correctly? Or, will I need to specify the value if it has value?
       return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
-                      new { saleId, amount, method, type, message },
-                      connectionStringName, true).FirstOrDefault();
+                    new { saleId, giftCardId, amount, method, type, message },
+                    connectionStringName, true).FirstOrDefault();
     }
 
     public int Taxes_GetBySaleId(int saleId)

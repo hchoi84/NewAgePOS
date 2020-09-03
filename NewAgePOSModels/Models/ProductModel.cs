@@ -12,7 +12,6 @@ namespace NewAgePOSModels.Models
     public float Cost { get; set; }
     public float Price { get; set; }
     public string AllName { get; set; }
-    public string Source { get; set; }
     public DateTime Created { get; set; }
   }
 }

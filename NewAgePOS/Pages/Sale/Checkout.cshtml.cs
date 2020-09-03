@@ -35,13 +35,13 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty]
     public TransactionModel Transaction { get; set; }
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
-      bool isComplete = _sqlDb.Sales_GetStatus(SaleId);
+      bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Checkout because Sale Id { SaleId } was completed.";
-        RedirectToPage("Search");
+        return RedirectToPage("Search");
       }
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -55,6 +55,8 @@ namespace NewAgePOS.Pages.Sale
         Customer.FirstName = ti.ToTitleCase(Customer.FirstName);
         Customer.LastName = ti.ToTitleCase(Customer.LastName);
       }
+
+      return Page();
     }
 
     public async Task<IActionResult> OnPost()
@@ -84,7 +86,7 @@ namespace NewAgePOS.Pages.Sale
 
       TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
 
-      _sqlDb.Transactions_Insert(SaleId, Transaction.Amount, Transaction.Method, "Checkout", Transaction.Message);
+      _sqlDb.Transactions_Insert(SaleId, null, Transaction.Amount, Transaction.Method, "Checkout", Transaction.Message);
 
       _sqlDb.Sales_MarkComplete(SaleId);
 

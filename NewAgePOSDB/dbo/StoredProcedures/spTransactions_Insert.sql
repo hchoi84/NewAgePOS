@@ -1,5 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[spTransactions_Insert]
 	@saleId int,
+	@giftCardId int,
 	@amount float,
 	@method varchar(15),
 	@type VARCHAR(15),
@@ -8,7 +9,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.Transactions (SaleId, Amount, Method, Type, Message)
+	INSERT INTO dbo.Transactions (SaleId, GiftCardId, Amount, Method, Type, Message)
 	OUTPUT inserted.Id
-	VALUES (@saleId, @amount, @method, @type, @message);
+	VALUES (@saleId, @giftCardId, @amount, @method, @type, @message);
 END

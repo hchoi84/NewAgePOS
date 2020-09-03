@@ -6,7 +6,6 @@
 	[Cost] MONEY NOT NULL,
 	[Price] MONEY NOT NULL,
 	[AllName] VARCHAR(150) NOT NULL,
-	[Source] VARCHAR(10) NOT NULL DEFAULT('API'),
 	[Created] DATE NOT NULL DEFAULT getdate(),
 	[Updated] DATE NOT NULL DEFAULT getdate()
 )
