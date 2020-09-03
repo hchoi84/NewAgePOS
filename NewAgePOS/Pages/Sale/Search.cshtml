@@ -1,4 +1,5 @@
 ﻿@page
+@using NewAgePOS.Utilities
 @model NewAgePOS.Pages.Sale.SearchModel
 @{
   ViewData["Title"] = "Search";
@@ -7,29 +8,22 @@
 <form method="get">
   <div class="form-row">
     <div class="col">
-      <label asp-for="SaleId"></label>
-      <input asp-for="SaleId" class="form-control" />
-      <span asp-validation-for="SaleId" class="text-danger"></span>
+      <select asp-for="SearchMethod" asp-items="Model.SearchMethods" class="form-control" onchange='searchQueryMsg("searchQueryMsg")'>
+        <option value="">---Choose Method---</option>
+      </select>
     </div>
     <div class="col">
-      <label asp-for="LastName"></label>
-      <input asp-for="LastName" class="form-control" />
-      <span asp-validation-for="LastName" class="text-danger"></span>
+      <input asp-for="SearchQuery" class="form-control" />
     </div>
   </div>
   <div class="form-row">
     <div class="col">
-      <label asp-for="EmailAddress"></label>
-      <input asp-for="EmailAddress" class="form-control" />
-      <span asp-validation-for="EmailAddress" class="text-danger"></span>
+      <button type="submit" class="btn btn-primary mt-1">Search</button>
     </div>
     <div class="col">
-      <label asp-for="PhoneNumber"></label>
-      <input asp-for="PhoneNumber" class="form-control" />
-      <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+      <span id="searchQueryMsg" class="small text-info"></span>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary mt-1">Search</button>
 </form>
 
 @if (Model.Results != null)
@@ -75,4 +69,8 @@
       </div>
     }
   </div>
+}
+
+@section Scripts{
+  <script src="~/js/site.js" asp-append-version="true"></script>
 }
