@@ -224,8 +224,9 @@ namespace NewAgePOSLibrary.Data
 
     public void GiftCards_Update(int id, float amount)
     {
-      string query = "UPDATE dbo.GiftCards SET Amount = @amount WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, amount }, connectionStringName, false);
+      string updateDate = DateTime.Now.ToShortDateString();
+      string query = "UPDATE dbo.GiftCards SET Amount = @amount, Updated = @updateDate WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, amount, updateDate }, connectionStringName, false);
     }
 
     public void GiftCards_Delete(int id)

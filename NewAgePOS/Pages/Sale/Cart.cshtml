@@ -54,9 +54,9 @@
       ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
       GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId);
 
+      <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
       if (product != null)
       {
-        <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
         <div class="form-row">
           <div class="col pr-0">
             <input readonly value="@product.Sku" class="form-control" />
@@ -81,18 +81,9 @@
             <input readonly value="@saleLine.Qty" class="form-control" />
           </div>
         </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
-              <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
-            </div>
-          </div>
-        </div>
       }
       else
       {
-        <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
         <div class="form-row">
           <div class="col pr-0">
             <input readonly value="@giftCard.Code" class="form-control" />
@@ -104,21 +95,19 @@
             <input readonly value="@saleLine.Qty" class="form-control" />
           </div>
         </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
-              <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
-            </div>
-          </div>
-        </div>
       }
+      <div class="form-row">
+        <label class="col-form-label ml-3" asp-for="@Model.CartDiscs[i].DiscPct"></label>
+        <div class="col">
+          <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control text-info font-weight-bold" />
+        </div>
+      </div>
     }
-    <button type="submit" class="btn btn-primary">Apply</button>
+    <button type="submit" class="btn btn-primary mt-1">Apply</button>
   </form>
-}
 
-@await Component.InvokeAsync("SalePriceSummary", new { saleLines = Model.SaleLines, taxPct = Model.TaxPct })
+  @await Component.InvokeAsync("SalePriceSummary", new { saleLines = Model.SaleLines, taxPct = Model.TaxPct })
+}
 
 <div class="container">
   <div class="row mt-3">

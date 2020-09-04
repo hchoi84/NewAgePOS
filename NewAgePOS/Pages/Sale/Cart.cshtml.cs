@@ -264,5 +264,30 @@ namespace NewAgePOS.Pages
 
       return RedirectToPage();
     }
+
+    public IActionResult OnPostRemoveGiftCard()
+    {
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.GiftCardId.HasValue).ToList();
+      List<string> msgs = new List<string>();
+      List<string> giftCardCodes = GiftCardCodes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct().ToList();
+
+      foreach (string code in giftCardCodes)
+      {
+        GiftCardModel gc = _sqlDb.GiftCards_GetByCode(code);
+
+        if (gc == null)
+        {
+          TempData["Message"] = $"{ code } was not found";
+          continue;
+        }
+
+        _sqlDb.SaleLines_Delete(SaleLines.FirstOrDefault(s => s.GiftCardId.Value == gc.Id).Id);
+        _sqlDb.GiftCards_Delete(gc.Id);
+      }
+
+      if (msgs.Count > 0) TempData["Message"] = string.Join(Environment.NewLine, msgs);
+
+      return RedirectToPage();
+    }
   }
 }

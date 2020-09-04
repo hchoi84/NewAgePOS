@@ -3,6 +3,6 @@
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[Code] VARCHAR(20) NOT NULL,
 	[Amount] MONEY NOT NULL,
-	[Created] DATE NOT NULL,
-	[Updated] DATE NOT NULL
+	[Created] DATE NOT NULL DEFAULT getdate(),
+	[Updated] DATE NOT NULL DEFAULT getdate()
 )
