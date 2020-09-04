@@ -23,7 +23,7 @@ namespace NewAgePOS.Pages
       _sqlDb = sqlDb;
     }
 
-    public List<SaleLineModel> SaleLines { get; set; }
+    public List<SaleLineModel> SaleLines { get; set; } = new List<SaleLineModel>();
     public List<ProductModel> Products { get; set; } = new List<ProductModel>();
     public List<GiftCardModel> GiftCards { get; set; } = new List<GiftCardModel>();
     public float TaxPct { get; set; }
@@ -53,20 +53,26 @@ namespace NewAgePOS.Pages
         return RedirectToPage("Search");
       }
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
-      foreach (var saleLine in SaleLines)
-      {
-        if (saleLine.ProductId != null) Products.Add(_sqlDb.Products_GetById(saleLine.ProductId.Value));
-        if (saleLine.GiftCardId != null) GiftCards.Add(_sqlDb.GiftCards_GetById(saleLine.GiftCardId.Value));
+      _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .OrderByDescending(s => s.ProductId)
+        .ToList()
+        .ForEach(s =>
+          {
+            SaleLines.Add(s);
 
-        CartDiscs.Add(new CartDiscModel()
-        {
-          SaleLineId = saleLine.Id,
-          DiscPct = saleLine.DiscPct
-        });
-      }
+            if (s.ProductId != null)
+              Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+            else
+              GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
+
+            CartDiscs.Add(new CartDiscModel()
+            {
+              SaleLineId = s.Id,
+              DiscPct = s.DiscPct
+            });
+          });
 
       return Page();
     }
@@ -86,23 +92,33 @@ namespace NewAgePOS.Pages
         }
 
         if (saleLine.DiscPct != cartDisc.DiscPct)
-        {
           _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscPct);
-        }
       }
 
       return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostAddAsync()
+    #region Add Product
+    public async Task<IActionResult> OnPostAddProductAsync()
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
-      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
-
-      List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
+      List<string> productCodes = Codes.Trim()
+        .Replace(" ", string.Empty)
+        .Split(Environment.NewLine)
+        .ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
+
+      _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .ToList()
+        .ForEach(s =>
+          {
+            if (s.ProductId != null)
+            {
+              SaleLines.Add(s);
+              Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+            }
+          });
 
       UpdateCart(groupedCodes);
       if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
@@ -123,7 +139,7 @@ namespace NewAgePOS.Pages
         SaleLineModel saleLine = new SaleLineModel();
 
         if (groupedCodes[i].Key.Contains("_"))
-          product = Products.FirstOrDefault(p => p.Sku == groupedCodes[i].Key);
+          product = Products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
         else
           product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
 
@@ -139,8 +155,7 @@ namespace NewAgePOS.Pages
 
     private async Task GetFromChannelAdvisor(List<IGrouping<string, string>> groupedCodes)
     {
-      List<ProductModel> products = new List<ProductModel>();
-      Dictionary<string, int> uniqueCodes = uniqueCodes = groupedCodes
+      Dictionary<string, int> uniqueCodes = groupedCodes
         .ToDictionary(g => g.Key, g => g.Count(), StringComparer.InvariantCultureIgnoreCase);
 
       List<JObject> jObjects = await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList());
@@ -150,12 +165,15 @@ namespace NewAgePOS.Pages
         int productId = 0;
         string sku = item[CAStrings.sku].ToString();
         string upc = item[CAStrings.upc].ToString();
-        float cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 : item[CAStrings.cost].ToObject<float>();
+        float cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
+          item[CAStrings.cost].ToObject<float>();
         float price = item[CAStrings.attributes]
-          .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.bcprice)[CAStrings.Value]
+          .FirstOrDefault(i => i[CAStrings.name]
+            .ToString() == CAStrings.bcprice)[CAStrings.Value]
           .ToObject<float>();
         string allName = item[CAStrings.attributes]
-          .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.allName)[CAStrings.Value]
+          .FirstOrDefault(i => i[CAStrings.name]
+            .ToString() == CAStrings.allName)[CAStrings.Value]
           .ToString();
 
         ProductModel productDb = _sqlDb.Products_GetByCode(sku, upc);
@@ -172,7 +190,7 @@ namespace NewAgePOS.Pages
         if (uniqueCodes.ContainsKey(sku))
         {
           qty1 = uniqueCodes[sku];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == sku.ToLower() || g.Key == sku.ToUpper()));
+          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key.ToLower() == sku.ToLower()));
         }
 
         if (uniqueCodes.ContainsKey(upc))
@@ -186,29 +204,45 @@ namespace NewAgePOS.Pages
         _sqlDb.SaleLines_Insert(SaleId, productId, null, qty);
       }
     }
+    #endregion
 
-    public IActionResult OnPostRemove()
+    public IActionResult OnPostRemoveProduct()
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .ToList()
+        .ForEach(s =>
+          {
+            if (s.ProductId != null)
+            {
+              SaleLines.Add(s);
+              Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+            }
+          });
 
-      List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
-      List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
+      List<string> productCodes = Codes
+        .Trim()
+        .Replace(" ", string.Empty)
+        .Split(Environment.NewLine)
+        .ToList();
+
+      List<IGrouping<string, string>> groupedCodes = productCodes
+        .GroupBy(p => p)
+        .ToList();
 
       for (int i = groupedCodes.Count - 1; i >= 0; i--)
       {
         ProductModel product = new ProductModel();
-        SaleLineModel saleLine = new SaleLineModel();
 
         if (groupedCodes[i].Key.Contains("_"))
-          product = Products.FirstOrDefault(p => p.Sku == groupedCodes[i].Key);
+          product = Products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
         else
           product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
 
         if (product != null)
         {
-          saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
+          SaleLineModel saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty -= groupedCodes[i].Count();
 
           if (saleLine.Qty <= 0)
@@ -234,7 +268,12 @@ namespace NewAgePOS.Pages
     public IActionResult OnPostAddGiftCard()
     {
       List<string> msgs = new List<string>();
-      List<string> giftCardCodes = GiftCardCodes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct().ToList();
+      List<string> giftCardCodes = GiftCardCodes
+        .Trim()
+        .Replace(" ", string.Empty)
+        .Split(Environment.NewLine)
+        .Distinct()
+        .ToList();
 
       foreach (string code in giftCardCodes)
       {
@@ -242,7 +281,7 @@ namespace NewAgePOS.Pages
 
         if (gc != null)
         {
-          msgs.Add($"{ code } already exists. Skipping");
+          msgs.Add($"{ code } already exists. Skipped");
           continue;
         }
 
@@ -259,8 +298,14 @@ namespace NewAgePOS.Pages
     public IActionResult OnPostRemoveGiftCard()
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.GiftCardId.HasValue).ToList();
+
       List<string> msgs = new List<string>();
-      List<string> giftCardCodes = GiftCardCodes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct().ToList();
+      List<string> giftCardCodes = GiftCardCodes
+        .Trim()
+        .Replace(" ", string.Empty)
+        .Split(Environment.NewLine)
+        .Distinct()
+        .ToList();
 
       foreach (string code in giftCardCodes)
       {

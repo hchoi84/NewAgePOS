@@ -19,8 +19,8 @@
       <div class="form-group">
         <textarea asp-for="Codes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
       </div>
-      <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
-      <button asp-page-handler="Remove" type="submit" class="btn btn-danger">Remove</button>
+      <button asp-page-handler="AddProduct" type="submit" class="btn btn-primary">Add</button>
+      <button asp-page-handler="RemoveProduct" type="submit" class="btn btn-danger">Remove</button>
     </form>
   </div>
 
@@ -41,7 +41,7 @@
 
 @if (Model.CartDiscs != null && Model.CartDiscs.Any())
 {
-  <h3 class="mt-5">PRODUCTS</h3>
+  <h3 class="mt-5">ITEMS</h3>
   <form method="post" asp-page-handler="ApplyDiscount">
     @for (var i = 0; i < Model.CartDiscs.Count; i++)
     {
@@ -51,12 +51,12 @@
       }
 
       SaleLineModel saleLine = Model.SaleLines.FirstOrDefault(sl => sl.Id == Model.CartDiscs[i].SaleLineId);
-      ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
-      GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId);
 
       <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
-      if (product != null)
+      if (saleLine.ProductId != null)
       {
+        ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
+
         <div class="form-row">
           <div class="col pr-0">
             <input readonly value="@product.Sku" class="form-control" />
@@ -84,6 +84,8 @@
       }
       else
       {
+        GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId);
+
         <div class="form-row">
           <div class="col pr-0">
             <input readonly value="@giftCard.Code" class="form-control" />
