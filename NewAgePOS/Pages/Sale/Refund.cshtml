@@ -46,6 +46,7 @@
     <div class="mt-3"></div>
   }
 
+  ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
   List<RefundLineModel> refundedLines = Model.RefundLines.Where(r => r.TransactionId != 0 && r.SaleLineId == saleLine.Id).ToList();
   RefundLineModel refundingLine = Model.RefundLines.FirstOrDefault(r => r.TransactionId == 0 && r.SaleLineId == saleLine.Id);
   int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
@@ -53,15 +54,15 @@
 
   <div class="form-row">
     <div class="col pr-0">
-      <input readonly value="@saleLine.Sku" class="form-control">
+      <input readonly value="@product.Sku" class="form-control">
     </div>
     <div class="col pl-0">
-      <input readonly value="@saleLine.Upc" class="form-control">
+      <input readonly value="@product.Upc" class="form-control">
     </div>
   </div>
   <div class="form-row">
     <div class="col">
-      <input readonly value="@saleLine.AllName" class="form-control">
+      <input readonly value="@product.AllName" class="form-control">
     </div>
   </div>
   <div class="form-row">

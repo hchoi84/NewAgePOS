@@ -14,31 +14,34 @@
 
 <div class="row">
   <div class="col">
-    <form method="post" asp-page-handler="Add">
-      <h3>ADD</h3>
+    <form method="post">
+      <h4>Products</h4>
       <div class="form-group">
-        <label asp-for="Codes"></label>
-        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+        <textarea asp-for="Codes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">Add</button>
+      <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
+      <button asp-page-handler="Remove" type="submit" class="btn btn-danger">Remove</button>
     </form>
   </div>
 
   <div class="col">
-    <form method="post" asp-page-handler="Remove">
-      <h3>REMOVE</h3>
-      <div class="form-group" asp-page-handler="Remove">
-        <label asp-for="Codes"></label>
-        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+    <form method="post">
+      <h4>Gift Cards</h4>
+      <div class="form-group mb-0">
+        <textarea asp-for="GiftCardCodes" class="form-control" rows="2" placeholder="Gift card codes..."></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">Remove</button>
+      <div class="form-group">
+        <input asp-for="GiftCardAmount" class="form-control" />
+      </div>
+      <button asp-page-handler="AddGiftCard" type="submit" class="btn btn-primary">Add</button>
+      <button asp-page-handler="RemoveGiftCard" type="submit" class="btn btn-danger">Remove</button>
     </form>
   </div>
 </div>
 
-<h3 class="mt-5">PRODUCTS</h3>
 @if (Model.CartDiscs != null && Model.CartDiscs.Any())
 {
+  <h3 class="mt-5">PRODUCTS</h3>
   <form method="post" asp-page-handler="ApplyDiscount">
     @for (var i = 0; i < Model.CartDiscs.Count; i++)
     {
@@ -48,40 +51,68 @@
       }
 
       SaleLineModel saleLine = Model.SaleLines.FirstOrDefault(sl => sl.Id == Model.CartDiscs[i].SaleLineId);
+      ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
+      GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId);
 
-      <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
-      <div class="form-row">
-        <div class="col pr-0">
-          <input readonly value="@saleLine.Sku" class="form-control" />
-        </div>
-        <div class="col pl-0">
-          <input readonly value="@saleLine.Upc" class="form-control" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="col">
-          <input readonly value="@saleLine.AllName" class="form-control" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="col pr-0">
-          <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control" />
-        </div>
-        <div class="col px-0">
-          <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control" />
-        </div>
-        <div class="col pl-0">
-          <input readonly value="@saleLine.Qty" class="form-control" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="col">
-          <div class="form-group">
-            <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
-            <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
+      if (product != null)
+      {
+        <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
+        <div class="form-row">
+          <div class="col pr-0">
+            <input readonly value="@product.Sku" class="form-control" />
+          </div>
+          <div class="col pl-0">
+            <input readonly value="@product.Upc" class="form-control" />
           </div>
         </div>
-      </div>
+        <div class="form-row">
+          <div class="col">
+            <input readonly value="@product.AllName" class="form-control" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col pr-0">
+            <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control" />
+          </div>
+          <div class="col px-0">
+            <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control" />
+          </div>
+          <div class="col pl-0">
+            <input readonly value="@saleLine.Qty" class="form-control" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
+              <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
+            </div>
+          </div>
+        </div>
+      }
+      else
+      {
+        <input hidden asp-for="@Model.CartDiscs[i].SaleLineId" />
+        <div class="form-row">
+          <div class="col pr-0">
+            <input readonly value="@giftCard.Code" class="form-control" />
+          </div>
+          <div class="col px-0">
+            <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control" />
+          </div>
+          <div class="col pl-0">
+            <input readonly value="@saleLine.Qty" class="form-control" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label asp-for="@Model.CartDiscs[i].DiscPct"></label>
+              <input asp-for="@Model.CartDiscs[i].DiscPct" class="form-control" />
+            </div>
+          </div>
+        </div>
+      }
     }
     <button type="submit" class="btn btn-primary">Apply</button>
   </form>

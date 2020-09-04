@@ -22,6 +22,7 @@ namespace NewAgePOS.Pages.Sale
     public int SaleId { get; set; }
 
     public List<SaleLineModel> SaleLines { get; set; }
+    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
     public List<RefundLineModel> RefundLines { get; set; } = new List<RefundLineModel>();
     public float TaxPct { get; set; }
     public float Subtotal { get; set; }
@@ -42,11 +43,12 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
       SaleLines.ForEach(s =>
       {
+        if (s.ProductId != null) Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
         List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
         RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
         int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
@@ -87,11 +89,14 @@ namespace NewAgePOS.Pages.Sale
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
-      SaleLines = SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
+      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
 
       foreach (var groupedCode in groupedCodes)
       {
-        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Sku == groupedCode.Key || sl.Upc == groupedCode.Key);
+        ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
+        SaleLineModel saleLine = new SaleLineModel();
+        if (product != null)  saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
 
         if (saleLine == null)
         {
@@ -130,7 +135,9 @@ namespace NewAgePOS.Pages.Sale
 
       foreach (var groupedCode in groupedCodes)
       {
-        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Sku == groupedCode.Key || sl.Upc == groupedCode.Key);
+        ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
+        SaleLineModel saleLine = new SaleLineModel();
+        if (product != null) saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
 
         if (saleLine == null)
         {

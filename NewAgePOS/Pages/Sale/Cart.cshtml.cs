@@ -33,8 +33,8 @@ namespace NewAgePOS.Pages
     private readonly string _Value = "Value";
 
     public List<SaleLineModel> SaleLines { get; set; }
-
-    [BindProperty]
+    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
+    public List<GiftCardModel> GiftCards { get; set; } = new List<GiftCardModel>();
     public float TaxPct { get; set; }
 
     [BindProperty(SupportsGet = true)]
@@ -45,7 +45,13 @@ namespace NewAgePOS.Pages
     public string Codes { get; set; }
 
     [BindProperty]
-    public List<CartDisctModel> CartDiscs { get; set; } = new List<CartDisctModel>();
+    public List<CartDiscModel> CartDiscs { get; set; } = new List<CartDiscModel>();
+
+    [BindProperty]
+    public string GiftCardCodes { get; set; }
+
+    [BindProperty]
+    public float GiftCardAmount { get; set; }
 
     public IActionResult OnGet()
     {
@@ -61,7 +67,10 @@ namespace NewAgePOS.Pages
 
       foreach (var saleLine in SaleLines)
       {
-        CartDiscs.Add(new CartDisctModel()
+        if (saleLine.ProductId != null) Products.Add(_sqlDb.Products_GetById(saleLine.ProductId.Value));
+        if (saleLine.GiftCardId != null) GiftCards.Add(_sqlDb.GiftCards_GetById(saleLine.GiftCardId.Value));
+
+        CartDiscs.Add(new CartDiscModel()
         {
           SaleLineId = saleLine.Id,
           DiscPct = saleLine.DiscPct
@@ -75,7 +84,8 @@ namespace NewAgePOS.Pages
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
+      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
 
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
@@ -95,14 +105,17 @@ namespace NewAgePOS.Pages
     {
       for (int i = groupedCodes.Count - 1; i >= 0; i--)
       {
+        ProductModel product = new ProductModel();
         SaleLineModel saleLine = new SaleLineModel();
-        if (groupedCodes[i].Key.Contains("_"))
-          saleLine = SaleLines.FirstOrDefault(s => s.Sku == groupedCodes[i].Key);
-        else
-          saleLine = SaleLines.FirstOrDefault(s => s.Upc == groupedCodes[i].Key);
 
-        if (saleLine != null)
+        if (groupedCodes[i].Key.Contains("_"))
+          product = Products.FirstOrDefault(p => p.Sku == groupedCodes[i].Key);
+        else
+          product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
+
+        if (product != null)
         {
+          saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty += groupedCodes[i].Count();
           _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
           groupedCodes.RemoveAt(i);
@@ -156,7 +169,7 @@ namespace NewAgePOS.Pages
 
         int qty = qty1 + qty2;
 
-        _sqlDb.SaleLines_Insert(SaleId, productId, qty);
+        _sqlDb.SaleLines_Insert(SaleId, productId, null, qty);
       }
     }
 
@@ -164,13 +177,13 @@ namespace NewAgePOS.Pages
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      foreach (CartDisctModel cartDisc in CartDiscs)
+      foreach (CartDiscModel cartDisc in CartDiscs)
       {
         SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
 
         if (cartDisc.DiscPct > 100)
         {
-          ModelState.AddModelError(string.Empty, $"{ saleLine.Sku }: Discount percent can't be greater than 100");
+          ModelState.AddModelError(string.Empty, "Discount percent can't be greater than 100");
           return Page();
         }
 
@@ -185,6 +198,8 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostRemove()
     {
+      if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
@@ -192,15 +207,17 @@ namespace NewAgePOS.Pages
 
       for (int i = groupedCodes.Count - 1; i >= 0; i--)
       {
+        ProductModel product = new ProductModel();
         SaleLineModel saleLine = new SaleLineModel();
 
         if (groupedCodes[i].Key.Contains("_"))
-          saleLine = SaleLines.FirstOrDefault(s => s.Sku == groupedCodes[i].Key);
+          product = Products.FirstOrDefault(p => p.Sku == groupedCodes[i].Key);
         else
-          saleLine = SaleLines.FirstOrDefault(s => s.Upc == groupedCodes[i].Key);
+          product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
 
-        if (saleLine != null)
+        if (product != null)
         {
+          saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty -= groupedCodes[i].Count();
 
           if (saleLine.Qty <= 0) 
@@ -219,6 +236,31 @@ namespace NewAgePOS.Pages
         string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
         TempData["Message"] = $"Unable to find { notFoundCodes } in cart";
       }
+
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostAddGiftCard()
+    {
+      List<string> msgs = new List<string>();
+      List<string> giftCardCodes = GiftCardCodes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct().ToList();
+
+      foreach (string code in giftCardCodes)
+      {
+        GiftCardModel gc = _sqlDb.GiftCards_GetByCode(code);
+
+        if (gc != null)
+        {
+          msgs.Add($"{ code } already exists. Skipping");
+          continue;
+        }
+
+        int giftCardId = _sqlDb.GiftCards_Insert(code, GiftCardAmount);
+
+        _sqlDb.SaleLines_Insert(SaleId, null, giftCardId, 1);
+      }
+
+      if (msgs.Count > 0) TempData["Message"] = string.Join(Environment.NewLine, msgs);
 
       return RedirectToPage();
     }

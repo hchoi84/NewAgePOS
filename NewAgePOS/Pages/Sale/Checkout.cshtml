@@ -14,15 +14,27 @@
 @foreach (var saleLine in Model.SaleLines)
 {
   float priceAfterDisc = saleLine.Price * (1 - saleLine.DiscPct / 100f);
+  string name;
 
   @if (saleLine != Model.SaleLines.First())
   {
     <div class="mt-3"></div>
   }
 
+  @if (saleLine.ProductId.HasValue)
+  {
+    ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
+    name = product.AllName;
+  }
+  else
+  {
+    GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
+    name = giftCard.Code;
+  }
+
   <div class="row">
     <div class="col">
-      <div class="border border-dark rounded bg-dark p-1">@saleLine.AllName</div>
+      <div class="border border-dark rounded bg-dark p-1">@name</div>
     </div>
   </div>
   <div class="row">

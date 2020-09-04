@@ -26,14 +26,14 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    public List<SaleLineModel> SaleLines { get; set; }
-
-    public float TaxPct { get; set; }
-
-    public CustomerModel Customer { get; set; }
-
     [BindProperty]
     public TransactionModel Transaction { get; set; }
+
+    public List<SaleLineModel> SaleLines { get; set; }
+    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
+    public List<GiftCardModel> GiftCards { get; set; } = new List<GiftCardModel>();
+    public float TaxPct { get; set; }
+    public CustomerModel Customer { get; set; }
 
     public IActionResult OnGet()
     {
@@ -46,8 +46,8 @@ namespace NewAgePOS.Pages.Sale
 
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
-
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
+
       if (Customer != null)
       {
         TextInfo ti = new CultureInfo("en-US", false).TextInfo;
@@ -56,18 +56,24 @@ namespace NewAgePOS.Pages.Sale
         Customer.LastName = ti.ToTitleCase(Customer.LastName);
       }
 
+      foreach (SaleLineModel saleLine in SaleLines)
+      {
+        if (saleLine.ProductId.HasValue) Products.Add(_sqlDb.Products_GetById(saleLine.ProductId.Value));
+        if (saleLine.GiftCardId.HasValue) GiftCards.Add(_sqlDb.GiftCards_GetById(saleLine.GiftCardId.Value));
+      }
+
       return Page();
     }
 
     public async Task<IActionResult> OnPost()
     {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
       List<AddRemoveItemBulkModel> itemsToRemove = new List<AddRemoveItemBulkModel>();
 
       itemsToRemove = SaleLines.Select(s =>
       new AddRemoveItemBulkModel
       {
-        Code = s.Sku,
+        Code = _sqlDb.Products_GetById(s.ProductId.Value).Sku,
         LocationCode = "STORE",
         Quantity = s.Qty,
         Reason = "Store Sale"

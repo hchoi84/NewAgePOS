@@ -58,13 +58,6 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
     }
 
-    public List<ProductModel> Products_GetByParentSku(string parentSku)
-    {
-      string query = "SELECT * FROM dbo.Products WHERE Sku LIKE @parentSku";
-      parentSku += "%";
-      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { parentSku }, connectionStringName, false);
-    }
-
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
     {
       string query = "INSERT INTO dbo.Products (Sku, Upc, Cost, Price, AllName) OUTPUT inserted.Id VALUES (@sku, @upc, @cost, @price, @allName);";
@@ -76,6 +69,12 @@ namespace NewAgePOSLibrary.Data
       string updateDate = DateTime.Now.ToShortDateString();
       string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
+    }
+
+    public ProductModel Products_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.Products WHERE Id = @id";
+      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
     #endregion
 
@@ -114,15 +113,14 @@ namespace NewAgePOSLibrary.Data
 
     public List<SaleLineModel> SaleLines_GetBySaleId(int saleId)
     {
-      return _sqlDb.LoadData<SaleLineModel, dynamic>("spSaleLines_GetBySaleId",
-                                                     new { saleId },
-                                                     connectionStringName, true);
+      string query = @"SELECT * FROM dbo.SaleLines WHERE SaleId = @saleId;";
+      return _sqlDb.LoadData<SaleLineModel, dynamic>(query, new { saleId }, connectionStringName, false);
     }
 
-    public void SaleLines_Insert(int saleId, int productId, int qty)
+    public void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty)
     {
       _sqlDb.SaveData("dbo.spSaleLines_Insert",
-                      new { saleId, productId, qty },
+                      new { saleId, productId, giftCardId, qty },
                       connectionStringName, true);
     }
 
@@ -234,6 +232,12 @@ namespace NewAgePOSLibrary.Data
     {
       string query = "DELETE FROM dbo.GiftCards WHERE Id = @id";
       _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
+
+    public GiftCardModel GiftCards_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.GiftCards WHERE Id = @id";
+      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
     #endregion
 

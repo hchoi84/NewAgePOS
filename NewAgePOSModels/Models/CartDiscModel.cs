@@ -2,7 +2,7 @@
 
 namespace NewAgePOSModels.Models
 {
-  public class CartDisctModel
+  public class CartDiscModel
   {
     public int SaleLineId { get; set; }
 

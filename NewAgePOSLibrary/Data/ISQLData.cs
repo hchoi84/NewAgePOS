@@ -15,7 +15,6 @@ namespace NewAgePOSLibrary.Data
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
 
     ProductModel Products_GetByCode(string sku, string upc);
-    List<ProductModel> Products_GetByParentSku(string parentSku);
     int Products_Insert(string sku, string upc, float cost, float price, string allName);
     void Products_Update(int productId, float cost, float price, string allName);
 
@@ -24,7 +23,7 @@ namespace NewAgePOSLibrary.Data
 
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
-    void SaleLines_Insert(int saleId, int productId, int qty);
+    void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty);
     void SaleLines_Update(int id, int qty, float discPct);
 
     SaleModel Sales_GetById(int id);
@@ -43,5 +42,11 @@ namespace NewAgePOSLibrary.Data
     int Taxes_GetBySaleId(int saleId);
     void RefundLines_SubtractQty(int id, int subtractQty);
     void RefundLines_MarkComplete(int id, int transactionId);
+    GiftCardModel GiftCards_GetByCode(string code);
+    int GiftCards_Insert(string code, float amount);
+    void GiftCards_Update(int id, float amount);
+    void GiftCards_Delete(int id);
+    ProductModel Products_GetById(int id);
+    GiftCardModel GiftCards_GetById(int id);
   }
 }

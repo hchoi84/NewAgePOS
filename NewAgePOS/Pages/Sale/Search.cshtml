@@ -26,13 +26,14 @@
   </div>
 </form>
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger mt-3">@TempData["Message"]</div>
+}
+
 @if (Model.Results != null)
 {
   <h3 class="mt-5">Results</h3>
-  @if (TempData["Message"] != null)
-  {
-    <div class="text-danger">@TempData["Message"]</div>
-  }
 
   <div class="container">
     @foreach (var result in Model.Results)
