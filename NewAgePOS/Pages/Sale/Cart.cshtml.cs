@@ -56,23 +56,23 @@ namespace NewAgePOS.Pages
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
       _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .OrderByDescending(s => s.ProductId)
+        .ToList()
         .ForEach(s =>
           {
             SaleLines.Add(s);
-
-            if (s.ProductId != null)
-              Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
-            else
-              GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
 
             CartDiscs.Add(new CartDiscModel()
             {
               SaleLineId = s.Id,
               DiscPct = s.DiscPct
             });
-          });
 
-      SaleLines.OrderByDescending(s => s.ProductId);
+            if (s.ProductId != null)
+              Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+            else
+              GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
+          });
 
       return Page();
     }

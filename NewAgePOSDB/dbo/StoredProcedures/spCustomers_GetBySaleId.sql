@@ -4,7 +4,7 @@ AS
 BEGIN
  SET NOCOUNT ON;
 
- SELECT Id, FirstName, LastName, EmailAddress, PhoneNumber
+ SELECT *
  FROM dbo.Customers
  WHERE Id = 
 	(SELECT CustomerId

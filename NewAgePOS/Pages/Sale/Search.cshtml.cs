@@ -74,13 +74,6 @@ namespace NewAgePOS.Pages.Sale
 
         if (isValid && SearchQuery.Length == 10) Results = _sqlDb.SearchSales(0, "", "", SearchQuery);
       }
-      
-      if (Results != null)
-      {
-        TextInfo ti = new CultureInfo("en-US", false).TextInfo;
-
-        Results.ForEach(r => r.FullName = ti.ToTitleCase(r.FullName));
-      }
 
       return Page();
     }

@@ -23,13 +23,11 @@
 
   @if (saleLine.ProductId.HasValue)
   {
-    ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
-    name = product.AllName;
+    name = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value).AllName;
   }
   else
   {
-    GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
-    name = giftCard.Code;
+    name = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value).Code;
   }
 
   <div class="row">
@@ -84,23 +82,54 @@ else
   </div>
 }
 
+@if (Model.Transactions.Any())
+{
+  <h4 class="mt-5">Transactions</h4>
+
+  foreach (TransactionModel transaction in Model.Transactions)
+  {
+    string method;
+
+    @if (transaction.GiftCardId.HasValue)
+    {
+      string code = Model.GiftCards.FirstOrDefault(g => g.Id == transaction.GiftCardId).Code;
+      method = $"{ transaction.Method } ({ code })";
+    }
+    else
+    {
+      method = transaction.Method;
+    }
+
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@method" class="form-control" />
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
+      </div>
+    </div>
+  }
+}
+
 <h3 class="mt-5">PAYMENT</h3>
 <form method="post">
   <div class="form-group">
-    <label asp-for="@Model.Transaction.Method"></label>
-    <select asp-for="@Model.Transaction.Method" class="form-control">
+    <label asp-for="@Model.PaymentMethod"></label>
+    <select asp-for="@Model.PaymentMethod" class="form-control" asp-items="@Model.PaymentMethods">
       <option>Choose...</option>
-      <option selected>Cash</option>
-      <option>Credit Card</option>
     </select>
   </div>
   <div class="form-group">
-    <label asp-for="@Model.Transaction.Amount"></label>
-    <input asp-for="@Model.Transaction.Amount" class="form-control">
+    <label asp-for="@Model.Amount"></label>
+    <input asp-for="@Model.Amount" class="form-control">
   </div>
   <div class="form-group">
-    <label asp-for="@Model.Transaction.Message"></label>
-    <textarea asp-for="@Model.Transaction.Message" rows="2" class="form-control"></textarea>
+    <label asp-for="@Model.GiftCardCodes"></label>
+    <textarea asp-for="@Model.GiftCardCodes" class="form-control"></textarea>
+  </div>
+  <div class="form-group">
+    <label asp-for="@Model.Message"></label>
+    <textarea asp-for="@Model.Message" rows="2" class="form-control"></textarea>
   </div>
   <button type="submit" class="btn btn-success">Complete</button>
 </form>
