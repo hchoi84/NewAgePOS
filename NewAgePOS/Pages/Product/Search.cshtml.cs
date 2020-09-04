@@ -27,14 +27,6 @@ namespace NewAgePOS.Pages.Product
       _sv = sv;
     }
 
-    private readonly string _sku = "Sku";
-    private readonly string _upc = "UPC";
-    private readonly string _allName = "All Name";
-    private readonly string _attributes = "Attributes";
-    private readonly string _name = "Name";
-    private readonly string _Value = "Value";
-    private readonly string _whLoc = "WarehouseLocation";
-
     [BindProperty(SupportsGet = true)]
     [Display(Name = "SKU or UPC")]
     public string Codes { get; set; }
@@ -62,15 +54,15 @@ namespace NewAgePOS.Pages.Product
 
       foreach (var item in jObjects)
       {
-        if (string.IsNullOrEmpty(item[_whLoc].ToString()) ||
-          item[_whLoc].ToString() == "DROPSHIP(19999)") continue;
+        if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString()) ||
+          item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)") continue;
 
         Products.Add(new ProductSearchModel
         {
-          Sku = item[_sku].ToString(),
-          Upc = item[_upc].ToString(),
-          AllName = item[_attributes]
-          .FirstOrDefault(i => i[_name].ToString() == _allName)[_Value]
+          Sku = item[CAStrings.sku].ToString(),
+          Upc = item[CAStrings.upc].ToString(),
+          AllName = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.allName)[CAStrings.Value]
           .ToString()
         });
       }

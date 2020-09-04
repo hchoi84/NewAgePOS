@@ -13,5 +13,6 @@ namespace NewAgePOSModels.Models
     public int Qty { get; set; }
     public float DiscPct { get; set; }
     public float LineTotal { get { return Price * Qty; } }
+    public float Discount { get { return DiscPct / 100f * Price * Qty; } }
   }
 }

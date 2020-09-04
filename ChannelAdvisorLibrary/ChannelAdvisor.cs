@@ -7,23 +7,11 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using NewAgePOSModels.Models;
 
 namespace ChannelAdvisorLibrary
 {
   public class ChannelAdvisor : IChannelAdvisor
   {
-    private readonly string _accessToken = "access_token";
-    private readonly string _expiresIn = "expires_in";
-    private readonly string _appForm = "application/x-www-form-urlencoded";
-    private readonly string _appJson = "application/json";
-    private readonly string _odataNextLink = "@odata.nextLink";
-
-    private readonly List<string> _labelNames = new List<string>
-    {
-      "Closeout", "Discount", "MAPNoShow", "MAPShow", "NPIP"
-    };
-
     private void EstablishConnection()
     {
       if (Secrets.TokenExpireDateTime < DateTime.Now || Secrets.TokenExpireDateTime == null)
@@ -39,9 +27,9 @@ namespace ChannelAdvisorLibrary
           Method = HttpMethod.Post,
           Headers = {
             { HttpRequestHeader.Authorization.ToString(), authorization },
-            { HttpRequestHeader.ContentType.ToString(), _appForm },
+            { HttpRequestHeader.ContentType.ToString(), CAStrings.appForm },
           },
-          Content = new StringContent($"grant_type=refresh_token&refresh_token={ Secrets.RefreshToken }", Encoding.UTF8, _appJson),
+          Content = new StringContent($"grant_type=refresh_token&refresh_token={ Secrets.RefreshToken }", Encoding.UTF8, CAStrings.appJson),
         };
 
         HttpClient client = new HttpClient();
@@ -49,8 +37,8 @@ namespace ChannelAdvisorLibrary
         HttpContent content = response.Content;
         string json = content.ReadAsStringAsync().Result;
         JObject result = JObject.Parse(json);
-        Secrets.AccessToken = result[_accessToken].ToString();
-        Secrets.TokenExpireDateTime = DateTime.Now.AddSeconds(Convert.ToDouble(result[_expiresIn]) - Secrets.TokenExpireBuffer);
+        Secrets.AccessToken = result[CAStrings.accessToken].ToString();
+        Secrets.TokenExpireDateTime = DateTime.Now.AddSeconds(Convert.ToDouble(result[CAStrings.expiresIn]) - Secrets.TokenExpireBuffer);
       }
     }
 
@@ -84,7 +72,7 @@ namespace ChannelAdvisorLibrary
           throw new Exception(jObject["error"]["message"].ToString());
         }
 
-        reqUri = (string)jObject[_odataNextLink];
+        reqUri = (string)jObject[CAStrings.odataNextLink];
 
         foreach (JObject item in jObject["value"]) jObjects.Add(item);
       }

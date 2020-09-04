@@ -45,7 +45,7 @@ namespace NewAgePOS.Pages.Sale
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       TotalQty = saleLines.Sum(s => s.Qty);
       Subtotal = saleLines.Sum(sl => sl.LineTotal);
-      Discount = saleLines.Sum(sl => (sl.Qty * sl.Price * (sl.DiscPct / 100f)));
+      Discount = saleLines.Sum(sl => sl.Discount);
 
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
       Tax = (Subtotal - Discount) * (TaxPct / 100f);

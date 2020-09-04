@@ -23,15 +23,6 @@ namespace NewAgePOS.Pages
       _sqlDb = sqlDb;
     }
 
-    private readonly string _sku = "Sku";
-    private readonly string _upc = "UPC";
-    private readonly string _cost = "Cost";
-    private readonly string _bcprice = "BCPrice";
-    private readonly string _attributes = "Attributes";
-    private readonly string _name = "Name";
-    private readonly string _allName = "All Name";
-    private readonly string _Value = "Value";
-
     public List<SaleLineModel> SaleLines { get; set; }
     public List<ProductModel> Products { get; set; } = new List<ProductModel>();
     public List<GiftCardModel> GiftCards { get; set; } = new List<GiftCardModel>();
@@ -78,6 +69,29 @@ namespace NewAgePOS.Pages
       }
 
       return Page();
+    }
+
+    public IActionResult OnPostApplyDiscount()
+    {
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+
+      foreach (CartDiscModel cartDisc in CartDiscs)
+      {
+        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
+
+        if (cartDisc.DiscPct > 100)
+        {
+          ModelState.AddModelError(string.Empty, "Discount percent can't be greater than 100");
+          return Page();
+        }
+
+        if (saleLine.DiscPct != cartDisc.DiscPct)
+        {
+          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscPct);
+        }
+      }
+
+      return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostAddAsync()
@@ -134,14 +148,14 @@ namespace NewAgePOS.Pages
       foreach (var item in jObjects)
       {
         int productId = 0;
-        string sku = item[_sku].ToString();
-        string upc = item[_upc].ToString();
-        float cost = String.IsNullOrEmpty(item[_cost].ToString()) ? 0 : item[_cost].ToObject<float>();
-        float price = item[_attributes]
-          .FirstOrDefault(i => i[_name].ToString() == _bcprice)[_Value]
+        string sku = item[CAStrings.sku].ToString();
+        string upc = item[CAStrings.upc].ToString();
+        float cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 : item[CAStrings.cost].ToObject<float>();
+        float price = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.bcprice)[CAStrings.Value]
           .ToObject<float>();
-        string allName = item[_attributes]
-          .FirstOrDefault(i => i[_name].ToString() == _allName)[_Value]
+        string allName = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.allName)[CAStrings.Value]
           .ToString();
 
         ProductModel productDb = _sqlDb.Products_GetByCode(sku, upc);
@@ -173,29 +187,6 @@ namespace NewAgePOS.Pages
       }
     }
 
-    public IActionResult OnPostApplyDiscount()
-    {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-
-      foreach (CartDiscModel cartDisc in CartDiscs)
-      {
-        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
-
-        if (cartDisc.DiscPct > 100)
-        {
-          ModelState.AddModelError(string.Empty, "Discount percent can't be greater than 100");
-          return Page();
-        }
-
-        if (saleLine.DiscPct != cartDisc.DiscPct)
-        {
-          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscPct);
-        }
-      }
-
-      return RedirectToPage();
-    }
-
     public IActionResult OnPostRemove()
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
@@ -220,8 +211,8 @@ namespace NewAgePOS.Pages
           saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty -= groupedCodes[i].Count();
 
-          if (saleLine.Qty <= 0) 
-          { 
+          if (saleLine.Qty <= 0)
+          {
             _sqlDb.SaleLines_Delete(SaleLines[i].Id);
             continue;
           }

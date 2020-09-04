@@ -48,10 +48,13 @@ namespace NewAgePOS.Pages.Sale
 
       SaleLines.ForEach(s =>
       {
-        if (s.ProductId != null) Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+        Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+
         List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
         RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
+
         int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+
         Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
         RefundLines.AddRange(refundLines);
       });
