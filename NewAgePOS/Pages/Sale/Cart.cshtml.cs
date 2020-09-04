@@ -56,8 +56,6 @@ namespace NewAgePOS.Pages
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
 
       _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .OrderByDescending(s => s.ProductId)
-        .ToList()
         .ForEach(s =>
           {
             SaleLines.Add(s);
@@ -73,6 +71,8 @@ namespace NewAgePOS.Pages
               DiscPct = s.DiscPct
             });
           });
+
+      SaleLines.OrderByDescending(s => s.ProductId);
 
       return Page();
     }
@@ -110,7 +110,6 @@ namespace NewAgePOS.Pages
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
       _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .ToList()
         .ForEach(s =>
           {
             if (s.ProductId != null)
@@ -211,7 +210,6 @@ namespace NewAgePOS.Pages
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
       _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .ToList()
         .ForEach(s =>
           {
             if (s.ProductId != null)
@@ -297,7 +295,12 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostRemoveGiftCard()
     {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.GiftCardId.HasValue).ToList();
+      _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .ForEach(s => 
+          { 
+            if (s.GiftCardId.HasValue)
+              GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
+          });
 
       List<string> msgs = new List<string>();
       List<string> giftCardCodes = GiftCardCodes
@@ -309,11 +312,11 @@ namespace NewAgePOS.Pages
 
       foreach (string code in giftCardCodes)
       {
-        GiftCardModel gc = _sqlDb.GiftCards_GetByCode(code);
+        GiftCardModel gc = GiftCards.FirstOrDefault(g => g.Code == code);
 
         if (gc == null)
         {
-          TempData["Message"] = $"{ code } was not found";
+          TempData["Message"] = $"{ code } was not found in the cart";
           continue;
         }
 
