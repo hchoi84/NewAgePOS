@@ -35,7 +35,7 @@
       <span class="form-text text-primary small">
         Min 6 characters. Must include lower, upper, number, and special character
       </span>
-      <span asp-validation-for="Password" class="text-danger"></span>
+      <span asp-validation-for="@Model.RegisterVM.Password" class="text-danger"></span>
     </div>
     <div class="form-group col-md-6">
       <label asp-for="@Model.RegisterVM.ConfirmPassword"></label>

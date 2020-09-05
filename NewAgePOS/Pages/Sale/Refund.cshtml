@@ -15,25 +15,15 @@
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 <div class="row">
-  <div class="col">
-    <form method="post" asp-page-handler="Add">
-      <h3>ADD</h3>
+  <div class="col-6">
+    <form method="post">
+      <h3>REFUND</h3>
       <div class="form-group">
         <label asp-for="Codes"></label>
         <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-  </div>
-
-  <div class="col">
-    <form method="post" asp-page-handler="Remove">
-      <h3>REMOVE</h3>
-      <div class="form-group" asp-page-handler="Remove">
-        <label asp-for="Codes"></label>
-        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Remove</button>
+      <button asp-page-handler="Add" type="submit" class="btn btn-primary">Add</button>
+      <button asp-page-handler="Remove" type="submit" class="btn btn-warning">Remove</button>
     </form>
   </div>
 </div>
@@ -46,58 +36,90 @@
     <div class="mt-3"></div>
   }
 
-  ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
-  List<RefundLineModel> refundedLines = Model.RefundLines.Where(r => r.TransactionId != 0 && r.SaleLineId == saleLine.Id).ToList();
-  RefundLineModel refundingLine = Model.RefundLines.FirstOrDefault(r => r.TransactionId == 0 && r.SaleLineId == saleLine.Id);
-  int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
-  int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+  if (saleLine.GiftCardId.HasValue)
+  {
+    GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
 
-  <div class="form-row">
-    <div class="col pr-0">
-      <input readonly value="@product.Sku" class="form-control">
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@giftCard.Code" class="form-control">
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@giftCard.Amount" class="form-control">
+      </div>
     </div>
-    <div class="col pl-0">
-      <input readonly value="@product.Upc" class="form-control">
+    <div class="form-row">
+      <div class="col-4 pr-0">
+        <input readonly value="@saleLine.Qty" class="form-control">
+      </div>
+      <div class="col px-0">
+        <input readonly value="Not Refundable" class="form-control">
+      </div>
     </div>
-  </div>
-  <div class="form-row">
-    <div class="col">
-      <input readonly value="@product.AllName" class="form-control">
+  }
+  else if (saleLine.ProductId.HasValue)
+  {
+    ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
+    List<RefundLineModel> refundedLines = Model.RefundLines.Where(r => r.TransactionId != 0 && r.SaleLineId == saleLine.Id).ToList();
+    RefundLineModel refundingLine = Model.RefundLines.FirstOrDefault(r => r.TransactionId == 0 && r.SaleLineId == saleLine.Id);
+    int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
+    int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@product.Sku" class="form-control">
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@product.Upc" class="form-control">
+      </div>
     </div>
-  </div>
-  <div class="form-row">
-    <div class="col pr-0">
-      <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
+    <div class="form-row">
+      <div class="col">
+        <input readonly value="@product.AllName" class="form-control">
+      </div>
     </div>
-    <div class="col px-0">
-      <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
+      </div>
+      <div class="col px-0">
+        <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@saleLine.DiscPct %" class="form-control">
+      </div>
     </div>
-    <div class="col pl-0">
-      <input readonly value="@saleLine.DiscPct %" class="form-control">
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@saleLine.Qty" class="form-control">
+      </div>
+      <div class="col px-0">
+        <input readonly value="@refundedQty" class="form-control">
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@refundingQty" class="form-control font-weight-bold text-info">
+      </div>
     </div>
-  </div>
-  <div class="form-row">
-    <div class="col pr-0">
-      <input readonly value="@saleLine.Qty" class="form-control">
-    </div>
-    <div class="col px-0">
-      <input readonly value="@refundedQty" class="form-control">
-    </div>
-    <div class="col pl-0">
-      <input readonly value="@refundingQty" class="form-control font-weight-bold text-info">
-    </div>
-  </div>
+  }
 }
 
 <form method="post">
-  <input hidden name="total" value="@total" type="number" />
   <div class="form-row mt-3">
     <div class="col">
       <label asp-for="@Model.Message"></label>
       <textarea asp-for="@Model.Message" class="form-control" rows="2"></textarea>
     </div>
   </div>
-  <button type="submit" class="btn btn-warning mt-1">Refund</button>
+  <div class="form-row mt-1">
+    <div class="col-6">
+      <select id="RefundMethod" asp-for="@Model.RefundMethod" asp-items="@Model.RefundMethods" class="form-control" onchange="refundMethod('GiftCardCodeInputBox')">
+        <option value="">Choose method</option>
+      </select>
+    </div>
+    <div id="GiftCardCodeInputBox" class="col" style="display: none;">
+      <input asp-for="@Model.GiftCardCode" class="form-control" placeholder="Scan Gift Card Code Here" />
+    </div>
+  </div>
 </form>
 
 <div class="mt-5" style="max-width: 425px;">
@@ -114,3 +136,7 @@
     <div class="col-5 h4 text-right">@total.ToString("C2", dollar)</div>
   </div>
 </div>
+
+@section Scripts{
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

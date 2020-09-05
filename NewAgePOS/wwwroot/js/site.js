@@ -8,8 +8,7 @@
   if (xferElem.style.display == 'none') {
     xferElem.style.display = 'block';
     xferBtn.className = 'btn btn-primary border-warning';
-  }
-  else {
+  } else {
     xferElem.style.display = 'none';
     xferBtn.className = 'btn btn-primary';
   }
@@ -23,14 +22,24 @@ function searchQueryMsg(id) {
 
   if (optVal == 'EmailAddress') {
     msgElem.innerText = 'ex: email@domain.com';
-  }
-  else if (optVal == 'PhoneNumber') {
+  } else if (optVal == 'PhoneNumber') {
     msgElem.innerText = '(ex: 1234567890) 10 digit with no dashes';
-  }
-  else if (optVal == 'SaleId') {
+  } else if (optVal == 'SaleId') {
     msgElem.innerText = 'Numbers only';
-  }
-  else if (optVal == 'LastName') {
+  } else if (optVal == 'LastName') {
     msgElem.innerText = 'Last name only. Please do not use full name';
+  }
+}
+
+function refundMethod(id) {
+  var selectElem = document.getElementById('RefundMethod');
+  var optVal = selectElem.options[selectElem.selectedIndex].value;
+
+  var giftCardCodeInputBox = document.getElementById(id);
+
+  if (optVal == 'GiftCard') {
+    giftCardCodeInputBox.style.display = 'block';
+  } else {
+    giftCardCodeInputBox.style.display = 'none';
   }
 }

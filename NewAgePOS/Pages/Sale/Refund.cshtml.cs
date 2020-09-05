@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 
@@ -21,11 +22,8 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    public List<SaleLineModel> SaleLines { get; set; }
-    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
-    public List<RefundLineModel> RefundLines { get; set; } = new List<RefundLineModel>();
-    public float TaxPct { get; set; }
-    public float Subtotal { get; set; }
+    [BindProperty]
+    public string RefundMethod { get; set; }
 
     [BindProperty]
     [Display(Name = "SKUs or UPCs")]
@@ -33,6 +31,21 @@ namespace NewAgePOS.Pages.Sale
 
     [BindProperty]
     public string Message { get; set; }
+
+    [BindProperty]
+    public string GiftCardCode { get; set; }
+
+    public List<SelectListItem> RefundMethods { get; } = new List<SelectListItem>
+    {
+      new SelectListItem { Text = "Cash", Value = "Cash"},
+      new SelectListItem { Text = "Gift Card", Value = "GiftCard" }
+    };
+    public List<SaleLineModel> SaleLines { get; set; }
+    public List<ProductModel> Products { get; set; }
+    public List<GiftCardModel> GiftCards { get; set; }
+    public List<RefundLineModel> RefundLines { get; set; }
+    public float TaxPct { get; set; }
+    public float Subtotal { get; set; }
 
     // TODO: When refunding, calculate Give transaction. Subtract Give when refunding
 
@@ -45,52 +58,105 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
-
-      SaleLines.ForEach(s =>
-      {
-        Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
-
-        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
-        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
-
-        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
-        RefundLines.AddRange(refundLines);
-      });
+      Initialize();
 
       return Page();
     }
 
-    public IActionResult OnPost(float total)
+    private void Initialize()
     {
-      if (total <= 0)
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).OrderByDescending(s => s.ProductId).ToList();
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+
+      Products = new List<ProductModel>();
+      GiftCards = new List<GiftCardModel>();
+      RefundLines = new List<RefundLineModel>();
+
+      SaleLines.ForEach(s =>
+      {
+        if (s.ProductId.HasValue)
+          Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+        else if (s.GiftCardId.HasValue)
+          GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
+
+        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
+        RefundLines.AddRange(refundLines);
+
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
+        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+
+        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
+      });
+    }
+
+    public IActionResult OnPost()
+    {
+      RefundLines = new List<RefundLineModel>();
+      float refundableAmount = GetRefundableAmount();
+
+      if (refundableAmount <= 0)
       {
         TempData["Message"] = "Nothing to refund";
         return Page();
       }
 
-      int transactionId = _sqlDb.Transactions_Insert(SaleId, null, total, "Cash", "Refund", Message);
+      int transactionId = 0;
 
-      _sqlDb.SaleLines_GetBySaleId(SaleId).ForEach(s =>
+      if (RefundMethod == "Cash")
+      {
+        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundableAmount, RefundMethod, "Refund", Message);
+      }
+      else if (RefundMethod == "GiftCard")
+      {
+        if (string.IsNullOrEmpty(GiftCardCode))
+        {
+          TempData["Message"] = "Gift Card Code can't be empty";
+          return Page();
+        }
+
+        int giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundableAmount);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundableAmount, RefundMethod, "Refund", Message);
+      }
+
+      RefundLines.Where(r => r.TransactionId == 0).ToList().ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
+
+      return RedirectToPage("RefundReceipt", new { transactionId });
+    }
+
+    private float GetRefundableAmount()
+    {
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+
+      SaleLines.ForEach(s =>
       {
         List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
-        RefundLineModel refundingLine = refundLines != null ?
-          refundLines.FirstOrDefault(r => r.TransactionId == 0) : null;
-        
-        if (refundingLine != null)
-        {
-          _sqlDb.RefundLines_MarkComplete(refundingLine.Id, transactionId);
-        }
+        RefundLines.AddRange(refundLines);
+
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
+        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
+
+        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
       });
 
-      return RedirectToPage("RefundReceipt");
+      float total = Subtotal + (TaxPct / 100f * Subtotal);
+
+      float checkoutAmt = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount);
+      float refundedAmt = transactions.Where(t => t.Type == "Refund").Sum(t => t.Amount);
+      float giveAmt = transactions.Where(t => t.Method == "Give").Sum(t => t.Amount);
+
+      float remainingRefundableAmount = checkoutAmt - refundedAmt - giveAmt;
+
+      float refundableAmount = total > remainingRefundableAmount ? remainingRefundableAmount : total;
+      
+      return refundableAmount;
     }
 
     public IActionResult OnPostAdd()
     {
+      Products = new List<ProductModel>();
+
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 

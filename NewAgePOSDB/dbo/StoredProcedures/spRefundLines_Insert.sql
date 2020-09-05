@@ -20,6 +20,6 @@ BEGIN
 		BEGIN
 			UPDATE dbo.RefundLines
 			SET Qty += @refundQty
-			WHERE SaleLineId = @saleLineId AND TransactionId = 0;
+			WHERE SaleLineId = @saleLineId AND TransactionId IS NULL;
 		END
 END
