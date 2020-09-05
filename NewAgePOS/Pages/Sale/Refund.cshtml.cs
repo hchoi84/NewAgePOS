@@ -34,6 +34,8 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty]
     public string Message { get; set; }
 
+    // TODO: When refunding, calculate Give transaction. Subtract Give when refunding
+
     public IActionResult OnGet()
     {
       bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;

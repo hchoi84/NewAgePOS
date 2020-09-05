@@ -13,6 +13,16 @@ using SkuVaultLibrary;
 
 namespace NewAgePOS.Pages.Sale
 {
+  public class ViewModel
+  {
+    [Display(Name = "Give Amount")]
+    public float? GiveAmount { get; set; }
+
+    [Display(Name = "Confirm Give Amount")]
+    [Compare(nameof(GiveAmount), ErrorMessage = "Amount doesn't match")]
+    public float? GiveAmountConfirmation { get; set; }
+  }
+
   public class CheckoutModel : PageModel
   {
     private readonly ISQLData _sqlDb;
@@ -24,19 +34,19 @@ namespace NewAgePOS.Pages.Sale
       _skuVault = skuVault;
     }
 
+    [BindProperty(SupportsGet = true)]
+    public int SaleId { get; set; }
+
     [BindProperty]
     public List<SelectListItem> PaymentMethods { get; } = new List<SelectListItem>
     {
-      new SelectListItem { Value = "Cash", Text = "Cash"},
+      new SelectListItem { Text = "Cash", Value = "Cash"},
     };
-    
+
     [BindProperty]
     [Required]
     [Range(0.00, float.MaxValue)]
     public float Amount { get; set; }
-
-    [BindProperty(SupportsGet = true)]
-    public int SaleId { get; set; }
 
     [BindProperty]
     [StringLength(200, ErrorMessage = "{1} Max characters")]
@@ -48,6 +58,9 @@ namespace NewAgePOS.Pages.Sale
 
     [BindProperty]
     public string PaymentMethod { get; set; }
+
+    [BindProperty]
+    public ViewModel VM { get; set; }
 
     public List<SaleLineModel> SaleLines { get; set; }
     public List<ProductModel> Products { get; set; }
@@ -69,7 +82,6 @@ namespace NewAgePOS.Pages.Sale
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
-      PaymentMethod = "Cash";
 
       SaleLines.ForEach(s =>
       {
@@ -95,6 +107,8 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
+      PaymentMethod = "Cash";
+
       Initialize();
 
       return Page();
@@ -102,6 +116,8 @@ namespace NewAgePOS.Pages.Sale
 
     public async Task<IActionResult> OnPost()
     {
+      if (!ModelState.IsValid) return Page();
+
       if (string.IsNullOrEmpty(PaymentMethod))
       {
         TempData["Message"] = "Please choose payment method";
@@ -115,8 +131,13 @@ namespace NewAgePOS.Pages.Sale
       float dueBalance = saleTotal - amountPaid;
       List<string> msgs = new List<string>();
 
-      ProcessCash(dueBalance);
-      ProcessGiftCards(dueBalance, msgs);
+      if (PaymentMethod == "Cash" && Amount > 0)
+        dueBalance = ProcessCash(dueBalance);
+      else if (!string.IsNullOrEmpty(GiftCardCodes))
+        dueBalance = ProcessGiftCards(dueBalance, msgs);
+
+      if (VM.GiveAmount.HasValue)
+        dueBalance = ProcessGive(dueBalance);
 
       if (dueBalance > 0)
       {
@@ -132,44 +153,48 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage("Receipt", new { SaleId });
     }
 
-    private void ProcessCash(float dueBalance)
+    private float ProcessCash(float dueBalance)
     {
-      if (PaymentMethod == "Cash" && Amount > 0)
-      {
-        _sqlDb.Transactions_Insert(SaleId, null, Amount, PaymentMethod, "Checkout", Message);
-        dueBalance -= Amount;
-      }
+      _sqlDb.Transactions_Insert(SaleId, null, Amount, PaymentMethod, "Checkout", Message);
+      dueBalance -= Amount;
+      return dueBalance;
     }
 
-    private void ProcessGiftCards(float dueBalance, List<string> msgs)
+    private float ProcessGiftCards(float dueBalance, List<string> msgs)
     {
-      if (!string.IsNullOrEmpty(GiftCardCodes))
+      List<string> giftCardCodes = GiftCardCodes.Trim().Split(Environment.NewLine).Distinct().ToList();
+      foreach (var code in giftCardCodes)
       {
-        List<string> giftCardCodes = GiftCardCodes.Trim().Split(Environment.NewLine).Distinct().ToList();
-        foreach (var code in giftCardCodes)
+        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(code);
+
+        if (giftCard == null)
         {
-          GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(code);
-
-          if (giftCard == null)
-          {
-            msgs.Add($"{ code } was not found");
-            continue;
-          }
-
-          if (giftCard.Amount <= 0)
-          {
-            msgs.Add($"{ code } has no balance");
-            continue;
-          }
-
-          float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
-
-          _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, "GiftCard", "Checkout", Message);
-          _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
-
-          dueBalance -= payingAmt;
+          msgs.Add($"{ code } was not found");
+          continue;
         }
+
+        if (giftCard.Amount <= 0)
+        {
+          msgs.Add($"{ code } has no balance");
+          continue;
+        }
+
+        float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
+
+        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, "GiftCard", "Checkout", Message);
+        _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
+
+        dueBalance -= payingAmt;
       }
+
+      return dueBalance;
+    }
+
+    private float ProcessGive(float dueBalance)
+    {
+      _sqlDb.Transactions_Insert(SaleId, null, VM.GiveAmount.Value, "Give", "Checkout", Message);
+      dueBalance -= VM.GiveAmount.Value;
+      return dueBalance;
     }
 
     private async Task<JObject> RemoveProducts()

@@ -5,7 +5,7 @@ using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
 
 namespace NewAgePOS.Pages.Sale
 {
@@ -17,9 +17,6 @@ namespace NewAgePOS.Pages.Sale
     {
       _sqlDb = sqlDb;
     }
-
-    [BindProperty(SupportsGet = true)]
-    public int SaleId { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public string SearchMethod { get; set; }
@@ -84,9 +81,18 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage("Cart", new { saleId });
     }
 
-    public IActionResult OnPostCancelSale()
+    public IActionResult OnPostCancelSale(int saleId)
     {
-      _sqlDb.Sales_CancelById(SaleId);
+      List<int> giftCardIds = _sqlDb.SaleLines_GetBySaleId(saleId)
+        .Where(s => s.GiftCardId.HasValue)
+        .Select(s => s.GiftCardId.Value)
+        .ToList();
+
+      _sqlDb.Sales_CancelById(saleId);
+
+      if (giftCardIds.Count > 0)
+        giftCardIds.ForEach(g => _sqlDb.GiftCards_Delete(g));
+
       TempData["Message"] = "Sale has been cancelled";
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
