@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,17 +9,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using NewAgePOS.Models;
+using NewAgePOS.ViewModels;
 using NewAgePOSModels.Securities;
 
 namespace NewAgePOS.Pages.Account
 {
+
   public class RegisterModel : PageModel
   {
     private readonly UserManager<EmployeeModel> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<RegisterModel> _logger;
 
-    public RegisterModel(UserManager<EmployeeModel> userManager, IEmailSender emailSender, ILogger<RegisterModel> logger, LogRegContext context)
+    public RegisterModel(UserManager<EmployeeModel> userManager, IEmailSender emailSender, ILogger<RegisterModel> logger)
     {
       _userManager = userManager;
       _emailSender = emailSender;
@@ -28,43 +29,7 @@ namespace NewAgePOS.Pages.Account
     }
 
     [BindProperty]
-    [Required]
-    [Display(Name = "First Name")]
-    [StringLength(30, MinimumLength = 2, ErrorMessage = "{0} must be between {2} to {1} characters")]
-    [MaxLength(30)]
-    public string FirstName { get; set; }
-
-    [BindProperty]
-    [Required]
-    [Display(Name = "Last Name")]
-    [StringLength(30, MinimumLength = 2, ErrorMessage = "{0} must be between {2} to {1} characters")]
-    [MaxLength(30)]
-    public string LastName { get; set; }
-
-    [BindProperty]
-    [Required]
-    [Display(Name = "Email Address")]
-    [DataType(DataType.EmailAddress)]
-    [PageRemote(
-      ErrorMessage = "Uh oh! Something's wrong!",
-      AdditionalFields = "__RequestVerificationToken",
-      HttpMethod = "post",
-      PageHandler = "CheckEmail"
-      )]
-    public string EmailAddress { get; set; }
-
-    [BindProperty]
-    [Required]
-    [Display(Name = "Password")]
-    [DataType(DataType.Password)]
-    [MinLength(6, ErrorMessage = "{0} must be at least {1} characters long and contain lower, upper, digit, and special character")]
-    public string Password { get; set; }
-
-    [Required]
-    [Display(Name = "Confirm Password")]
-    [DataType(DataType.Password)]
-    [Compare("Password", ErrorMessage = "Does not match with password")]
-    public string ConfirmPassword { get; set; }
+    public RegisterViewModel RegisterVM { get; set; }
 
     public void OnGet() { }
 
@@ -164,15 +129,15 @@ namespace NewAgePOS.Pages.Account
 
       EmployeeModel employee = new EmployeeModel
       {
-        FirstName = FirstName,
-        LastName = LastName,
-        Email = EmailAddress,
-        UserName = EmailAddress,
+        FirstName = RegisterVM.FirstName,
+        LastName = RegisterVM.LastName,
+        Email = RegisterVM.EmailAddress,
+        UserName = RegisterVM.EmailAddress,
       };
 
       bool isFirstUser = !_userManager.Users.Any();
 
-      IdentityResult identityResult = await _userManager.CreateAsync(employee, Password);
+      IdentityResult identityResult = await _userManager.CreateAsync(employee, RegisterVM.Password);
 
       if (!identityResult.Succeeded)
       {

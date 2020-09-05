@@ -23,11 +23,6 @@ namespace NewAgePOS.Pages
       _sqlDb = sqlDb;
     }
 
-    public List<SaleLineModel> SaleLines { get; set; }
-    public List<ProductModel> Products { get; set; }
-    public List<GiftCardModel> GiftCards { get; set; }
-    public float TaxPct { get; set; }
-
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
@@ -36,7 +31,7 @@ namespace NewAgePOS.Pages
     public string Codes { get; set; }
 
     [BindProperty]
-    public List<CartDiscModel> CartDiscs { get; set; } = new List<CartDiscModel>();
+    public List<CartDiscModel> CartDiscs { get; set; }
 
     [BindProperty]
     public string GiftCardCodes { get; set; }
@@ -44,8 +39,14 @@ namespace NewAgePOS.Pages
     [BindProperty]
     public float GiftCardAmount { get; set; }
 
+    public List<SaleLineModel> SaleLines { get; set; }
+    public List<ProductModel> Products { get; set; }
+    public List<GiftCardModel> GiftCards { get; set; }
+    public float TaxPct { get; set; }
+
     public void Initialize()
     {
+      CartDiscs = new List<CartDiscModel>();
       Products = new List<ProductModel>();
       GiftCards = new List<GiftCardModel>();
 
