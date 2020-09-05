@@ -113,25 +113,25 @@ else
 
 <h3 class="mt-5">PAYMENT</h3>
 <form method="post">
-  <div class="form-group">
-    <label asp-for="@Model.PaymentMethod"></label>
-    <select asp-for="@Model.PaymentMethod" class="form-control" asp-items="@Model.PaymentMethods">
-      <option>Choose...</option>
-    </select>
+  <div class="form-row">
+    <div class="col pr-0">
+      <select asp-for="@Model.PaymentMethod" class="form-control" asp-items="@Model.PaymentMethods">
+        <option>Choose...</option>
+      </select>
+    </div>
+    <div class="col pl-0">
+      <input asp-for="@Model.Amount" class="form-control">
+    </div>
   </div>
-  <div class="form-group">
-    <label asp-for="@Model.Amount"></label>
-    <input asp-for="@Model.Amount" class="form-control">
+  <div class="form-row mt-2">
+    <div class="col pr-0">
+      <textarea asp-for="@Model.GiftCardCodes" class="form-control" placeholder="Gift Card Codes"></textarea>
+    </div>
+    <div class="col pl-0">
+      <textarea asp-for="@Model.Message" rows="2" class="form-control" placeholder="Internal Message"></textarea>
+    </div>
   </div>
-  <div class="form-group">
-    <label asp-for="@Model.GiftCardCodes"></label>
-    <textarea asp-for="@Model.GiftCardCodes" class="form-control"></textarea>
-  </div>
-  <div class="form-group">
-    <label asp-for="@Model.Message"></label>
-    <textarea asp-for="@Model.Message" rows="2" class="form-control"></textarea>
-  </div>
-  <button type="submit" class="btn btn-success">Complete</button>
+  <button type="submit" class="btn btn-success mt-1">Complete</button>
 </form>
 
-@await Component.InvokeAsync("SalePriceSummary", new { saleLines = Model.SaleLines, taxPct = Model.TaxPct })
+@await Component.InvokeAsync("SalePriceSummary", new { saleLines = Model.SaleLines, taxPct = Model.TaxPct, transactions = Model.Transactions })

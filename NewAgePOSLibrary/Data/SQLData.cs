@@ -196,7 +196,6 @@ namespace NewAgePOSLibrary.Data
 
     public int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message)
     {
-      // TODO: Will giftCardId be processed correctly? Or, will I need to specify the value if it has value?
       return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
                     new { saleId, giftCardId, amount, method, type, message },
                     connectionStringName, true).FirstOrDefault();

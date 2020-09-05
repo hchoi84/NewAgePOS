@@ -9,6 +9,7 @@ namespace NewAgePOSModels.Models
   {
     public float Subtotal { get; set; }
     public float Discount { get; set; }
+    public float Paid { get; set; }
     public float TaxPct { get; set; }
     public float Tax { get; set; }
     public float Total { get; set; }

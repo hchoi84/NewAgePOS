@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -51,12 +49,42 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty]
     public string PaymentMethod { get; set; }
 
-    public List<SaleLineModel> SaleLines { get; set; } = new List<SaleLineModel>();
-    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
-    public List<GiftCardModel> GiftCards { get; set; } = new List<GiftCardModel>();
-    public List<TransactionModel> Transactions { get; set; } = new List<TransactionModel>();
+    public List<SaleLineModel> SaleLines { get; set; }
+    public List<ProductModel> Products { get; set; }
+    public List<GiftCardModel> GiftCards { get; set; }
+    public List<TransactionModel> Transactions { get; set; }
     public CustomerModel Customer { get; set; }
     public float TaxPct { get; set; }
+
+    public void Initialize()
+    {
+      Products = new List<ProductModel>();
+      GiftCards = new List<GiftCardModel>();
+      Transactions = new List<TransactionModel>();
+
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId)
+        .OrderByDescending(s => s.ProductId)
+        .ToList();
+
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      Customer = _sqlDb.Customers_GetBySaleId(SaleId);
+      PaymentMethod = "Cash";
+
+      SaleLines.ForEach(s =>
+      {
+        if (s.ProductId.HasValue)
+          Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
+        if (s.GiftCardId.HasValue)
+          GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
+      });
+
+      Transactions.ForEach(t =>
+      {
+        if (t.GiftCardId.HasValue)
+          GiftCards.Add(_sqlDb.GiftCards_GetById(t.GiftCardId.Value));
+      });
+    }
 
     public IActionResult OnGet()
     {
@@ -67,30 +95,7 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
-      PaymentMethod = "Cash";
-
-      _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .OrderByDescending(s => s.ProductId)
-        .ToList()
-        .ForEach(s =>
-        {
-          SaleLines.Add(s);
-
-          if (s.ProductId.HasValue)
-            Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
-          if (s.GiftCardId.HasValue)
-            GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
-        });
-      _sqlDb.Transactions_GetBySaleId(SaleId)
-        .ForEach(t => 
-        {
-          Transactions.Add(t);
-
-          if (t.GiftCardId.HasValue)
-            GiftCards.Add(_sqlDb.GiftCards_GetById(t.GiftCardId.Value));
-        });
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
-      Customer = _sqlDb.Customers_GetBySaleId(SaleId);
+      Initialize();
 
       return Page();
     }
@@ -103,23 +108,41 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage();
       }
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      Initialize();
 
       float saleTotal = SaleLines.Sum(s => (s.LineTotal - s.Discount) * (1 + TaxPct / 100f));
       float amountPaid = Transactions.Sum(t => t.Amount);
       float dueBalance = saleTotal - amountPaid;
       List<string> msgs = new List<string>();
 
-      // Accept Cash
+      ProcessCash(dueBalance);
+      ProcessGiftCards(dueBalance, msgs);
+
+      if (dueBalance > 0)
+      {
+        TempData["Message"] = string.Join(Environment.NewLine, msgs);
+        return RedirectToPage();
+      }
+
+      JObject result = await RemoveProducts();
+      GenerateErrorMessage(result);
+
+      _sqlDb.Sales_MarkComplete(SaleId);
+
+      return RedirectToPage("Receipt", new { SaleId });
+    }
+
+    private void ProcessCash(float dueBalance)
+    {
       if (PaymentMethod == "Cash" && Amount > 0)
       {
         _sqlDb.Transactions_Insert(SaleId, null, Amount, PaymentMethod, "Checkout", Message);
         dueBalance -= Amount;
       }
+    }
 
-      // Accept Gift Card
+    private void ProcessGiftCards(float dueBalance, List<string> msgs)
+    {
       if (!string.IsNullOrEmpty(GiftCardCodes))
       {
         List<string> giftCardCodes = GiftCardCodes.Trim().Split(Environment.NewLine).Distinct().ToList();
@@ -133,8 +156,8 @@ namespace NewAgePOS.Pages.Sale
             continue;
           }
 
-          if (giftCard.Amount <= 0) 
-          { 
+          if (giftCard.Amount <= 0)
+          {
             msgs.Add($"{ code } has no balance");
             continue;
           }
@@ -147,30 +170,32 @@ namespace NewAgePOS.Pages.Sale
           dueBalance -= payingAmt;
         }
       }
+    }
 
-      if (dueBalance > 0)
+    private async Task<JObject> RemoveProducts()
+    {
+      List<AddRemoveItemBulkModel> itemsToRemove = new List<AddRemoveItemBulkModel>();
+
+      foreach (SaleLineModel saleLine in SaleLines)
       {
-        TempData["Message"] = string.Join(Environment.NewLine, msgs);
-        return RedirectToPage();
+        if (!saleLine.ProductId.HasValue) continue;
+        string sku = Products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value).Sku;
+
+        itemsToRemove.Add(new AddRemoveItemBulkModel
+        {
+          Code = sku,
+          LocationCode = "STORE",
+          Quantity = saleLine.Qty,
+          Reason = "Store Sale"
+        });
       }
 
-      // If total due has been received, process:
-      // 1. Removal of products
-      // 2. Mark sales as complete
-      List<AddRemoveItemBulkModel> itemsToRemove = 
-        SaleLines.Where(s => s.ProductId != null)
-        .ToList()
-        .Select(s =>
-        new AddRemoveItemBulkModel
-        {
-          Code = _sqlDb.Products_GetById(s.ProductId.Value).Sku,
-          LocationCode = "STORE",
-          Quantity = s.Qty,
-          Reason = "Store Sale"
-        })
-        .ToList();
-
       JObject result = await _skuVault.RemoveItemBulkAsync(itemsToRemove);
+      return result;
+    }
+
+    private void GenerateErrorMessage(JObject result)
+    {
       List<string> errorMsgs = new List<string>();
 
       if (result["Errors"].ToObject<JArray>().Any())
@@ -182,10 +207,6 @@ namespace NewAgePOS.Pages.Sale
       }
 
       TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
-
-      _sqlDb.Sales_MarkComplete(SaleId);
-
-      return RedirectToPage("Receipt", new { SaleId });
     }
   }
 }
