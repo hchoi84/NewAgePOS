@@ -17,10 +17,35 @@ namespace NewAgePOSLibrary.Data
     }
 
     #region Customers
+    // TODO: Remove this method after it's been converted
     public List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber)
     {
       string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber";
       return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { emailAddress, phoneNumber }, connectionStringName, false);
+    }
+
+    public CustomerModel Customers_GetByEmailAddress(string emailAddress)
+    {
+      string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { emailAddress }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public CustomerModel Customers_GetByPhoneNumber(string phoneNumber)
+    {
+      string query = "SELECT * FROM dbo.Customers WHERE PhoneNumber = @phoneNumber";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { phoneNumber }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public List<CustomerModel> Customers_GetByLastName(string lastName)
+    {
+      string query = "SELECT * FROM dbo.Customers WHERE LastName = @lastName";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { lastName }, connectionStringName, false);
+    }
+
+    public CustomerModel Customers_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.Customers WHERE Id = @id";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
     public CustomerModel Customers_GetBySaleId(int saleId)
@@ -29,12 +54,6 @@ namespace NewAgePOSLibrary.Data
                                                      new { saleId },
                                                      connectionStringName,
                                                      true).FirstOrDefault();
-    }
-
-    public CustomerModel Customers_GetById(int id)
-    {
-      string query = "SELECT * FROM dbo.Customers WHERE Id = @id";
-      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
     public int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber)
@@ -51,11 +70,47 @@ namespace NewAgePOSLibrary.Data
     }
     #endregion
 
+    #region GiftCards
+    public void GiftCards_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.GiftCards WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
+
+    public GiftCardModel GiftCards_GetByCode(string code)
+    {
+      string query = "SELECT * FROM dbo.GiftCards WHERE Code = @code";
+      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { code }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public GiftCardModel GiftCards_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.GiftCards WHERE Id = @id";
+      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public int GiftCards_Insert(string code, float amount) =>
+     _sqlDb.LoadData<int, dynamic>("dbo.spGiftCards_Insert", new { code, amount }, connectionStringName, true).FirstOrDefault();
+
+    public void GiftCards_Update(int id, float amount)
+    {
+      string updateDate = DateTime.Now.ToShortDateString();
+      string query = "UPDATE dbo.GiftCards SET Amount = @amount, Updated = @updateDate WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, amount, updateDate }, connectionStringName, false);
+    }
+    #endregion
+
     #region Products
     public ProductModel Products_GetByCode(string sku, string upc)
     {
       string query = "SELECT * FROM dbo.Products WHERE Sku = @sku OR UPC = @upc;";
       return _sqlDb.LoadData<ProductModel, dynamic>(query, new { sku, upc }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public ProductModel Products_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.Products WHERE Id = @id";
+      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
@@ -69,12 +124,6 @@ namespace NewAgePOSLibrary.Data
       string updateDate = DateTime.Now.ToShortDateString();
       string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
       _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
-    }
-
-    public ProductModel Products_GetById(int id)
-    {
-      string query = "SELECT * FROM dbo.Products WHERE Id = @id";
-      return _sqlDb.LoadData<ProductModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
     #endregion
 
@@ -107,8 +156,7 @@ namespace NewAgePOSLibrary.Data
     {
       string query = "DELETE FROM dbo.SaleLines WHERE id = @id";
 
-      _sqlDb.SaveData(query, new { id },
-                      connectionStringName, false);
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
     }
 
     public List<SaleLineModel> SaleLines_GetBySaleId(int saleId)
@@ -145,6 +193,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
+    public List<SaleModel> Sales_GetByCustomerId(int customerId)
+    {
+      string query = "SELECT * FROM dbo.Sales WHERE CustomerId = @customerId";
+      return _sqlDb.LoadData<SaleModel, dynamic>(query, new { customerId }, connectionStringName, false);
+    }
+
     public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",
@@ -177,21 +231,30 @@ namespace NewAgePOSLibrary.Data
     }
     #endregion
 
+    #region Taxes
+    public int Taxes_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<int, dynamic>(
+        "dbo.spTaxes_GetBySaleId", new { saleId }, connectionStringName, true)
+        .FirstOrDefault();
+    }
+    #endregion
+
     #region Transactions
+    public List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate)
+    {
+      string query = "SELECT * FROM dbo.Transactions WHERE Created >= @beginDate AND Created <= @endDate;";
+      return _sqlDb.LoadData<TransactionModel, dynamic>(
+        query,
+        new { beginDate = beginDate.ToShortDateString(), endDate = endDate.ToShortDateString() },
+        connectionStringName,
+        false);
+    }
+
     public List<TransactionModel> Transactions_GetBySaleId(int saleId)
     {
       string query = "SELECT * FROM dbo.Transactions WHERE SaleId = @saleId";
-
       return _sqlDb.LoadData<TransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
-    }
-
-    public List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate)
-    {
-      string q = "SELECT * FROM dbo.Transactions WHERE Created >= @beginDate AND Created <= @endDate;";
-      return _sqlDb.LoadData<TransactionModel, dynamic>(q,
-                                                        new { beginDate = beginDate.ToShortDateString(), endDate = endDate.ToShortDateString() },
-                                                        connectionStringName,
-                                                        false);
     }
 
     public int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message)
@@ -202,53 +265,9 @@ namespace NewAgePOSLibrary.Data
     }
     #endregion
 
-    #region Taxes
-    public int Taxes_GetBySaleId(int saleId)
-    {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spTaxes_GetBySaleId",
-                                           new { saleId },
-                                           connectionStringName, true).FirstOrDefault();
-    }
-    #endregion
-
-    #region GiftCards
-    public GiftCardModel GiftCards_GetByCode(string code)
-    {
-      string query = "SELECT * FROM dbo.GiftCards WHERE Code = @code";
-      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { code }, connectionStringName, false).FirstOrDefault();
-    }
-
-    public int GiftCards_Insert(string code, float amount) =>
-     _sqlDb.LoadData<int, dynamic>("dbo.spGiftCards_Insert", new { code, amount }, connectionStringName, true).FirstOrDefault();
-
-    public void GiftCards_Update(int id, float amount)
-    {
-      string updateDate = DateTime.Now.ToShortDateString();
-      string query = "UPDATE dbo.GiftCards SET Amount = @amount, Updated = @updateDate WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, amount, updateDate }, connectionStringName, false);
-    }
-
-    public void GiftCards_Delete(int id)
-    {
-      string query = "DELETE FROM dbo.GiftCards WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
-    }
-
-    public GiftCardModel GiftCards_GetById(int id)
-    {
-      string query = "SELECT * FROM dbo.GiftCards WHERE Id = @id";
-      return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
-    }
-    #endregion
-
     public List<RefundDataModel> GetRefundReceiptData(int transactionId)
     {
       return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
-    }
-
-    public List<SaleSearchResultModel> SearchSales(int saleId, string lastName, string emailAddress, string phoneNumber)
-    {
-      return _sqlDb.LoadData<SaleSearchResultModel, dynamic>("dbo.spSearchSales", new { saleId, lastName, emailAddress, phoneNumber }, connectionStringName, true);
     }
   }
 }

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,7 +24,7 @@ namespace NewAgePOS.Pages.Sale
     public string SearchQuery { get; set; }
 
     [BindProperty]
-    public List<SaleSearchResultModel> Results { get; set; }
+    public List<SaleSearchViewModel> Results { get; set; }
 
     public List<SelectListItem> SearchMethods { get; } = new List<SelectListItem>
     {
@@ -37,23 +36,34 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnGet()
     {
-      if (string.IsNullOrEmpty(SearchMethod)) return Page();
+      if (string.IsNullOrEmpty(SearchQuery)) return Page();
+
+      SearchQuery = SearchQuery.Trim();
+      Results = new List<SaleSearchViewModel>();
 
       if (SearchMethod == "SaleId")
       {
-        bool isValid = Int32.TryParse(SearchQuery, out int saleId);
+        bool isValid = int.TryParse(SearchQuery, out int saleId);
 
-        if (!isValid && saleId > 0)
+        if (!isValid || saleId <= 0)
         {
           TempData["Message"] = "Invalid SaleId";
           return Page();
         }
 
-        Results = _sqlDb.SearchSales(saleId, "", "", "");
+        ProcessSaleId(saleId);
       }
       else if (SearchMethod == "LastName")
       {
-        Results = _sqlDb.SearchSales(0, SearchQuery, "", "");
+        bool isValid = SearchQuery.Contains(string.Empty);
+
+        if (!isValid)
+        {
+          TempData["Message"] = "Cannot contain space";
+          return Page();
+        }
+
+        ProcessLastName();
       }
       else if (SearchMethod == "EmailAddress")
       {
@@ -63,16 +73,87 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        Results = _sqlDb.SearchSales(0, "", SearchQuery, "");
+        ProcessEmailAddress();
       }
       else
       {
-        bool isValid = Int64.TryParse(SearchQuery, out long phoneNumber);
+        bool isValid = long.TryParse(SearchQuery, out long phoneNumber);
 
-        if (isValid && SearchQuery.Length == 10) Results = _sqlDb.SearchSales(0, "", "", SearchQuery);
+        if (!isValid || SearchQuery.Length != 10)
+        {
+          TempData["Message"] = "Invalid Phone Number. 10 numeric characters only";
+          return Page();
+        }
+
+        ProcessPhoneNumber();
       }
 
       return Page();
+    }
+
+    private void ProcessSaleId(int saleId)
+    {
+      SaleModel sale = _sqlDb.Sales_GetById(saleId);
+      if (sale == null) return;
+      CustomerModel customer = _sqlDb.Customers_GetBySaleId(saleId);
+      GenerateResults(sale, customer);
+    }
+
+    private void ProcessLastName()
+    {
+      List<CustomerModel> customers = _sqlDb.Customers_GetByLastName(SearchQuery);
+      if (customers == null) return;
+      List<SaleModel> sales = customers.Select(c => _sqlDb.Sales_GetByCustomerId(c.Id))
+        .SelectMany(s => s)
+        .OrderBy(s => s.CustomerId)
+        .ThenByDescending(s => s.Created)
+        .ToList();
+
+      CustomerModel customer = new CustomerModel();
+      for (int i = 0; i < sales.Count; i++)
+      {
+        if (i == 0 || sales[i].CustomerId != sales[i - 1].CustomerId)
+          customer = customers.FirstOrDefault(c => c.Id == sales[i].CustomerId);
+
+        GenerateResults(sales[i], customer);
+      }
+    }
+
+    private void ProcessEmailAddress()
+    {
+      CustomerModel customer = _sqlDb.Customers_GetByEmailAddress(SearchQuery);
+      if (customer == null) return;
+      List<SaleModel> sales = _sqlDb.Sales_GetByCustomerId(customer.Id)
+        .OrderByDescending(s => s.Created)
+        .ToList();
+
+      foreach (var sale in sales)
+        GenerateResults(sale, customer);
+    }
+
+    private void ProcessPhoneNumber()
+    {
+      CustomerModel customer = _sqlDb.Customers_GetByPhoneNumber(SearchQuery);
+      if (customer == null) return;
+      List<SaleModel> sales = _sqlDb.Sales_GetByCustomerId(customer.Id)
+        .OrderByDescending(s => s.Created)
+        .ToList();
+
+      foreach (var sale in sales)
+        GenerateResults(sale, customer);
+    }
+
+    private void GenerateResults(SaleModel sale, CustomerModel customer)
+    {
+      Results.Add(new SaleSearchViewModel
+      {
+        SaleId = sale.Id,
+        Created = sale.Created,
+        IsComplete = sale.IsComplete,
+        EmailAddress = customer.EmailAddress,
+        FullName = customer.FullName,
+        PhoneNumber = customer.PhoneNumber
+      });
     }
 
     public IActionResult OnPostCreateNewSale()

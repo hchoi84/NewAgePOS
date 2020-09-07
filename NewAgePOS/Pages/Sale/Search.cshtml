@@ -36,37 +36,46 @@
   <h3 class="mt-5">Results</h3>
 
   <div class="container">
-    @foreach (var result in Model.Results)
+    @if (Model.Results.Any())
     {
-      if (result != Model.Results.First())
+      @foreach (var result in Model.Results)
       {
-        <div class="mt-3"></div>
+        if (result != Model.Results.First())
+        {
+          <div class="mt-3"></div>
+        }
+
+        <div class="row">
+          <input readonly class="col-5 form-control" value="@result.Created.ToString("yyyy/MM/dd")" />
+          <input readonly class="col-2 form-control" value="@result.SaleId" />
+          <input readonly class="col-5 form-control" value="@result.PhoneNumber" />
+        </div>
+        <div class="row">
+          <input readonly class="col-6 form-control" value="@result.FullName" />
+          <input readonly class="col-6 form-control" value="@result.EmailAddress" />
+        </div>
+        <div class="row">
+
+          @if (result.IsComplete)
+          {
+            <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-warning mt-1">Refund</a>
+            <a asp-page="/Sale/Receipt" asp-route-saleid="@result.SaleId" class="btn btn-primary mt-1 ml-1">Receipt</a>
+          }
+          else
+          {
+            <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-success mt-1">Continue</a>
+
+            <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
+              <button type="submit" class="btn btn-danger ml-1 mt-1">Cancel Sale</button>
+            </form>
+          }
+        </div>
       }
-
+    }
+    else
+    {
       <div class="row">
-        <div class="col-5 border rounded bg-dark">@result.Created.ToString("yyyy/MM/dd")</div>
-        <div class="col-2 border rounded bg-dark">@result.SaleId</div>
-        <div class="col-5 border rounded bg-dark">@result.PhoneNumber</div>
-      </div>
-      <div class="row">
-        <div class="col-6 border rounded bg-dark">@result.FullName</div>
-        <div class="col-6 border rounded bg-dark">@result.EmailAddress</div>
-      </div>
-      <div class="row">
-
-        @if (result.IsComplete)
-        {
-          <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-warning mt-1">Refund</a>
-          <a asp-page="/Sale/Receipt" asp-route-saleid="@result.SaleId" class="btn btn-primary mt-1 ml-1">Receipt</a>
-        }
-        else
-        {
-          <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-success mt-1">Continue</a>
-
-          <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
-            <button type="submit" class="btn btn-danger ml-1 mt-1">Cancel Sale</button>
-          </form>
-        }
+        <div class="col text-info">No Results</div>
       </div>
     }
   </div>

@@ -2,7 +2,7 @@
 
 namespace NewAgePOSModels.Models
 {
-  public class SaleSearchResultModel
+  public class SaleSearchViewModel
   {
     public int SaleId { get; set; }
     public bool IsComplete { get; set; }
