@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace NewAgePOS.Pages.Sale
     public string SearchQuery { get; set; }
 
     [BindProperty]
-    public List<SaleSearchViewModel> Results { get; set; }
+    public List<SearchViewModel> Results { get; set; }
 
     public List<SelectListItem> SearchMethods { get; } = new List<SelectListItem>
     {
@@ -39,7 +40,7 @@ namespace NewAgePOS.Pages.Sale
       if (string.IsNullOrEmpty(SearchQuery)) return Page();
 
       SearchQuery = SearchQuery.Trim();
-      Results = new List<SaleSearchViewModel>();
+      Results = new List<SearchViewModel>();
 
       if (SearchMethod == "SaleId")
       {
@@ -145,7 +146,7 @@ namespace NewAgePOS.Pages.Sale
 
     private void GenerateResults(SaleModel sale, CustomerModel customer)
     {
-      Results.Add(new SaleSearchViewModel
+      Results.Add(new SearchViewModel
       {
         SaleId = sale.Id,
         Created = sale.Created,

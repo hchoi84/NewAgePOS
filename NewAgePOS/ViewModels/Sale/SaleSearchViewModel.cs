@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace NewAgePOSModels.Models
+namespace NewAgePOS.ViewModels.Sale
 {
-  public class SaleSearchViewModel
+  public class SearchViewModel
   {
     public int SaleId { get; set; }
     public bool IsComplete { get; set; }
