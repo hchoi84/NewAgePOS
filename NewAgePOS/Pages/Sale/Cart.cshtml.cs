@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.Internal;
+using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
@@ -39,63 +41,91 @@ namespace NewAgePOS.Pages
     [BindProperty]
     public float GiftCardAmount { get; set; }
 
+    public List<CartViewModel> Items { get; set; }
     public List<SaleLineModel> SaleLines { get; set; }
-    public List<ProductModel> Products { get; set; }
-    public List<GiftCardModel> GiftCards { get; set; }
     public float TaxPct { get; set; }
-
-    public void Initialize()
-    {
-      CartDiscs = new List<CartDiscModel>();
-      Products = new List<ProductModel>();
-      GiftCards = new List<GiftCardModel>();
-
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
-
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .OrderByDescending(s => s.ProductId)
-        .ToList();
-
-      SaleLines.ForEach(s =>
-      {
-        CartDiscs.Add(new CartDiscModel()
-        {
-          SaleLineId = s.Id,
-          DiscPct = s.DiscPct
-        });
-
-        if (s.ProductId != null)
-          Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
-        else
-          GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
-      });
-    }
 
     public IActionResult OnGet()
     {
       bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
+
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";
         return RedirectToPage("Search");
       }
 
-      Initialize();
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
+
+      GenerateViewModel(saleLines);
+
+      Items = Items.OrderBy(i => i.Sku).ToList();
+
+      foreach (var item in Items)
+      {
+        CartDiscs.Add(new CartDiscModel()
+        {
+          SaleLineId = item.SaleLineId,
+          DiscPct = saleLines.FirstOrDefault(s => s.Id == item.SaleLineId).DiscPct
+        });
+      }
 
       return Page();
     }
 
+    private void GenerateViewModel(List<SaleLineModel> saleLines)
+    {
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
+      List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
+      CartViewModel item = new CartViewModel();
+
+      foreach (SaleLineModel saleLine in saleLines)
+      {
+        ProductModel product = new ProductModel();
+        GiftCardModel giftCard = new GiftCardModel();
+
+        bool isProduct = saleLine.ProductId.HasValue;
+
+        if (isProduct)
+        {
+          product = products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
+
+          item.SaleLineId = saleLine.Id;
+          item.IsProduct = isProduct;
+          item.Sku = product.Sku;
+          item.Upc = product.Upc;
+          item.AllName = product.AllName;
+          item.Cost = saleLine.Cost;
+          item.Price = saleLine.Price;
+          item.Qty = saleLine.Qty;
+        }
+        else
+        {
+          giftCard = giftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
+
+          item.SaleLineId = saleLine.Id;
+          item.IsProduct = isProduct;
+          item.Sku = giftCard.Code;
+          item.Price = giftCard.Amount;
+          item.Qty = 1;
+        }
+
+        Items.Add(item);
+      }
+    }
+
     public IActionResult OnPostApplyDiscount()
     {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       foreach (CartDiscModel cartDisc in CartDiscs)
       {
-        SaleLineModel saleLine = SaleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
+        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
 
         if (cartDisc.DiscPct > 100)
         {
-          ModelState.AddModelError(string.Empty, "Discount percent can't be greater than 100");
+          ModelState.AddModelError(string.Empty, "Discount percent can not be greater than 100");
           return Page();
         }
 
@@ -106,8 +136,8 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
-    #region Add Product
-    public async Task<IActionResult> OnPostAddProductAsync()
+    #region Add Products
+    public async Task<IActionResult> OnPostAddProductsAsync()
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
@@ -118,15 +148,10 @@ namespace NewAgePOS.Pages
 
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
-      Products = new List<ProductModel>();
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .Where(s => s.ProductId.HasValue)
-        .ToList();
-
-      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
-
-      UpdateCart(groupedCodes);
+      UpdateCart(groupedCodes, saleLines, products);
       if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
       if (groupedCodes.Count > 0)
       {
@@ -137,7 +162,7 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
-    private void UpdateCart(List<IGrouping<string, string>> groupedCodes)
+    private void UpdateCart(List<IGrouping<string, string>> groupedCodes, List<SaleLineModel> saleLines, List<ProductModel> products)
     {
       for (int i = groupedCodes.Count - 1; i >= 0; i--)
       {
@@ -145,13 +170,13 @@ namespace NewAgePOS.Pages
         SaleLineModel saleLine = new SaleLineModel();
 
         if (groupedCodes[i].Key.Contains("_"))
-          product = Products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
+          product = products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
         else
-          product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
+          product = products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
 
         if (product != null)
         {
-          saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
+          saleLine = saleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty += groupedCodes[i].Count();
           _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
           groupedCodes.RemoveAt(i);
@@ -212,17 +237,12 @@ namespace NewAgePOS.Pages
     }
     #endregion
 
-    public IActionResult OnPostRemoveProduct()
+    public IActionResult OnPostRemoveProducts()
     {
       if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
 
-      Products = new List<ProductModel>();
-
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .Where(s => s.ProductId.HasValue)
-        .ToList();
-
-      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
 
       List<string> productCodes = Codes
         .Trim()
@@ -239,18 +259,18 @@ namespace NewAgePOS.Pages
         ProductModel product = new ProductModel();
 
         if (groupedCodes[i].Key.Contains("_"))
-          product = Products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
+          product = products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
         else
-          product = Products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
+          product = products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
 
         if (product != null)
         {
-          SaleLineModel saleLine = SaleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
+          SaleLineModel saleLine = saleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
           saleLine.Qty -= groupedCodes[i].Count();
 
           if (saleLine.Qty <= 0)
           {
-            _sqlDb.SaleLines_Delete(SaleLines[i].Id);
+            _sqlDb.SaleLines_Delete(saleLines[i].Id);
             continue;
           }
 
@@ -268,7 +288,7 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
-    public IActionResult OnPostAddGiftCard()
+    public IActionResult OnPostAddGiftCards()
     {
       List<string> msgs = new List<string>();
       List<string> giftCardCodes = GiftCardCodes
@@ -298,16 +318,10 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
-    public IActionResult OnPostRemoveGiftCard()
+    public IActionResult OnPostRemoveGiftCards()
     {
-      GiftCards = new List<GiftCardModel>();
-
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId)
-        .Where(s => s.GiftCardId.HasValue)
-        .ToList();
-
-      SaleLines.ForEach(s => GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value)));
-
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
       List<string> msgs = new List<string>();
       List<string> giftCardCodes = GiftCardCodes
         .Trim()
@@ -318,7 +332,7 @@ namespace NewAgePOS.Pages
 
       foreach (string code in giftCardCodes)
       {
-        GiftCardModel gc = GiftCards.FirstOrDefault(g => g.Code == code);
+        GiftCardModel gc = giftCards.FirstOrDefault(g => g.Code == code);
 
         if (gc == null)
         {
@@ -326,7 +340,7 @@ namespace NewAgePOS.Pages
           continue;
         }
 
-        int saleLineId = SaleLines.FirstOrDefault(s => s.GiftCardId.Value == gc.Id).Id;
+        int saleLineId = saleLines.FirstOrDefault(s => s.GiftCardId.Value == gc.Id).Id;
         _sqlDb.SaleLines_Delete(saleLineId);
         _sqlDb.GiftCards_Delete(gc.Id);
       }

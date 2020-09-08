@@ -80,7 +80,7 @@ namespace NewAgePOS.Pages.Sale
         .ToList();
 
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
 
       SaleLines.ForEach(s =>

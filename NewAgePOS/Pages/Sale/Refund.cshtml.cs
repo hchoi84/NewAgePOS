@@ -66,7 +66,7 @@ namespace NewAgePOS.Pages.Sale
     private void Initialize()
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).OrderByDescending(s => s.ProductId).ToList();
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
 
       Products = new List<ProductModel>();
       GiftCards = new List<GiftCardModel>();
@@ -126,7 +126,7 @@ namespace NewAgePOS.Pages.Sale
     private float GetRefundableAmount()
     {
       SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId);
+      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
 
       SaleLines.ForEach(s =>

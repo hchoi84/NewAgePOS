@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewAgePOS.ViewModels.Shared;
+using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +9,24 @@ namespace NewAgePOS.ViewComponents
 {
   public class SalePriceSummaryViewComponent : ViewComponent
   {
-    public IViewComponentResult Invoke(List<SaleLineModel> saleLines, float taxPct, List<TransactionModel> transactions = null)
+    private readonly ISQLData _sqlDb;
+
+    public SalePriceSummaryViewComponent(ISQLData sqlDb)
     {
-      SalePriceSummaryModel model = new SalePriceSummaryModel();
-      model.Subtotal = saleLines.Sum(sl => sl.LineTotal);
-      model.Discount = saleLines.Sum(sl => sl.Discount);
-      model.Paid = transactions == null ? 0 : transactions.Sum(t => t.Amount);
-      model.TaxPct = taxPct;
-      model.Tax = (model.Subtotal - model.Discount) * (taxPct / 100f);
-      model.Total = model.Subtotal - model.Discount - model.Paid + model.Tax;
+      _sqlDb = sqlDb;
+    }
+
+    public IViewComponentResult Invoke(int saleId)
+    {
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
+      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
+      TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
+
+      PriceSummaryViewModel model = new PriceSummaryViewModel();
+      model.Subtotal = saleLines.Sum(s => s.LineTotal);
+      model.Discount = saleLines.Sum(s => s.Discount);
+      model.Paid = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount);
+      model.TaxPct = tax.TaxPct;
       
       return View(model);
     }

@@ -57,7 +57,7 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Taxes
-    int Taxes_GetBySaleId(int saleId);
+    TaxModel Taxes_GetBySaleId(int saleId);
     #endregion
 
     #region Transactions
@@ -67,5 +67,7 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
+    List<ProductModel> Products_GetBySaleId(int saleId);
+    List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
   }
 }

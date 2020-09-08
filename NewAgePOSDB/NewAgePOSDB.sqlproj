@@ -90,6 +90,8 @@
     <Build Include="dbo\StoredProcedures\Sales\spSales_UpdateCustomerIdToGuest.sql" />
     <Build Include="dbo\StoredProcedures\SaleLines\spSaleLines_Insert.sql" />
     <Build Include="dbo\StoredProcedures\SaleLines\spSaleLines_Update.sql" />
+    <Build Include="dbo\StoredProcedures\spProducts_GetBySaleId.sql" />
+    <Build Include="dbo\StoredProcedures\spGiftCards_GetBySaleId.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

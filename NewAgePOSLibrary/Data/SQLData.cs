@@ -89,6 +89,11 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<GiftCardModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
+    public List<GiftCardModel> GiftCards_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<GiftCardModel, dynamic>("dbo.spGiftCards_GetBySaleId", new { saleId }, connectionStringName, true);
+    }
+
     public int GiftCards_Insert(string code, float amount) =>
      _sqlDb.LoadData<int, dynamic>("dbo.spGiftCards_Insert", new { code, amount }, connectionStringName, true).FirstOrDefault();
 
@@ -111,6 +116,11 @@ namespace NewAgePOSLibrary.Data
     {
       string query = "SELECT * FROM dbo.Products WHERE Id = @id";
       return _sqlDb.LoadData<ProductModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
+    }
+
+    public List<ProductModel> Products_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<ProductModel, dynamic>("dbo.spProducts_GetBySaleId", new { saleId }, connectionStringName, true);
     }
 
     public int Products_Insert(string sku, string upc, float cost, float price, string allName)
@@ -232,9 +242,9 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Taxes
-    public int Taxes_GetBySaleId(int saleId)
+    public TaxModel Taxes_GetBySaleId(int saleId)
     {
-      return _sqlDb.LoadData<int, dynamic>(
+      return _sqlDb.LoadData<TaxModel, dynamic>(
         "dbo.spTaxes_GetBySaleId", new { saleId }, connectionStringName, true)
         .FirstOrDefault();
     }
