@@ -7,20 +7,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-  DECLARE @id int;
-
-  SELECT @id = Id
-  FROM dbo.Customers
-  WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber;
-
-  IF (@id IS NULL)
-    BEGIN
-      INSERT INTO dbo.Customers (FirstName, LastName, EmailAddress, PhoneNumber)
-      OUTPUT inserted.Id
-      VALUES (@firstName, @lastName, @emailAddress, @phoneNumber);
-    END
-  ELSE
-    BEGIN
-      SELECT @id
-    END
+  INSERT INTO dbo.Customers (FirstName, LastName, EmailAddress, PhoneNumber)
+  OUTPUT inserted.Id
+  VALUES (@firstName, @lastName, @emailAddress, @phoneNumber);
 END

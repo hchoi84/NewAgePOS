@@ -42,8 +42,6 @@ namespace NewAgePOS.Pages
     public float GiftCardAmount { get; set; }
 
     public List<CartViewModel> Items { get; set; }
-    public List<SaleLineModel> SaleLines { get; set; }
-    public float TaxPct { get; set; }
 
     public IActionResult OnGet()
     {
@@ -56,7 +54,6 @@ namespace NewAgePOS.Pages
       }
 
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
 
       GenerateViewModel(saleLines);
 

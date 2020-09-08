@@ -7,7 +7,6 @@ namespace NewAgePOSLibrary.Data
   public interface ISQLData
   {
     #region Customers
-    List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber);
     CustomerModel Customers_GetByEmailAddress(string emailAddress);
     CustomerModel Customers_GetByPhoneNumber(string phoneNumber);
     List<CustomerModel> Customers_GetByLastName(string lastName);
@@ -53,7 +52,6 @@ namespace NewAgePOSLibrary.Data
     int Sales_Insert();
     void Sales_MarkComplete(int id);
     void Sales_UpdateCustomerId(int saleId, int customerId);
-    void Sales_UpdateCustomerIdToGuest(int saleId);
     #endregion
 
     #region Taxes

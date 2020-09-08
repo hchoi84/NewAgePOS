@@ -17,13 +17,6 @@ namespace NewAgePOSLibrary.Data
     }
 
     #region Customers
-    // TODO: Remove this method after it's been converted
-    public List<CustomerModel> Customers_GetByEmailOrPhone(string emailAddress, string phoneNumber)
-    {
-      string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress OR PhoneNumber = @phoneNumber";
-      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { emailAddress, phoneNumber }, connectionStringName, false);
-    }
-
     public CustomerModel Customers_GetByEmailAddress(string emailAddress)
     {
       string query = "SELECT * FROM dbo.Customers WHERE EmailAddress = @emailAddress";
@@ -231,13 +224,6 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query,
                       new { saleId, customerId },
                       connectionStringName, false);
-    }
-
-    public void Sales_UpdateCustomerIdToGuest(int saleId)
-    {
-      _sqlDb.SaveData("dbo.spSales_UpdateCustomerIdToGuest",
-                      new { saleId },
-                      connectionStringName, true);
     }
     #endregion
 
