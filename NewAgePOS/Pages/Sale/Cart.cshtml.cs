@@ -7,6 +7,7 @@ using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Internal;
+using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -18,11 +19,13 @@ namespace NewAgePOS.Pages
   {
     private readonly IChannelAdvisor _ca;
     private readonly ISQLData _sqlDb;
+    private readonly IShare _share;
 
-    public CartModel(IChannelAdvisor ca, ISQLData sqlDb)
+    public CartModel(IChannelAdvisor ca, ISQLData sqlDb, IShare share)
     {
       _ca = ca;
       _sqlDb = sqlDb;
+      _share = share;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -55,9 +58,7 @@ namespace NewAgePOS.Pages
 
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      GenerateViewModel(saleLines);
-
-      Items = Items.OrderBy(i => i.Sku).ToList();
+      Items = _share.GenerateCartViewModel(SaleId).OrderBy(i => i.Sku).ToList();
 
       foreach (var item in Items)
       {
@@ -69,47 +70,6 @@ namespace NewAgePOS.Pages
       }
 
       return Page();
-    }
-
-    private void GenerateViewModel(List<SaleLineModel> saleLines)
-    {
-      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
-      List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
-      CartViewModel item = new CartViewModel();
-
-      foreach (SaleLineModel saleLine in saleLines)
-      {
-        ProductModel product = new ProductModel();
-        GiftCardModel giftCard = new GiftCardModel();
-
-        bool isProduct = saleLine.ProductId.HasValue;
-
-        if (isProduct)
-        {
-          product = products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
-
-          item.SaleLineId = saleLine.Id;
-          item.IsProduct = isProduct;
-          item.Sku = product.Sku;
-          item.Upc = product.Upc;
-          item.AllName = product.AllName;
-          item.Cost = saleLine.Cost;
-          item.Price = saleLine.Price;
-          item.Qty = saleLine.Qty;
-        }
-        else
-        {
-          giftCard = giftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
-
-          item.SaleLineId = saleLine.Id;
-          item.IsProduct = isProduct;
-          item.Sku = giftCard.Code;
-          item.Price = giftCard.Amount;
-          item.Qty = 1;
-        }
-
-        Items.Add(item);
-      }
     }
 
     public IActionResult OnPostApplyDiscount()

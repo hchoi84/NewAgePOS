@@ -13,6 +13,7 @@ using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Data;
 using SkuVaultLibrary;
 using NewAgePOSModels.Securities;
+using NewAgePOS.Utilities;
 
 namespace NewAgePOS
 {
@@ -61,6 +62,7 @@ namespace NewAgePOS
 
       services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
       services.AddScoped<ISkuVault, SkuVault>();
+      services.AddScoped<IShare, Share>();
 
       services.AddAuthorization(options =>
       {

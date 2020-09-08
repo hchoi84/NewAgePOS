@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Shared;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -9,25 +10,22 @@ namespace NewAgePOS.ViewComponents
 {
   public class SalePriceSummaryViewComponent : ViewComponent
   {
-    private readonly ISQLData _sqlDb;
+    private readonly IShare _share;
 
-    public SalePriceSummaryViewComponent(ISQLData sqlDb)
+    public SalePriceSummaryViewComponent(IShare share)
     {
-      _sqlDb = sqlDb;
+      _share = share;
     }
 
     public IViewComponentResult Invoke(int saleId)
     {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
-      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
-      TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
+      PriceSummaryViewModel model = _share.GeneratePriceSummaryViewModel(saleId);
 
-      PriceSummaryViewModel model = new PriceSummaryViewModel();
-      model.Subtotal = saleLines.Sum(s => s.LineTotal);
-      model.Discount = saleLines.Sum(s => s.Discount);
-      model.Paid = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount);
-      model.TaxPct = tax.TaxPct;
-      
+      return View(model);
+    }
+
+    public IViewComponentResult Invoke(PriceSummaryViewModel model)
+    {
       return View(model);
     }
   }
