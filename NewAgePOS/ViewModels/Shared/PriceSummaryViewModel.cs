@@ -4,6 +4,7 @@ namespace NewAgePOS.ViewModels.Shared
 {
   public class PriceSummaryViewModel
   {
+    public int Quantity { get; set; }
     public float Subtotal { get; set; }
     public float Discount { get; set; }
     public float TaxPct { get; set; }
@@ -13,6 +14,7 @@ namespace NewAgePOS.ViewModels.Shared
     public float PaidGiftCard { get; set; }
     public float PaidCash { get; set; }
     public float PaidGive { get; set; }
+    public float Remaining { get { return Total - Paid; } }
     public float Change { get { return Paid - Total; } }
     public CultureInfo Dollar { get { return new CultureInfo("en-US"); } }
   }

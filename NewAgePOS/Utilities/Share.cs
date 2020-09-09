@@ -27,6 +27,7 @@ namespace NewAgePOS.Utilities
 
       PriceSummaryViewModel model = new PriceSummaryViewModel
       {
+        Quantity = saleLines.Sum(s => s.Qty),
         Subtotal = saleLines.Sum(s => s.LineTotal),
         Discount = saleLines.Sum(s => s.Discount),
         PaidGiftCard = paidTransactions.Where(p => p.Method == "GiftCard").Sum(p => p.Amount),
@@ -38,13 +39,12 @@ namespace NewAgePOS.Utilities
       return model;
     }
 
-    public List<CartViewModel> GenerateCartViewModel(int saleId)
+    public List<ItemListViewModel> GenerateCartViewModel(int saleId)
     {
-      List<CartViewModel> items = new List<CartViewModel>();
+      List<ItemListViewModel> items = new List<ItemListViewModel>();
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
       List<ProductModel> products = _sqlDb.Products_GetBySaleId(saleId);
       List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(saleId);
-      CartViewModel item = new CartViewModel();
 
       foreach (SaleLineModel saleLine in saleLines)
       {
@@ -52,6 +52,7 @@ namespace NewAgePOS.Utilities
         GiftCardModel giftCard = new GiftCardModel();
 
         bool isProduct = saleLine.ProductId.HasValue;
+        ItemListViewModel item = new ItemListViewModel();
 
         if (isProduct)
         {

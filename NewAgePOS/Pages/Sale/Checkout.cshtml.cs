@@ -37,7 +37,7 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty]
     public CheckoutViewModel Checkout { get; set; }
 
-    public List<CartViewModel> Items { get; set; }
+    public List<ItemListViewModel> Items { get; set; }
     public CustomerModel Customer { get; set; }
     public List<TransactionModel> Transactions { get; set; }
     public List<GiftCardModel> GiftCards { get; set; }
@@ -52,9 +52,10 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
+      Checkout = new CheckoutViewModel();
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId)
-        .OrderBy(t => t.Method.CompareTo(TransactionOrderPref))
+        .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
         .ToList();
       GiftCards = Transactions.Where(t => t.GiftCardId.HasValue)
         .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
@@ -92,7 +93,7 @@ namespace NewAgePOS.Pages.Sale
       
       TempData["Message"] = string.Join(Environment.NewLine, msgs);
 
-      return RedirectToPage();
+      return RedirectToPage(new { SaleId });
     }
 
     private float ProcessGiftCards(float dueBalance, List<string> msgs)

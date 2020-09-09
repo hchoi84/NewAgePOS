@@ -3,6 +3,10 @@
 <div class="mt-5" style="max-width: 425px;">
   <div class="row">
     <div class="col-4 h4">Subtotal</div>
+    <div class="col-5 h4 text-right">@Model.Quantity</div>
+  </div>
+  <div class="row">
+    <div class="col-4 h4">Subtotal</div>
     <div class="col-5 h4 text-right">@Model.Subtotal.ToString("C2", Model.Dollar)</div>
   </div>
   @if (Model.Discount > 0)
@@ -30,7 +34,14 @@
       <div class="col-5 h4 text-right">@Model.Paid.ToString("C2", Model.Dollar)</div>
     </div>
   }
-  @if (Model.Change >= 0)
+  @if (Model.Remaining != Model.Total)
+  {
+    <div class="row">
+      <div class="col-4 h4">Paid</div>
+      <div class="col-5 h4 text-right">@Model.Remaining.ToString("C2", Model.Dollar)</div>
+    </div>
+  }
+  @if (Model.Change > 0)
   {
     <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
 

@@ -44,7 +44,7 @@ namespace NewAgePOS.Pages
     [BindProperty]
     public float GiftCardAmount { get; set; }
 
-    public List<CartViewModel> Items { get; set; }
+    public List<ItemListViewModel> Items { get; set; }
 
     public IActionResult OnGet()
     {
@@ -56,10 +56,12 @@ namespace NewAgePOS.Pages
         return RedirectToPage("Search");
       }
 
+      List<ItemListViewModel> items = _share.GenerateCartViewModel(SaleId);
+      Items = items.OrderBy(i => i.Sku).ToList();
+
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      Items = _share.GenerateCartViewModel(SaleId).OrderBy(i => i.Sku).ToList();
-
+      CartDiscs = new List<CartDiscModel>();
       foreach (var item in Items)
       {
         CartDiscs.Add(new CartDiscModel()

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NewAgePOS.ViewModels.Sale
 {
-  public class CartViewModel
+  public class ItemListViewModel
   {
     public int SaleLineId { get; set; }
     public bool IsProduct { get; set; }

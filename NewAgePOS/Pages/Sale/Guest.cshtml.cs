@@ -23,6 +23,7 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnGet()
     {
+      Guest = new GuestViewModel();
       CustomerModel customer = _sqlDb.Customers_GetBySaleId(SaleId);
       if (customer.EmailAddress == "guest@email.com") return Page();
       else if (customer != null)
@@ -42,7 +43,7 @@ namespace NewAgePOS.Pages.Sale
       if (!ModelState.IsValid) return Page();
 
       CustomerModel customer = new CustomerModel();
-      customer = _sqlDb.Customers_GetByEmailAddress(Guest.EmailAddress) 
+      customer = _sqlDb.Customers_GetByEmailAddress(Guest.EmailAddress)
         ?? _sqlDb.Customers_GetByPhoneNumber(Guest.PhoneNumber);
 
       if (customer != null)

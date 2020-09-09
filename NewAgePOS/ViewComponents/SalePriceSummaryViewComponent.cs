@@ -23,10 +23,5 @@ namespace NewAgePOS.ViewComponents
 
       return View(model);
     }
-
-    public IViewComponentResult Invoke(PriceSummaryViewModel model)
-    {
-      return View(model);
-    }
   }
 }

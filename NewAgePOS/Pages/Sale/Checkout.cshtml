@@ -89,7 +89,7 @@ else
 @* TODO: Implement cancellation of transaction*@
 @if (Model.Transactions.Any())
 {
-  <h4 class="mt-5">Transactions</h4>
+  <h3 class="mt-5">Transactions</h3>
 
   foreach (TransactionModel transaction in Model.Transactions)
   {
@@ -127,7 +127,7 @@ else
 
 @if (Model.IsComplete)
 {
-  <form method="post" asp-page-handler="CompleteSale">
+  <form method="post" asp-page-handler="CompleteSale" class="mt-1">
     <button type="submit" class="btn btn-success">Complete Sale</button>
   </form>
 }
@@ -176,4 +176,4 @@ else
   </form>
 }
 
-@await Component.InvokeAsync("SalePriceSummary", new { model = Model.PriceSummary })
+@await Component.InvokeAsync("SalePriceSummary", new { saleId = Model.SaleId })
