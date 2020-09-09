@@ -1,4 +1,5 @@
 ﻿@page "{saleid:min(1)}"
+@using NewAgePOS.ViewModels.Sale
 @model NewAgePOS.Pages.Sale.CheckoutModel
 @{
   ViewData["Title"] = "Checkout";
@@ -11,7 +12,7 @@
 }
 
 <h3 class="mt-5">ITEMS</h3>
-@foreach (NewAgePOS.ViewModels.Sale.CartViewModel item in Model.Items)
+@foreach (ItemListViewModel item in Model.Items)
 {
   if (item != Model.Items.First())
   {

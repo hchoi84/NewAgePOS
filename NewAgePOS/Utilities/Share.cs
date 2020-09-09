@@ -39,7 +39,7 @@ namespace NewAgePOS.Utilities
       return model;
     }
 
-    public List<ItemListViewModel> GenerateCartViewModel(int saleId)
+    public List<ItemListViewModel> GenerateItemListViewModel(int saleId)
     {
       List<ItemListViewModel> items = new List<ItemListViewModel>();
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
@@ -66,6 +66,7 @@ namespace NewAgePOS.Utilities
           item.Cost = saleLine.Cost;
           item.Price = saleLine.Price;
           item.Qty = saleLine.Qty;
+          item.DiscPct = saleLine.DiscPct;
         }
         else
         {

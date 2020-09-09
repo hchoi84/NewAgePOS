@@ -6,7 +6,7 @@ namespace NewAgePOS.Utilities
 {
   public interface IShare
   {
-    List<ItemListViewModel> GenerateCartViewModel(int saleId);
+    List<ItemListViewModel> GenerateItemListViewModel(int saleId);
     PriceSummaryViewModel GeneratePriceSummaryViewModel(int saleId);
   }
 }

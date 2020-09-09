@@ -48,15 +48,21 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnGet()
     {
-      bool isComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
+      SaleModel sale = _sqlDb.Sales_GetById(SaleId);
+      if (sale == null)
+      {
+        TempData["Message"] = "Invalid Sale Id";
+        return RedirectToPage("Search");
+      }
 
+      bool isComplete = sale.IsComplete;
       if (isComplete)
       {
         TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";
         return RedirectToPage("Search");
       }
 
-      List<ItemListViewModel> items = _share.GenerateCartViewModel(SaleId);
+      List<ItemListViewModel> items = _share.GenerateItemListViewModel(SaleId);
       Items = items.OrderBy(i => i.Sku).ToList();
 
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -74,23 +80,15 @@ namespace NewAgePOS.Pages
       return Page();
     }
 
-    public IActionResult OnPostApplyDiscount()
+    public IActionResult OnPostApplyDiscount(int saleLineId, int qty, float discPct)
     {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-
-      foreach (CartDiscModel cartDisc in CartDiscs)
+      if (discPct > 100)
       {
-        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == cartDisc.SaleLineId);
-
-        if (cartDisc.DiscPct > 100)
-        {
-          ModelState.AddModelError(string.Empty, "Discount percent can not be greater than 100");
-          return Page();
-        }
-
-        if (saleLine.DiscPct != cartDisc.DiscPct)
-          _sqlDb.SaleLines_Update(cartDisc.SaleLineId, saleLine.Qty, cartDisc.DiscPct);
+        TempData["Message"] = "Discount percent can not be greater than 100";
+        return Page();
       }
+
+      _sqlDb.SaleLines_Update(saleLineId, qty, discPct);
 
       return RedirectToPage();
     }

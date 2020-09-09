@@ -1,0 +1,63 @@
+﻿@using NewAgePOS.ViewModels.Sale
+@model List<ItemListViewModel>
+
+@foreach (var item in Model)
+{
+  if (item != Model.First())
+  {
+    <div class="mt-3"></div>
+  }
+
+  if (item.IsProduct)
+  {
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@item.Sku" class="form-control" />
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@item.Upc" class="form-control" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col">
+        <input readonly value="@item.AllName" class="form-control" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@item.Cost.ToString("C2", item.Dollar)" class="form-control" />
+      </div>
+      <div class="col px-0">
+        <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@item.Qty" class="form-control" />
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@item.Sku" class="form-control" />
+      </div>
+      <div class="col px-0">
+        <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
+      </div>
+      <div class="col pl-0">
+        <input readonly value="@item.Qty" class="form-control" />
+      </div>
+    </div>
+  }
+  <form method="post" asp-page="/Sale/Cart" asp-page-handler="ApplyDiscount" asp-route-SaleLineId="@item.SaleLineId" asp-route-qty="@item.Qty">
+    <div class="form-row">
+      <label class="col-form-label ml-3">Cart Discount %</label>
+      <div class="col">
+        <input name="discPct" value="@item.DiscPct" class="form-control text-info font-weight-bold" />
+      </div>
+      <div class="col">
+        <button type="submit" class="col btn btn-primary" style="width: fit-content;">Apply</button>
+      </div>
+    </div>
+  </form>
+}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,5 +16,7 @@ namespace NewAgePOS.ViewModels.Sale
     public float Cost { get; set; }
     public float Price { get; set; }
     public int Qty { get; set; }
+    public float DiscPct { get; set; }
+    public CultureInfo Dollar { get { return new CultureInfo("en-US"); } }
   }
 }

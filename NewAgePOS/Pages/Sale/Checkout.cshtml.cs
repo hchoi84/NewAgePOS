@@ -60,7 +60,7 @@ namespace NewAgePOS.Pages.Sale
       GiftCards = Transactions.Where(t => t.GiftCardId.HasValue)
         .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
         .ToList();
-      Items = _share.GenerateCartViewModel(SaleId);
+      Items = _share.GenerateItemListViewModel(SaleId);
       PriceSummary = _share.GeneratePriceSummaryViewModel(SaleId);
       IsComplete = PriceSummary.Total - PriceSummary.Paid <= 0;
       Checkout.PaymentMethod = "Cash";
