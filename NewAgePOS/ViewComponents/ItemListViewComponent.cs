@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
+using NewAgePOS.ViewModels.ViewComponent;
 using System.Collections.Generic;
 
 namespace NewAgePOS.ViewComponents
@@ -16,13 +17,14 @@ namespace NewAgePOS.ViewComponents
 
     public IViewComponentResult Invoke(int saleId)
     {
+      // TODO: Refund will have refunded and refunding quantity
+      ItemListVCVM items = new ItemListVCVM();
       string path = ViewContext.View.Path;
-      // TODO: Determine source and modify View accordingly
-      // If discount is being applied, do a cross out of original
-      // Cart will have discount
-      // Refund will have refunded and refunding quantity
+
+      if (path.Contains(PathSourceEnum.Cart.ToString()))
+        items.PathSource = PathSourceEnum.Cart;
       
-      List<ItemListViewModel> items = _share.GenerateItemListViewModel(saleId);
+      items.Items = _share.GenerateItemListViewModel(saleId);
       return View(items);
     }
   }
