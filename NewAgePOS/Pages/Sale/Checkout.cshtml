@@ -12,7 +12,7 @@
 }
 
 <h3 class="mt-5">ITEMS</h3>
-@await Component.InvokeAsync("ItemList", new { saleId = @Model.SaleId  })
+@await Component.InvokeAsync("ItemList", new { saleId = @Model.SaleId })
 
 <h3 class="mt-5">CUSTOMER INFO</h3>
 @if (Model.Customer.EmailAddress == "guest@email.com")
@@ -39,7 +39,7 @@ else
   </div>
 }
 
-@* TODO: Implement cancellation of transaction*@
+@* TODO: Implement (1) cancellation (for all) and (2) edit (for cash and give) transaction *@
 @if (Model.Transactions.Any())
 {
   <h3 class="mt-5">Transactions</h3>

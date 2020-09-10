@@ -259,6 +259,12 @@ namespace NewAgePOSLibrary.Data
                     new { saleId, giftCardId, amount, method, type, message },
                     connectionStringName, true).FirstOrDefault();
     }
+
+    public void Transactions_UpdateAmount(int id, float newAmt)
+    {
+      string query = "UPDATE dbo.Transactions SET Amount = @newAmt WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, newAmt }, connectionStringName, false);
+    }
     #endregion
 
     public List<RefundDataModel> GetRefundReceiptData(int transactionId)

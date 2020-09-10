@@ -67,5 +67,6 @@ namespace NewAgePOSLibrary.Data
     List<RefundDataModel> GetRefundReceiptData(int transactionId);
     List<ProductModel> Products_GetBySaleId(int saleId);
     List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
+    void Transactions_UpdateAmount(int id, float newAmt);
   }
 }

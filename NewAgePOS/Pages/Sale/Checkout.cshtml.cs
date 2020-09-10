@@ -37,7 +37,6 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty]
     public CheckoutViewModel Checkout { get; set; }
 
-    public List<ItemListViewModel> Items { get; set; }
     public CustomerModel Customer { get; set; }
     public List<TransactionModel> Transactions { get; set; }
     public List<GiftCardModel> GiftCards { get; set; }
@@ -60,7 +59,6 @@ namespace NewAgePOS.Pages.Sale
       GiftCards = Transactions.Where(t => t.GiftCardId.HasValue)
         .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
         .ToList();
-      Items = _share.GenerateItemListViewModel(SaleId);
       PriceSummary = _share.GeneratePriceSummaryViewModel(SaleId);
       IsComplete = PriceSummary.Total - PriceSummary.Paid <= 0;
       Checkout.PaymentMethod = "Cash";
@@ -78,6 +76,7 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage();
       }
 
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       PriceSummary = _share.GeneratePriceSummaryViewModel(SaleId);
       float dueBalance = PriceSummary.Total - PriceSummary.Paid;
 
@@ -128,18 +127,36 @@ namespace NewAgePOS.Pages.Sale
 
     private float ProcessCash(float dueBalance)
     {
-      _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, Checkout.PaymentMethod, "Checkout", Checkout.Message);
+      TransactionModel cashTransaction = Transactions.Where(t => t.Method == "Cash" && t.Type == "Checkout").FirstOrDefault();
 
-      dueBalance -= Checkout.Amount;
+      if (cashTransaction != null)
+      {
+        cashTransaction.Amount += Checkout.Amount;
+        _sqlDb.Transactions_UpdateAmount(cashTransaction.Id, cashTransaction.Amount);
+      }
+      else
+      {
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, Checkout.PaymentMethod, "Checkout", Checkout.Message);
+      }
 
-      return dueBalance;
+      return dueBalance -= Checkout.Amount;
     }
 
     private float ProcessGive(float dueBalance)
     {
-      _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, "Give", "Checkout", Checkout.Message);
-      dueBalance -= Checkout.GiveAmount;
-      return dueBalance;
+      TransactionModel giveTransaction = Transactions.Where(t => t.Method == "Give" && t.Type == "Checkout").FirstOrDefault();
+
+      if (giveTransaction != null)
+      {
+        giveTransaction.Amount += Checkout.Amount;
+        _sqlDb.Transactions_UpdateAmount(giveTransaction.Id, giveTransaction.Amount);
+      }
+      else
+      {
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, "Give", "Checkout", Checkout.Message);
+      }
+
+      return dueBalance -= Checkout.GiveAmount;
     }
 
     public async Task<IActionResult> OnPostCompleteSaleAsync()
