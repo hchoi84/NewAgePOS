@@ -21,6 +21,8 @@ namespace NewAgePOS.ViewComponents
     {
       PriceSummaryViewModel model = _share.GeneratePriceSummaryViewModel(saleId);
 
+      // TODO: Implement Refunded Amount and Refunding Amount
+
       return View(model);
     }
   }

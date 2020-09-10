@@ -152,6 +152,11 @@ namespace NewAgePOSLibrary.Data
       string query = "UPDATE dbo.RefundLines SET TransactionId = @transactionId WHERE Id = @id";
       _sqlDb.SaveData(query, new { id, transactionId }, connectionStringName, false);
     }
+
+    public List<RefundLineModel> RefundLines_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<RefundLineModel, dynamic>("dbo.spRefundLines_GetBySaleId", new { saleId }, connectionStringName, true);
+    }
     #endregion
 
     #region SaleLines

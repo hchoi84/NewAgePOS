@@ -32,7 +32,7 @@
       {
         float afterDisc = item.Price * (1 - (item.DiscPct / 100f));
         <div class="col px-0">
-          <div class="form-control" style="    background-color: #e9ecef;">
+          <div class="form-control" style="background-color: #e9ecef;">
             <span class="small text-danger"><s>@item.Price.ToString("C2", item.Dollar)</s></span>
             <span>@afterDisc.ToString("C2", item.Dollar)</span>
           </div>
@@ -48,6 +48,19 @@
         <input readonly value="@item.Qty" class="form-control" />
       </div>
     </div>
+    @if (Model.PathSource == PathSourceEnum.Refund)
+    {
+      int refundedQty = Model.Refunds.Where(r => r.TransactionId != 0 && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+      int refundingQty = Model.Refunds.Where(r => r.TransactionId == 0 && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+      <div class="form-row">
+        <div class="col pr-0">
+          <input readonly value="@refundedQty" class="form-control" />
+        </div>
+        <div class="col pl-0">
+          <input readonly value="@refundingQty" class="form-control font-weight-bold text-info" />
+        </div>
+      </div>
+    }
   }
   else
   {

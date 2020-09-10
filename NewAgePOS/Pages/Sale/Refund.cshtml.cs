@@ -42,7 +42,6 @@ namespace NewAgePOS.Pages.Sale
     };
     public List<SaleLineModel> SaleLines { get; set; }
     public List<ProductModel> Products { get; set; }
-    public List<GiftCardModel> GiftCards { get; set; }
     public List<RefundLineModel> RefundLines { get; set; }
     public float TaxPct { get; set; }
     public float Subtotal { get; set; }
@@ -58,35 +57,7 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
-      Initialize();
-
       return Page();
-    }
-
-    private void Initialize()
-    {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).OrderByDescending(s => s.ProductId).ToList();
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
-
-      Products = new List<ProductModel>();
-      GiftCards = new List<GiftCardModel>();
-      RefundLines = new List<RefundLineModel>();
-
-      SaleLines.ForEach(s =>
-      {
-        if (s.ProductId.HasValue)
-          Products.Add(_sqlDb.Products_GetById(s.ProductId.Value));
-        else if (s.GiftCardId.HasValue)
-          GiftCards.Add(_sqlDb.GiftCards_GetById(s.GiftCardId.Value));
-
-        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
-        RefundLines.AddRange(refundLines);
-
-        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
-        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
-      });
     }
 
     public IActionResult OnPost()

@@ -28,80 +28,8 @@
   </div>
 </div>
 
-<h3 class="mt-5">PRODUCTS</h3>
-@foreach (SaleLineModel saleLine in Model.SaleLines)
-{
-  if (saleLine != Model.SaleLines.First())
-  {
-    <div class="mt-3"></div>
-  }
-
-  if (saleLine.GiftCardId.HasValue)
-  {
-    GiftCardModel giftCard = Model.GiftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
-
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@giftCard.Code" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@giftCard.Amount" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col-4 pr-0">
-        <input readonly value="@saleLine.Qty" class="form-control">
-      </div>
-      <div class="col px-0">
-        <input readonly value="Not Refundable" class="form-control">
-      </div>
-    </div>
-  }
-  else if (saleLine.ProductId.HasValue)
-  {
-    ProductModel product = Model.Products.FirstOrDefault(p => p.Id == saleLine.ProductId);
-    List<RefundLineModel> refundedLines = Model.RefundLines.Where(r => r.TransactionId != 0 && r.SaleLineId == saleLine.Id).ToList();
-    RefundLineModel refundingLine = Model.RefundLines.FirstOrDefault(r => r.TransactionId == 0 && r.SaleLineId == saleLine.Id);
-    int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
-    int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@product.Sku" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@product.Upc" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <input readonly value="@product.AllName" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@saleLine.Cost.ToString("C2", dollar)" class="form-control">
-      </div>
-      <div class="col px-0">
-        <input readonly value="@saleLine.Price.ToString("C2", dollar)" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@saleLine.DiscPct %" class="form-control">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@saleLine.Qty" class="form-control">
-      </div>
-      <div class="col px-0">
-        <input readonly value="@refundedQty" class="form-control">
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@refundingQty" class="form-control font-weight-bold text-info">
-      </div>
-    </div>
-  }
-}
+<h3 class="mt-5">ITEMS</h3>
+@await Component.InvokeAsync("ItemList", new { saleId = Model.SaleId }) 
 
 <form method="post">
   <div class="form-row mt-3">
@@ -122,20 +50,7 @@
   </div>
 </form>
 
-<div class="mt-5" style="max-width: 425px;">
-  <div class="row">
-    <div class="col-4 h4">Subtotal</div>
-    <div class="col-5 h4 text-right">@Model.Subtotal.ToString("C2", dollar)</div>
-  </div>
-  <div class="row">
-    <div class="col-4 h4">Tax @Model.TaxPct %</div>
-    <div class="col-5 h4 text-right">@tax.ToString("C2", dollar)</div>
-  </div>
-  <div class="row">
-    <div class="col-4 h4">Total</div>
-    <div class="col-5 h4 text-right">@total.ToString("C2", dollar)</div>
-  </div>
-</div>
+@await Component.InvokeAsync("SalePriceSummary", new { saleId = Model.SaleId }) 
 
 @section Scripts{
   <script src="~/js/site.js" asp-append-version="true"></script>
