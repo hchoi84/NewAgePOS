@@ -1,9 +1,6 @@
 ﻿using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NewAgePOS.ViewModels.ViewComponent
 {

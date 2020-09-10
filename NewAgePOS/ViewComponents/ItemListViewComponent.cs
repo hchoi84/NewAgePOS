@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewAgePOS.Utilities;
-using NewAgePOS.ViewModels.Sale;
 using NewAgePOS.ViewModels.ViewComponent;
-using System.Collections.Generic;
 
 namespace NewAgePOS.ViewComponents
 {
@@ -18,6 +16,7 @@ namespace NewAgePOS.ViewComponents
     public IViewComponentResult Invoke(int saleId)
     {
       // TODO: Refund will have refunded and refunding quantity
+      // TODO: Implement towards Refund
       ItemListVCVM items = new ItemListVCVM();
       string path = ViewContext.View.Path;
 
