@@ -40,8 +40,6 @@ namespace NewAgePOS.Pages.Sale
       new SelectListItem { Text = "Cash", Value = "Cash"},
       new SelectListItem { Text = "Gift Card", Value = "GiftCard" }
     };
-    public List<SaleLineModel> SaleLines { get; set; }
-    public List<ProductModel> Products { get; set; }
     public float TaxPct { get; set; }
     public float Subtotal { get; set; }
 
@@ -138,7 +136,7 @@ namespace NewAgePOS.Pages.Sale
         if (product == null)
         {
           TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): The product you're trying to refund does not exist in this sale";
-          return RedirectToPage();
+          return Page();
         }
 
         SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.ProductId == product.Id);
@@ -147,7 +145,7 @@ namespace NewAgePOS.Pages.Sale
         if (groupedCode.Count() > saleLine.Qty - refundedQty)
         {
           TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Can not refund more than purchased quantity";
-          return RedirectToPage();
+          return Page();
         }
 
         RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => rl.Id == saleLine.Id);
@@ -177,19 +175,19 @@ namespace NewAgePOS.Pages.Sale
 
       foreach (var groupedCode in groupedCodes)
       {
-        ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
+        ProductModel product = products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
 
         if (product == null)
         {
           TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): The product does not exist in this sale";
-          return RedirectToPage();
+          return Page();
         }
 
         int saleLineId = saleLines.FirstOrDefault(sl => sl.ProductId == product.Id).Id;
         RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => rl.SaleLineId == saleLineId);
         refundingLine.Qty -= groupedCode.Count();
 
-        if (refundingLine.Qty <= 0)
+        if (refundingLine.Qty < 0)
         {
           TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Can not remove more than pending refund quantity";
           return Page();
