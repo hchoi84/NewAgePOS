@@ -1,18 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Shared;
-using NewAgePOSLibrary.Data;
-using NewAgePOSModels.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NewAgePOS.ViewComponents
 {
-  public class SalePriceSummaryViewComponent : ViewComponent
+  public class PriceSummaryViewComponent : ViewComponent
   {
     private readonly IShare _share;
 
-    public SalePriceSummaryViewComponent(IShare share)
+    public PriceSummaryViewComponent(IShare share)
     {
       _share = share;
     }

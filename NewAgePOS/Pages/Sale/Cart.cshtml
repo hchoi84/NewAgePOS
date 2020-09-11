@@ -40,9 +40,9 @@
   </div>
 </div>
 
-<h3 class="mt-5">ITEMS</h3>
 @await Component.InvokeAsync("ItemList", new { saleId = Model.SaleId })
-@await Component.InvokeAsync("SalePriceSummary", new { saleId = Model.SaleId })
+
+@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
 
 <div class="container">
   <div class="row mt-3">

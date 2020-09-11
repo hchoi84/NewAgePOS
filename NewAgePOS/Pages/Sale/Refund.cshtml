@@ -26,7 +26,6 @@
   </div>
 </div>
 
-<h3 class="mt-5">ITEMS</h3>
 @await Component.InvokeAsync("ItemList", new { saleId = Model.SaleId }) 
 
 <form method="post">
@@ -49,7 +48,7 @@
   <button type="submit" class="btn btn-primary mt-1">Submit Refund</button>
 </form>
 
-@await Component.InvokeAsync("SalePriceSummary", new { saleId = Model.SaleId }) 
+@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId }) 
 
 @section Scripts{
   <script src="~/js/site.js" asp-append-version="true"></script>

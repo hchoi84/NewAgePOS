@@ -26,63 +26,21 @@
     <p class="text-center m-0">@Model.SaleId</p>
     <p class="text-center m-0">@Model.Created</p>
   </div>
-  <div class="form-group row mb-1">
-    <label asp-for="TotalQty" class="col col-form-label"></label>
-    <div class="col">
-      <input readonly asp-for="TotalQty" class="form-control text-right" />
-    </div>
-  </div>
-  @*<div class="form-group row mb-1">
-    <label asp-for="Subtotal" class="col col-form-label"></label>
-    <div class="col">
-      <input readonly value="@Model.Subtotal.ToString("C2", dollar)" class="form-control text-right" />
-    </div>
-  </div>
-  <div class="form-group row mb-1">
-    <label asp-for="Discount" class="col col-form-label"></label>
-    <div class="col">
-      <input readonly value="@Model.Discount.ToString("C2", dollar)" class="form-control text-right" />
-    </div>
-  </div>*@
-  @if (Model.TaxPct != 0)
-  {
-    <div class="form-group row mb-1">
-      <label class="col col-form-label">Tax @Model.TaxPct %</label>
-      <div class="col">
-        <input readonly value="@Model.Tax.ToString("C2", dollar)" class="form-control text-right" />
-      </div>
-    </div>
-  }
-  <div class="form-group row mb-1">
-    <label asp-for="Total" class="col col-form-label"></label>
-    <div class="col">
-      <input readonly value="@Model.Total.ToString("C2", dollar)" class="form-control text-right" />
-    </div>
-  </div>
-  @foreach (var transaction in Model.Transactions)
-  {
-    <div class="form-group row mb-1">
-      <label class="col col-form-label">@transaction.Method</label>
-      <div class="col">
-        <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control text-right" />
-      </div>
-    </div>
-  }
-
-  <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
-
-  <div class="form-group row">
-    <label asp-for="Change" class="col col-form-label"></label>
-    <div class="col">
-      <input readonly value="@Model.Change.ToString("C2", dollar)" class="form-control text-right" />
-    </div>
-  </div>
-  <div class="my-5">
-    <p class="text-center">All sales are final</p>
-    <p class="text-center">Thank you!</p>
-  </div>
 </div>
 
+@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
+
+<div class="my-5">
+  <p class="text-center">All sales are final</p>
+  @if (string.IsNullOrEmpty(Model.FullName))
+  {
+    <p class="text-center">Thank you!</p>
+  }
+  else
+  {
+    <p class="text-center">Thank you @Model.FullName!</p>
+  }
+</div>
 
 @section Scripts{
   <style media="print">

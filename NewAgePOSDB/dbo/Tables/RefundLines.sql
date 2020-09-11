@@ -4,8 +4,8 @@
 	[SaleLineId] INT NOT NULL,
 	[TransactionId] INT,
 	[Qty] INT NOT NULL,
-	[Created] DATE NOT NULL DEFAULT(getdate()),
-	[Updated] DATE NOT NULL DEFAULT(getdate()),
+	[Created] DATETIME2 NOT NULL DEFAULT(getdate()),
+	[Updated] DATETIME2 NOT NULL DEFAULT(getdate()),
 	CONSTRAINT [FK_RefundLines_SaleLines] FOREIGN KEY (SaleLineId) REFERENCES SaleLines(Id),
 	CONSTRAINT [FK_RefundLines_Transactions] FOREIGN KEY (TransactionId) REFERENCES Transactions(Id)
 )
