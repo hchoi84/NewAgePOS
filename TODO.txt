@@ -4,9 +4,11 @@
  * Implement it on Checkout
  * Implement it on Refund
 - Round total down to 5 cents. Record the difference to DB as "Give"
+- Product Search, don't display products with no inventory
+- Include Cost and BCPrice on Product Search result. BCPrice show regular price, not the 15% discounted price.
 
 ********** WORKING ON **********
-- Product Search, don't display products with no inventory
+- Manual refund with no prior sale. Have amount be entered twice for confirmation
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -15,6 +17,4 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Include Cost and BCPrice on Product Search result. BCPrice show regular price,not the 15% discounted price.
-- Manual refund with no prior sale. Have amount be entered twice
 - Sale/RefundReceipt: Incorporate this to use the same Receipt

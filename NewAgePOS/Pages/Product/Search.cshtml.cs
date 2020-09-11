@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
 using SkuVaultLibrary;
@@ -16,13 +15,11 @@ namespace NewAgePOS.Pages.Product
 {
   public class SearchModel : PageModel
   {
-    private readonly ISQLData _sqlDb;
     private readonly IChannelAdvisor _ca;
     private readonly ISkuVault _sv;
 
-    public SearchModel(ISQLData sqlDb, IChannelAdvisor ca, ISkuVault sv)
+    public SearchModel(IChannelAdvisor ca, ISkuVault sv)
     {
-      _sqlDb = sqlDb;
       _ca = ca;
       _sv = sv;
     }
@@ -31,19 +28,23 @@ namespace NewAgePOS.Pages.Product
     [Display(Name = "SKU or UPC")]
     public string Codes { get; set; }
 
-    public List<ProductSearchModel> Products { get; set; } = new List<ProductSearchModel>();
+    public List<ProductModel> Products { get; set; } = new List<ProductModel>();
+    public List<ProductLocationModel> ProductLocations { get; set; } = new List<ProductLocationModel>();
 
     public async Task<IActionResult> OnGet()
     {
       if (string.IsNullOrEmpty(Codes)) return Page();
 
       IEnumerable<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct();
-    
+
       await AddProducts(productCodes);
 
-      await AddLocationsAsync();
+      if (Products.Count > 0)
+        await AddLocationsAsync();
 
-      Products.Where(p => p.Location.Count > 0);
+      Products = Products.Where(p => ProductLocations.FirstOrDefault(pl => pl.Code == p.Sku) != null)
+        .OrderBy(p => p.Sku).ToList();
+      ProductLocations = ProductLocations.OrderBy(pl => pl.Code).ThenBy(pl => pl.Location).ToList();
 
       return Page();
     }
@@ -57,10 +58,16 @@ namespace NewAgePOS.Pages.Product
         if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString()) ||
           item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)") continue;
 
-        Products.Add(new ProductSearchModel
+        Products.Add(new ProductModel
         {
           Sku = item[CAStrings.sku].ToString(),
           Upc = item[CAStrings.upc].ToString(),
+          Cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
+          item[CAStrings.cost].ToObject<float>(),
+          Price = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name]
+            .ToString() == CAStrings.bcprice)[CAStrings.Value]
+          .ToObject<float>(),
           AllName = item[CAStrings.attributes]
           .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.allName)[CAStrings.Value]
           .ToString()
@@ -74,19 +81,20 @@ namespace NewAgePOS.Pages.Product
       JObject result = await _sv.GetInventoryLocationsAsync(skus, true);
       JToken items = result["Items"];
 
-      if (items != null)
-      {
-        foreach (JProperty item in items)
-        {
-          foreach (JObject i in item.Value)
-          {
-            if (i["LocationCode"].ToString() == "DROPSHIP") continue;
+      if (items == null) return;
 
-            ProductSearchModel p = Products.FirstOrDefault(p => p.Sku == item.Name);
-            string location = i["LocationCode"].ToString();
-            int qty = i["Quantity"].ToObject<int>();
-            p.Location.Add(location, qty);
-          }
+      foreach (JProperty item in items)
+      {
+        foreach (JObject i in item.Value)
+        {
+          if (i["LocationCode"].ToString() == "DROPSHIP") continue;
+
+          ProductLocations.Add(new ProductLocationModel
+          {
+            Code = item.Name,
+            Location = i["LocationCode"].ToString(),
+            Qty = i["Quantity"].ToObject<int>()
+          });
         }
       }
     }
