@@ -3,8 +3,6 @@
 @{
   ViewData["Title"] = "Refund";
   CultureInfo dollar = new CultureInfo("en-US");
-  float tax = Model.Subtotal * (Model.TaxPct / 100f);
-  float total = Model.Subtotal + tax;
 }
 
 @if (TempData["Message"] != null)

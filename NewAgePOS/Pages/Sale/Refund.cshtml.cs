@@ -40,8 +40,6 @@ namespace NewAgePOS.Pages.Sale
       new SelectListItem { Text = "Cash", Value = "Cash"},
       new SelectListItem { Text = "Gift Card", Value = "GiftCard" }
     };
-    public float TaxPct { get; set; }
-    public float Subtotal { get; set; }
 
     public IActionResult OnGet()
     {
