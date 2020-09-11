@@ -1,12 +1,9 @@
-﻿using NewAgePOS.ViewModels.Sale;
-using NewAgePOS.ViewModels.Shared;
-using System.Collections.Generic;
+﻿using NewAgePOS.ViewModels.Shared;
 
 namespace NewAgePOS.Utilities
 {
   public interface IShare
   {
-    List<ItemListViewModel> GenerateItemListViewModel(int saleId);
     PriceSummaryViewModel GeneratePriceSummaryViewModel(int saleId);
   }
 }

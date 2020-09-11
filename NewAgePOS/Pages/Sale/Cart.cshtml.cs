@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Internal;
 using NewAgePOS.Utilities;
-using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
@@ -36,15 +35,10 @@ namespace NewAgePOS.Pages
     public string Codes { get; set; }
 
     [BindProperty]
-    public List<CartDiscModel> CartDiscs { get; set; }
-
-    [BindProperty]
     public string GiftCardCodes { get; set; }
 
     [BindProperty]
     public float GiftCardAmount { get; set; }
-
-    public List<ItemListViewModel> Items { get; set; }
 
     public IActionResult OnGet()
     {
@@ -60,21 +54,6 @@ namespace NewAgePOS.Pages
       {
         TempData["Message"] = $"Cannot access Cart because Sale Id { SaleId } was completed.";
         return RedirectToPage("Search");
-      }
-
-      List<ItemListViewModel> items = _share.GenerateItemListViewModel(SaleId);
-      Items = items.OrderBy(i => i.Sku).ToList();
-
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-
-      CartDiscs = new List<CartDiscModel>();
-      foreach (var item in Items)
-      {
-        CartDiscs.Add(new CartDiscModel()
-        {
-          SaleLineId = item.SaleLineId,
-          DiscPct = saleLines.FirstOrDefault(s => s.Id == item.SaleLineId).DiscPct
-        });
       }
 
       return Page();
@@ -304,6 +283,15 @@ namespace NewAgePOS.Pages
 
       if (msgs.Count > 0) TempData["Message"] = string.Join(Environment.NewLine, msgs);
 
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostProceed()
+    {
+      if (_sqlDb.SaleLines_GetBySaleId(SaleId).Any())
+        return RedirectToPage("Gust", new { SaleId });
+
+      TempData["Message"] = "There are no items to proceed with";
       return RedirectToPage();
     }
   }
