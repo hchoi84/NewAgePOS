@@ -42,11 +42,8 @@ namespace NewAgePOS.Pages.Sale
     };
     public List<SaleLineModel> SaleLines { get; set; }
     public List<ProductModel> Products { get; set; }
-    public List<RefundLineModel> RefundLines { get; set; }
     public float TaxPct { get; set; }
     public float Subtotal { get; set; }
-
-    // TODO: When refunding, calculate Give transaction. Subtract Give when refunding
 
     public IActionResult OnGet()
     {
@@ -62,10 +59,10 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPost()
     {
-      RefundLines = new List<RefundLineModel>();
-      float refundableAmount = GetRefundableAmount();
+      List<RefundLineModel> refundingLines = _sqlDb.RefundLines_GetBySaleId(SaleId).Where(rl => rl.TransactionId == 0).ToList();
+      float refundingAmount = GetRefundingAmount(refundingLines);
 
-      if (refundableAmount <= 0)
+      if (refundingAmount <= 0)
       {
         TempData["Message"] = "Nothing to refund";
         return Page();
@@ -75,7 +72,7 @@ namespace NewAgePOS.Pages.Sale
 
       if (RefundMethod == "Cash")
       {
-        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundableAmount, RefundMethod, "Refund", Message);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, RefundMethod, "Refund", Message);
       }
       else if (RefundMethod == "GiftCard")
       {
@@ -85,43 +82,44 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        int giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundableAmount);
-        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundableAmount, RefundMethod, "Refund", Message);
+        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(GiftCardCode);
+        int giftCardId = 0;
+
+        if (giftCard != null)
+        {
+          giftCardId = giftCard.Id;
+          giftCard.Amount += refundingAmount;
+          _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount);
+        }
+        else
+        {
+          giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundingAmount);
+        }
+
+        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, RefundMethod, "Refund", Message);
       }
 
-      RefundLines.Where(r => r.TransactionId == 0).ToList().ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
+      refundingLines.ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
 
       return RedirectToPage("RefundReceipt", new { transactionId });
     }
 
-    private float GetRefundableAmount()
+    private float GetRefundingAmount(List<RefundLineModel> refundingLines)
     {
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      TaxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      SaleLines.ForEach(s =>
+      float refundableAmount = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount)
+        - transactions.Where(t => t.Type == "Refund").Sum(t => t.Amount);
+
+      float refundingAmount = refundingLines.Sum(rl =>
       {
-        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(s.Id);
-        RefundLines.AddRange(refundLines);
-
-        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
-        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-        Subtotal += (s.Price - (s.DiscPct / 100f * s.Price)) * refundingQty;
+        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
+        float priceAfterDiscount = saleLine.Price - saleLine.LineDiscountTotal / saleLine.Qty;
+        return rl.Qty * priceAfterDiscount;
       });
 
-      float total = Subtotal + (TaxPct / 100f * Subtotal);
-
-      float checkoutAmt = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount);
-      float refundedAmt = transactions.Where(t => t.Type == "Refund").Sum(t => t.Amount);
-      float giveAmt = transactions.Where(t => t.Method == "Give").Sum(t => t.Amount);
-
-      float remainingRefundableAmount = checkoutAmt - refundedAmt - giveAmt;
-
-      float refundableAmount = total > remainingRefundableAmount ? remainingRefundableAmount : total;
-      
-      return refundableAmount;
+      return refundableAmount > refundingAmount ? refundingAmount : refundableAmount;
     }
 
     public IActionResult OnPostAdd()
@@ -129,41 +127,40 @@ namespace NewAgePOS.Pages.Sale
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
-      Products = _sqlDb.Products_GetBySaleId(SaleId);
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleId(SaleId);
 
       foreach (var groupedCode in groupedCodes)
       {
-        ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
+        ProductModel product = products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
 
-        SaleLineModel saleLine = new SaleLineModel();
-
-        if (product != null)
-          saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
-
-        if (saleLine == null)
+        if (product == null)
         {
           TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): The product you're trying to refund does not exist in this sale";
           return RedirectToPage();
         }
 
-        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(saleLine.Id);
+        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.ProductId == product.Id);
+        int refundedQty = refundLines.Where(rl => rl.SaleLineId == saleLine.Id).Sum(rl => rl.Qty);
 
-        if (refundLines != null)
+        if (groupedCode.Count() > saleLine.Qty - refundedQty)
         {
-          List<RefundLineModel> refundedLines = refundLines.Where(r => r.TransactionId != 0).ToList();
-          RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
-          int refundedQty = refundedLines != null ? refundedLines.Sum(r => r.Qty) : 0;
-          int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-          if (saleLine.Qty - refundedQty - refundingQty < groupedCode.Count())
-          {
-            TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Can not refund more than purchased quantity";
-            return RedirectToPage();
-          }
+          TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Can not refund more than purchased quantity";
+          return RedirectToPage();
         }
 
-        _sqlDb.RefundLines_Insert(saleLine.Id, groupedCode.Count());
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => rl.Id == saleLine.Id);
+
+        if (refundingLine != null)
+        {
+          refundingLine.Qty += groupedCode.Count();
+          _sqlDb.RefundLines_Update(refundingLine.Id, refundingLine.Qty);
+        }
+        else
+        {
+          _sqlDb.RefundLines_Insert(saleLine.Id, groupedCode.Count());
+        }
       }
 
       return RedirectToPage(new { SaleId });
@@ -174,39 +171,31 @@ namespace NewAgePOS.Pages.Sale
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
-      Products = _sqlDb.Products_GetBySaleId(SaleId);
-      SaleLines = SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleId(SaleId);
 
       foreach (var groupedCode in groupedCodes)
       {
         ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
-        SaleLineModel saleLine = new SaleLineModel();
-        if (product != null) saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
 
-        if (saleLine == null)
+        if (product == null)
         {
-          TempData["Message"] = $"The product you're trying to refund does not exist in this sale";
+          TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): The product does not exist in this sale";
           return RedirectToPage();
         }
 
-        List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleLineId(saleLine.Id);
+        int saleLineId = saleLines.FirstOrDefault(sl => sl.ProductId == product.Id).Id;
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => rl.SaleLineId == saleLineId);
+        refundingLine.Qty -= groupedCode.Count();
 
-        if (refundLines == null)
+        if (refundingLine.Qty <= 0)
         {
-          TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): No pending refund quantity";
-          return RedirectToPage();
+          TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Can not remove more than pending refund quantity";
+          return Page();
         }
 
-        RefundLineModel refundingLine = refundLines.FirstOrDefault(r => r.TransactionId == 0);
-        int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
-
-        if (refundingQty < groupedCode.Count())
-        {
-          TempData["Message"] = $"({ groupedCode.Key } - { groupedCode.Count() }): Not enough pending refund quantity ({ refundingQty })";
-          return RedirectToPage();
-        }
-
-        _sqlDb.RefundLines_SubtractQty(refundingLine.Id, groupedCode.Count());
+        _sqlDb.RefundLines_Update(refundingLine.Id, refundingLine.Qty);
       }
 
       return RedirectToPage(new { SaleId });

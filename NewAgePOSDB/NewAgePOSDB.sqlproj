@@ -83,8 +83,6 @@
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_Insert.sql" />
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_Update.sql" />
     <Build Include="dbo\StoredProcedures\RefundLines\spRefundLines_GetRefundQtyBySaleLineId.sql" />
-    <Build Include="dbo\StoredProcedures\RefundLines\spRefundLines_Insert.sql" />
-    <Build Include="dbo\StoredProcedures\RefundLines\spRefundLines_SubtractQty.sql" />
     <Build Include="dbo\StoredProcedures\Sales\spSales_CancelById.sql" />
     <Build Include="dbo\StoredProcedures\Sales\spSales_Insert.sql" />
     <Build Include="dbo\StoredProcedures\Sales\spSales_UpdateCustomerIdToGuest.sql" />

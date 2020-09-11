@@ -1,11 +1,8 @@
-﻿using NewAgePOS.ViewModels.Sale;
-using NewAgePOS.ViewModels.Shared;
+﻿using NewAgePOS.ViewModels.Shared;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace NewAgePOS.Utilities
 {

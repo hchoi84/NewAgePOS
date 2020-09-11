@@ -131,20 +131,15 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region RefundLines
-    public List<RefundLineModel> RefundLines_GetBySaleLineId(int saleLineId)
+    public List<RefundLineModel> RefundLines_GetBySaleId(int saleId)
     {
-      string query = "SELECT * FROM dbo.RefundLines WHERE SaleLineId = @saleLineId";
-      return _sqlDb.LoadData<RefundLineModel, dynamic>(query, new { saleLineId }, connectionStringName, false);
+      return _sqlDb.LoadData<RefundLineModel, dynamic>("dbo.spRefundLines_GetBySaleId", new { saleId }, connectionStringName, true);
     }
 
-    public void RefundLines_Insert(int saleLineId, int refundQty)
+    public void RefundLines_Insert(int saleLineId, int qty)
     {
-      _sqlDb.SaveData("dbo.spRefundLines_Insert", new { saleLineId, refundQty }, connectionStringName, true);
-    }
-
-    public void RefundLines_SubtractQty(int id, int subtractQty)
-    {
-      _sqlDb.SaveData("dbo.spRefundLines_SubtractQty", new { id, subtractQty }, connectionStringName, true);
+      string query = "INSERT INTO dbo.RefundLines (SaleLineId, Qty) VALUES (@saleLineId, @qty)";
+      _sqlDb.SaveData(query, new { saleLineId, qty }, connectionStringName, false);
     }
 
     public void RefundLines_MarkComplete(int id, int transactionId)
@@ -153,9 +148,10 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query, new { id, transactionId }, connectionStringName, false);
     }
 
-    public List<RefundLineModel> RefundLines_GetBySaleId(int saleId)
+    public void RefundLines_Update(int id, int qty)
     {
-      return _sqlDb.LoadData<RefundLineModel, dynamic>("dbo.spRefundLines_GetBySaleId", new { saleId }, connectionStringName, true);
+      string query = "UPDATE dbo.RefundLines SET Qty = @qty WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, qty }, connectionStringName, false);
     }
     #endregion
 

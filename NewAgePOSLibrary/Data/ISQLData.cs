@@ -32,10 +32,10 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region RefundLines
-    List<RefundLineModel> RefundLines_GetBySaleLineId(int saleLineId);
-    void RefundLines_Insert(int saleLineId, int refundQty);
-    void RefundLines_SubtractQty(int id, int subtractQty);
+    List<RefundLineModel> RefundLines_GetBySaleId(int saleId);
+    void RefundLines_Insert(int saleLineId, int qty);
     void RefundLines_MarkComplete(int id, int transactionId);
+    void RefundLines_Update(int id, int qty);
     #endregion
 
     #region SaleLines
@@ -68,6 +68,5 @@ namespace NewAgePOSLibrary.Data
     List<ProductModel> Products_GetBySaleId(int saleId);
     List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
     void Transactions_UpdateAmount(int id, float newAmt);
-    List<RefundLineModel> RefundLines_GetBySaleId(int saleId);
   }
 }

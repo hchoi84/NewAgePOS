@@ -48,6 +48,7 @@
       <input asp-for="@Model.GiftCardCode" class="form-control" placeholder="Scan Gift Card Code Here" />
     </div>
   </div>
+  <button type="submit" class="btn btn-primary mt-1">Submit Refund</button>
 </form>
 
 @await Component.InvokeAsync("SalePriceSummary", new { saleId = Model.SaleId }) 
