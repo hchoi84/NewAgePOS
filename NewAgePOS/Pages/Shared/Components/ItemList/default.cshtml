@@ -57,7 +57,14 @@
           <input readonly value="@refundedQty" class="form-control" />
         </div>
         <div class="col pl-0">
-          <input readonly value="@refundingQty" class="form-control font-weight-bold text-info" />
+          @if (refundedQty == item.Qty)
+          {
+            <input readonly value="Fully Refunded" class="form-control font-weight-bold text-info" />
+          }
+          else
+          {
+            <input readonly value="@refundingQty" class="form-control font-weight-bold text-info" />
+          }
         </div>
       </div>
     }

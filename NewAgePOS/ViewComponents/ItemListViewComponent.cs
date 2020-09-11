@@ -18,8 +18,6 @@ namespace NewAgePOS.ViewComponents
 
     public IViewComponentResult Invoke(int saleId)
     {
-      // TODO: Refund will have refunded and refunding quantity
-      // TODO: Implement towards Refund
       ItemListVCVM items = new ItemListVCVM();
       string path = ViewContext.View.Path;
 

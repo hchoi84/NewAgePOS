@@ -29,6 +29,8 @@
   </div>
   @if (Model.Paid > 0)
   {
+    <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
+
     <div class="row">
       <div class="col-4 h4">Paid</div>
       <div class="col-5 h4 text-right">@Model.Paid.ToString("C2", Model.Dollar)</div>
@@ -48,6 +50,22 @@
     <div class="row">
       <div class="col-4 h4">Change</div>
       <div class="col-5 h4 text-right">@Model.Change.ToString("C2", Model.Dollar)</div>
+    </div>
+  }
+  @if (Model.RefundedAmount > 0)
+  {
+    <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
+
+    <div class="row">
+      <div class="col-4 h4">Refunded</div>
+      <div class="col-5 h4 text-right">@Model.RefundedAmount.ToString("C2", Model.Dollar)</div>
+    </div>
+  }
+  @if (Model.RefundingAmount > 0)
+  {
+    <div class="row">
+      <div class="col-4 h4">Refunding</div>
+      <div class="col-5 h4 text-right">@Model.RefundingAmount.ToString("C2", Model.Dollar)</div>
     </div>
   }
 </div>

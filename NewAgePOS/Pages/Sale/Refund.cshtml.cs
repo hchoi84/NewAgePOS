@@ -126,19 +126,20 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPostAdd()
     {
-      Products = new List<ProductModel>();
-
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
-      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId).Where(s => s.ProductId != null).ToList();
-      SaleLines.ForEach(s => Products.Add(_sqlDb.Products_GetById(s.ProductId.Value)));
+      Products = _sqlDb.Products_GetBySaleId(SaleId);
+      SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       foreach (var groupedCode in groupedCodes)
       {
         ProductModel product = Products.FirstOrDefault(p => p.Sku == groupedCode.Key || p.Upc == groupedCode.Key);
+
         SaleLineModel saleLine = new SaleLineModel();
-        if (product != null)  saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
+
+        if (product != null)
+          saleLine = SaleLines.FirstOrDefault(sl => sl.ProductId.Value == product.Id);
 
         if (saleLine == null)
         {
@@ -173,6 +174,7 @@ namespace NewAgePOS.Pages.Sale
       List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
+      Products = _sqlDb.Products_GetBySaleId(SaleId);
       SaleLines = SaleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       foreach (var groupedCode in groupedCodes)
