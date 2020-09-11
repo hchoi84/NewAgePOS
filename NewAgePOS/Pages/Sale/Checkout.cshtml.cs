@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
-using NewAgePOS.ViewModels.Shared;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
@@ -40,8 +39,7 @@ namespace NewAgePOS.Pages.Sale
     public CustomerModel Customer { get; set; }
     public List<TransactionModel> Transactions { get; set; }
     public List<GiftCardModel> GiftCards { get; set; }
-    public bool IsComplete { get; set; }
-    public PriceSummaryViewModel PriceSummary { get; set; }
+    public bool IsZeroBalance { get; set; }
 
     public IActionResult OnGet()
     {
@@ -53,17 +51,56 @@ namespace NewAgePOS.Pages.Sale
 
       Checkout = new CheckoutViewModel();
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
-      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId)
-        .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
-        .ToList();
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       GiftCards = Transactions.Where(t => t.GiftCardId.HasValue)
         .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
         .ToList();
-      PriceSummary = _share.GeneratePriceSummaryViewModel(SaleId);
-      IsComplete = PriceSummary.Total - PriceSummary.Paid <= 0;
+
+      float dueBalance = CalculateAndStoreRoundedValue();
+
+      Transactions = Transactions
+        .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
+        .ToList();
+      IsZeroBalance = dueBalance <= 0;
       Checkout.PaymentMethod = "Cash";
 
       return Page();
+    }
+
+    private float CalculateAndStoreRoundedValue()
+    {
+      float totalDue = CalculateDueBalance();
+
+      float factor = 0.05f;
+      float roundedTotalDue = (float)Math.Round(totalDue / factor, MidpointRounding.AwayFromZero) * (float)factor;
+      float difference = totalDue - roundedTotalDue;
+      if (difference == 0) return totalDue;
+
+      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == "Give");
+      if (giveTransaction == null)
+      {
+        _sqlDb.Transactions_Insert(SaleId, null, difference, "Give", "Checkout", Checkout.Message);
+        Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+      }
+      else if (giveTransaction.Amount != difference)
+      {
+        giveTransaction.Amount += difference;
+        _sqlDb.Transactions_UpdateAmount(giveTransaction.Id, giveTransaction.Amount);
+        Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+      }
+
+      return totalDue;
+    }
+
+    private float CalculateDueBalance()
+    {
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      float subtotalDue = saleLines.Sum(sl => (sl.Price - (sl.LineDiscountTotal / sl.Qty)) * sl.Qty);
+      float paid = Transactions.Sum(t => t.Amount);
+      float taxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
+      float taxDue = subtotalDue * (taxPct / 100f);
+      float totalDue = subtotalDue + taxDue - paid;
+      return totalDue;
     }
 
     public IActionResult OnPostApplyPayments()
@@ -77,8 +114,7 @@ namespace NewAgePOS.Pages.Sale
       }
 
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      PriceSummary = _share.GeneratePriceSummaryViewModel(SaleId);
-      float dueBalance = PriceSummary.Total - PriceSummary.Paid;
+      float dueBalance = CalculateDueBalance();
 
       List<string> msgs = new List<string>();
 
@@ -89,7 +125,7 @@ namespace NewAgePOS.Pages.Sale
 
       if (Checkout.GiveAmount > 0)
         ProcessGive(dueBalance);
-      
+
       TempData["Message"] = string.Join(Environment.NewLine, msgs);
 
       return RedirectToPage(new { SaleId });
@@ -148,7 +184,7 @@ namespace NewAgePOS.Pages.Sale
 
       if (giveTransaction != null)
       {
-        giveTransaction.Amount += Checkout.Amount;
+        giveTransaction.Amount += Checkout.GiveAmount;
         _sqlDb.Transactions_UpdateAmount(giveTransaction.Id, giveTransaction.Amount);
       }
       else
@@ -156,7 +192,8 @@ namespace NewAgePOS.Pages.Sale
         _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, "Give", "Checkout", Checkout.Message);
       }
 
-      return dueBalance -= Checkout.GiveAmount;
+      dueBalance -= Checkout.GiveAmount;
+      return dueBalance;
     }
 
     public async Task<IActionResult> OnPostCompleteSaleAsync()

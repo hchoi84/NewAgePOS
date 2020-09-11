@@ -3,17 +3,18 @@
  * Implement it on Cart
  * Implement it on Checkout
  * Implement it on Refund
+- Round total down to 5 cents. Record the difference to DB as "Give"
 
 ********** WORKING ON **********
-- Centralize Price Summary view for consistency
-	* Implement it on Receipt
-	* Implement it on Refund Receipt
+- Product Search, don't display products with no inventory
 
 ********** PENDING **********
+- Centralize Price Summary view for consistency
+	* Implement it on Receipt (Done)
+	* Implement it on Refund Receipt (How to use the same receipt view??)
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Round total down to 5 cents. Record the difference to DB as "Give"
-- Product Search, don't display products with no inventory
 - Include Cost and BCPrice on Product Search result. BCPrice show regular price,not the 15% discounted price.
 - Manual refund with no prior sale. Have amount be entered twice
+- Sale/RefundReceipt: Incorporate this to use the same Receipt

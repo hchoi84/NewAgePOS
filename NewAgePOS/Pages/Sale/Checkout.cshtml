@@ -77,7 +77,7 @@ else
   }
 }
 
-@if (Model.IsComplete)
+@if (Model.IsZeroBalance)
 {
   <form method="post" asp-page-handler="CompleteSale" class="mt-1">
     <button type="submit" class="btn btn-success">Complete Sale</button>

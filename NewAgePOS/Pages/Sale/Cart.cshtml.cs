@@ -289,7 +289,7 @@ namespace NewAgePOS.Pages
     public IActionResult OnPostProceed()
     {
       if (_sqlDb.SaleLines_GetBySaleId(SaleId).Any())
-        return RedirectToPage("Gust", new { SaleId });
+        return RedirectToPage("Guest", new { SaleId });
 
       TempData["Message"] = "There are no items to proceed with";
       return RedirectToPage();
