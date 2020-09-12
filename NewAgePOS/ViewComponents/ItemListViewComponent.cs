@@ -11,12 +11,10 @@ namespace NewAgePOS.ViewComponents
 {
   public class ItemListViewComponent : ViewComponent
   {
-    private readonly IShare _share;
     private readonly ISQLData _sqlDb;
 
-    public ItemListViewComponent(IShare share, ISQLData sqlDb)
+    public ItemListViewComponent(ISQLData sqlDb)
     {
-      _share = share;
       _sqlDb = sqlDb;
     }
 
@@ -35,7 +33,10 @@ namespace NewAgePOS.ViewComponents
         items.Refunds = _sqlDb.RefundLines_GetBySaleId(saleId);
       }
 
-      items.Items = GenerateItemListViewModel(saleId);
+      items.Items = GenerateItemListViewModel(saleId)
+        .OrderByDescending(i => i.IsProduct)
+        .ThenByDescending(i => i.IsGiftCard)
+        .ToList();
       return View(items);
     }
 
@@ -51,15 +52,14 @@ namespace NewAgePOS.ViewComponents
         ProductModel product = new ProductModel();
         GiftCardModel giftCard = new GiftCardModel();
 
-        bool isProduct = saleLine.ProductId.HasValue;
         ItemListViewModel item = new ItemListViewModel();
 
-        if (isProduct)
+        if (saleLine.ProductId.HasValue)
         {
           product = products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
 
           item.SaleLineId = saleLine.Id;
-          item.IsProduct = isProduct;
+          item.IsProduct = true;
           item.Sku = product.Sku;
           item.Upc = product.Upc;
           item.AllName = product.AllName;
@@ -68,15 +68,21 @@ namespace NewAgePOS.ViewComponents
           item.Qty = saleLine.Qty;
           item.DiscPct = saleLine.DiscPct;
         }
-        else
+        else if (saleLine.GiftCardId.HasValue)
         {
           giftCard = giftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
 
           item.SaleLineId = saleLine.Id;
-          item.IsProduct = isProduct;
+          item.IsGiftCard = true;
           item.Sku = giftCard.Code;
           item.Price = giftCard.Amount;
           item.Qty = 1;
+        }
+        else
+        {
+          item.SaleLineId = saleLine.Id;
+          item.Price = saleLine.Price;
+          item.Qty = saleLine.Qty;
         }
 
         items.Add(item);

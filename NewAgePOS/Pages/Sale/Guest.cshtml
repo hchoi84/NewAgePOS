@@ -44,11 +44,10 @@
   @if (@Model.Guest.Id != 0)
   {
     <button asp-page-handler="Edit" type="submit" class="btn btn-primary">Edit Customer</button>
+    <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed to Checkout</a>
   }
   else
   {
-    <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-secondary">Use Guest Account</a>
+    <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-secondary">Proceed as Guest</a>
   }
-
-  <a asp-page="/Sale/Checkout" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed to Checkout</a>
 </form>

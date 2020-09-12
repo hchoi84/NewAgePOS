@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Internal;
 using NewAgePOS.Utilities;
+using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
@@ -18,27 +19,18 @@ namespace NewAgePOS.Pages
   {
     private readonly IChannelAdvisor _ca;
     private readonly ISQLData _sqlDb;
-    private readonly IShare _share;
 
-    public CartModel(IChannelAdvisor ca, ISQLData sqlDb, IShare share)
+    public CartModel(IChannelAdvisor ca, ISQLData sqlDb)
     {
       _ca = ca;
       _sqlDb = sqlDb;
-      _share = share;
     }
 
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
     [BindProperty]
-    [Display(Name = "SKUs or UPCs")]
-    public string Codes { get; set; }
-
-    [BindProperty]
-    public string GiftCardCodes { get; set; }
-
-    [BindProperty]
-    public float GiftCardAmount { get; set; }
+    public CartViewModel CartVM { get; set; }
 
     public IActionResult OnGet()
     {
@@ -75,9 +67,9 @@ namespace NewAgePOS.Pages
     #region Add Products
     public async Task<IActionResult> OnPostAddProductsAsync()
     {
-      if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+      if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
 
-      List<string> productCodes = Codes.Trim()
+      List<string> productCodes = CartVM.Codes.Trim()
         .Replace(" ", string.Empty)
         .Split(Environment.NewLine)
         .ToList();
@@ -175,12 +167,12 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostRemoveProducts()
     {
-      if (string.IsNullOrEmpty(Codes)) return RedirectToPage();
+      if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
 
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
 
-      List<string> productCodes = Codes
+      List<string> productCodes = CartVM.Codes
         .Trim()
         .Replace(" ", string.Empty)
         .Split(Environment.NewLine)
@@ -227,7 +219,7 @@ namespace NewAgePOS.Pages
     public IActionResult OnPostAddGiftCards()
     {
       List<string> msgs = new List<string>();
-      List<string> giftCardCodes = GiftCardCodes
+      List<string> giftCardCodes = CartVM.GiftCardCodes
         .Trim()
         .Replace(" ", string.Empty)
         .Split(Environment.NewLine)
@@ -244,7 +236,7 @@ namespace NewAgePOS.Pages
           continue;
         }
 
-        int giftCardId = _sqlDb.GiftCards_Insert(code, GiftCardAmount);
+        int giftCardId = _sqlDb.GiftCards_Insert(code, CartVM.GiftCardAmount);
 
         _sqlDb.SaleLines_Insert(SaleId, null, giftCardId, 1);
       }
@@ -259,7 +251,7 @@ namespace NewAgePOS.Pages
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
       List<string> msgs = new List<string>();
-      List<string> giftCardCodes = GiftCardCodes
+      List<string> giftCardCodes = CartVM.GiftCardCodes
         .Trim()
         .Replace(" ", string.Empty)
         .Split(Environment.NewLine)
@@ -292,6 +284,13 @@ namespace NewAgePOS.Pages
         return RedirectToPage("Guest", new { SaleId });
 
       TempData["Message"] = "There are no items to proceed with";
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostAddTradeIn()
+    {
+      _sqlDb.SaleLines_Insert(SaleId, CartVM.TradeInValue, CartVM.TradeInQty);
+
       return RedirectToPage();
     }
   }

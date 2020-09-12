@@ -77,6 +77,8 @@ else
   }
 }
 
+@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
+
 @if (Model.IsZeroBalance)
 {
   <form method="post" asp-page-handler="CompleteSale" class="mt-1">
@@ -85,47 +87,45 @@ else
 }
 else
 {
-  <h3 class="mt-5">PAYMENT</h3>
-  <form method="post" asp-page-handler="ApplyPayments" style="max-width: 400px;">
+  <form method="post" asp-page-handler="ApplyPayments">
+    <h3 class="mt-5">PAYMENT</h3>
+
     <div class="form-row mt-3">
-      <div class="col pr-0">
+      <div class="form-group col">
+        <label asp-for="@Model.Checkout.GiftCardCodes"></label>
         <textarea asp-for="@Model.Checkout.GiftCardCodes" class="form-control" placeholder="Gift Card Codes"></textarea>
       </div>
-      <div class="col pl-0">
+      <div class="form-group col">
+        <label asp-for="@Model.Checkout.Message"></label>
         <textarea asp-for="@Model.Checkout.Message" rows="2" class="form-control" placeholder="Internal Message"></textarea>
       </div>
     </div>
 
     <div class="form-row">
-      <div class="col pr-0">
+      <div class="form-group col">
+        <label asp-for="@Model.Checkout.PaymentMethod"></label>
         <select asp-for="@Model.Checkout.PaymentMethod" class="form-control" asp-items="@Model.Checkout.PaymentMethods">
           <option>Choose...</option>
         </select>
       </div>
-      <div class="col pl-0">
+      <div class="form-group col">
+        <label asp-for="@Model.Checkout.Amount"></label>
         <input asp-for="@Model.Checkout.Amount" class="form-control">
       </div>
     </div>
 
-    <div class="form-row mt-3">
-      <div class="col pr-0">
+    <div class="form-row">
+      <div class="form-group col">
         <label asp-for="@Model.Checkout.GiveAmount" class="col-form-label ml-3"></label>
-      </div>
-      <div class="col pl-0">
         <input asp-for="@Model.Checkout.GiveAmount" class="form-control" />
       </div>
-    </div>
-    <div class="form-row">
-      <div class="col pr-0">
+      <div class="form-group col">
         <label asp-for="@Model.Checkout.GiveAmountConfirmation" class="col-form-label ml-3"></label>
-      </div>
-      <div class="col pl-0">
         <input asp-for="@Model.Checkout.GiveAmountConfirmation" class="form-control" />
         <span asp-validation-for="@Model.Checkout.GiveAmountConfirmation" class="text-danger"></span>
       </div>
     </div>
+
     <button type="submit" class="btn btn-success mt-1">Apply Payment</button>
   </form>
 }
-
-@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })

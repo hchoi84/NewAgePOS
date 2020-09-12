@@ -9,11 +9,18 @@
     <div class="col h4">Subtotal</div>
     <div class="col h4 text-right">@Model.Subtotal.ToString("C2", Model.Dollar)</div>
   </div>
-  @if (Model.Discount > 0)
+  @if (Model.DiscountAmount > 0)
   {
     <div class="row">
       <div class="col h4">Discount</div>
-      <div class="col h4 text-right">@Model.Discount.ToString("C2", Model.Dollar)</div>
+      <div class="col h4 text-right">@Model.DiscountAmount.ToString("C2", Model.Dollar)</div>
+    </div>
+  }
+  @if (Model.TradeInAmount > 0)
+  {
+    <div class="row">
+      <div class="col h4">Trade In</div>
+      <div class="col h4 text-right">@Model.TradeInAmount.ToString("C2", Model.Dollar)</div>
     </div>
   }
   @if (Model.TaxPct > 0)

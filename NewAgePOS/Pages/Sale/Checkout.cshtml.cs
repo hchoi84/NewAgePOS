@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -18,13 +17,11 @@ namespace NewAgePOS.Pages.Sale
   {
     private readonly ISQLData _sqlDb;
     private readonly ISkuVault _skuVault;
-    private readonly IShare _share;
 
-    public CheckoutModel(ISQLData sqlDb, ISkuVault skuVault, IShare share)
+    public CheckoutModel(ISQLData sqlDb, ISkuVault skuVault)
     {
       _sqlDb = sqlDb;
       _skuVault = skuVault;
-      _share = share;
     }
 
     private ReadOnlyCollection<string> TransactionOrderPref { get; }
@@ -95,7 +92,14 @@ namespace NewAgePOS.Pages.Sale
     private float CalculateDueBalance()
     {
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      float subtotalDue = saleLines.Sum(sl => (sl.Price - (sl.LineDiscountTotal / sl.Qty)) * sl.Qty);
+      float purchaseAmount = saleLines.Where(sl =>
+          sl.ProductId.HasValue || sl.GiftCardId.HasValue)
+        .Sum(sl => (sl.Price - (sl.LineDiscountTotal / sl.Qty)) * sl.Qty);
+      float tradeInAmount = saleLines.Where(sl => 
+          !sl.ProductId.HasValue && !sl.GiftCardId.HasValue)
+        .Sum(sl => sl.Price);
+
+      float subtotalDue = purchaseAmount - tradeInAmount;
       float paid = Transactions.Sum(t => t.Amount);
       float taxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
       float taxDue = subtotalDue * (taxPct / 100f);
@@ -123,7 +127,7 @@ namespace NewAgePOS.Pages.Sale
       else if (Checkout.PaymentMethod == "Cash" && Checkout.Amount > 0)
         dueBalance = ProcessCash(dueBalance);
 
-      if (Checkout.GiveAmount > 0)
+      if (Checkout.GiveAmount != 0)
         ProcessGive(dueBalance);
 
       TempData["Message"] = string.Join(Environment.NewLine, msgs);

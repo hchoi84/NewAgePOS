@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Shared;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -11,12 +10,10 @@ namespace NewAgePOS.ViewComponents
   public class PriceSummaryViewComponent : ViewComponent
   {
     private readonly ISQLData _sqlDb;
-    private readonly IShare _share;
 
-    public PriceSummaryViewComponent(ISQLData sqlDb, IShare share)
+    public PriceSummaryViewComponent(ISQLData sqlDb)
     {
       _sqlDb = sqlDb;
-      _share = share;
     }
 
     public IViewComponentResult Invoke(int saleId)
@@ -37,18 +34,33 @@ namespace NewAgePOS.ViewComponents
       PriceSummaryViewModel model = new PriceSummaryViewModel
       {
         Quantity = saleLines.Sum(s => s.Qty),
-        Subtotal = saleLines.Sum(s => s.LineTotal),
-        Discount = saleLines.Sum(s => s.LineDiscountTotal),
+        Subtotal = saleLines.Where(s => 
+            s.ProductId.HasValue || s.GiftCardId.HasValue)
+          .Sum(s => s.LineTotal),
+        DiscountAmount = saleLines.Sum(s => s.LineDiscountTotal),
+        TradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue)
+          .Sum(s => s.LineTotal),
         TaxPct = tax.TaxPct,
-        PaidGiftCard = paidTransactions.Where(p => p.Method == "GiftCard").Sum(p => p.Amount),
-        PaidCash = paidTransactions.Where(p => p.Method == "Cash").Sum(p => p.Amount),
-        PaidGive = paidTransactions.Where(p => p.Method == "Give").Sum(p => p.Amount),
-        RefundedAmount = transactions.Where(t => t.Type == "Refund").Sum(t => t.Amount),
+        PaidGiftCard = paidTransactions.Where(p =>
+            p.Type == "Checkout" &&
+            p.Method == "GiftCard")
+          .Sum(p => p.Amount),
+        PaidCash = paidTransactions.Where(p =>
+            p.Type == "Checkout" &&
+            p.Method == "Cash")
+          .Sum(p => p.Amount),
+        PaidGive = paidTransactions.Where(p =>
+            p.Type == "Checkout" &&
+            p.Method == "Give")
+          .Sum(p => p.Amount),
+        RefundedAmount = transactions.Where(t => t.Type == "Refund")
+          .Sum(t => t.Amount),
         RefundingAmount = refundLines.Where(rl => rl.TransactionId == 0)
-        .Sum(rl => {
-          SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
-          return rl.Qty * (saleLine.Price - saleLine.LineDiscountTotal / (float)saleLine.Qty);
-        })
+          .Sum(rl =>
+          {
+            SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
+            return rl.Qty * (saleLine.Price - saleLine.LineDiscountTotal / (float)saleLine.Qty);
+          })
       };
 
       return model;

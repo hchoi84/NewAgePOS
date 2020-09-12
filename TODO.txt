@@ -8,7 +8,7 @@
 - Include Cost and BCPrice on Product Search result. BCPrice show regular price, not the 15% discounted price.
 
 ********** WORKING ON **********
-- Manual refund with no prior sale. Have amount be entered twice for confirmation
+- Trade-In. Have amount be entered twice for confirmation
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -17,4 +17,4 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Sale/RefundReceipt: Incorporate this to use the same Receipt
+- Sale/RefundReceipt: Incorporate this to use the same Receipt View

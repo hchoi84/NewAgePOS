@@ -13,40 +13,83 @@
 
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-<div class="row">
-  <div class="col">
-    <form method="post">
-      <h4>Products</h4>
-      <div class="form-group">
-        <textarea asp-for="Codes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
-      </div>
-      <button asp-page-handler="AddProducts" type="submit" class="btn btn-primary">Add</button>
-      <button asp-page-handler="RemoveProducts" type="submit" class="btn btn-danger">Remove</button>
-    </form>
-  </div>
+<h4>Add/Remove</h4>
+<div class="row mb-3">
+  <div class="col" style="text-align: center;">
+    <button id="AddRemoveProductsButton"
+            class="btn btn-primary"
+            onclick="addRemove(this.id, 'AddRemoveGiftCardsButton', 'AddTradeInButton');"
+            style="display: inline-block;">
+      Products
+    </button>
 
-  <div class="col">
-    <form method="post">
-      <h4>Gift Cards</h4>
-      <div class="form-group mb-0">
-        <textarea asp-for="GiftCardCodes" class="form-control" rows="2" placeholder="Gift card codes..."></textarea>
-      </div>
-      <div class="form-group">
-        <input asp-for="GiftCardAmount" class="form-control" />
-      </div>
-      <button asp-page-handler="AddGiftCards" type="submit" class="btn btn-primary">Add</button>
-      <button asp-page-handler="RemoveGiftCards" type="submit" class="btn btn-danger">Remove</button>
-    </form>
+    <button id="AddRemoveGiftCardsButton"
+            class="btn btn-primary"
+            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddTradeInButton');"
+            style="display: inline-block;">
+      Gift Cards
+    </button>
+    <button id="AddTradeInButton"
+            class="btn btn-primary"
+            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddRemoveGiftCardsButton');"
+            style="display: inline-block;">
+      Trade Ins
+    </button>
   </div>
+</div>
+
+<div id="AddRemoveProducts" style="display: none;">
+  <form method="post">
+    <h4>Products</h4>
+    <div class="form-group">
+      <textarea asp-for="CartVM.Codes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
+    </div>
+    <button asp-page-handler="AddProducts" type="submit" class="btn btn-primary">Add Products</button>
+    <button asp-page-handler="RemoveProducts" type="submit" class="btn btn-danger">Remove Products</button>
+  </form>
+</div>
+
+<div id="AddRemoveGiftCards" style="display: none;">
+  <form method="post">
+    <h4>Gift Cards</h4>
+    <div class="form-group mb-0">
+      <textarea asp-for="CartVM.GiftCardCodes" class="form-control" rows="2" placeholder="Gift card codes..."></textarea>
+    </div>
+    <div class="form-group">
+      <input asp-for="CartVM.GiftCardAmount" class="form-control" />
+    </div>
+    <button asp-page-handler="AddGiftCards" type="submit" class="btn btn-primary">Add Gift Cards</button>
+    <button asp-page-handler="RemoveGiftCards" type="submit" class="btn btn-danger">Remove Gift Cards</button>
+  </form>
+</div>
+
+<div id="AddTradeIn" style="display: none;">
+  <h4>Trade In</h4>
+  <form method="post" asp-page-handler="AddTradeIn">
+    <div class="form-row">
+      <div class="form-group col">
+        <label asp-for="CartVM.TradeInValue"></label>
+        <input asp-for="CartVM.TradeInValue" class="form-control" />
+      </div>
+      <div class="form-group col">
+        <label asp-for="CartVM.ConfirmTradeInValue"></label>
+        <input asp-for="CartVM.ConfirmTradeInValue" class="form-control" />
+      </div>
+      <div class="form-group col">
+        <label asp-for="CartVM.TradeInQty"></label>
+        <input asp-for="CartVM.TradeInQty" class="form-control" />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Trade In</button>
+  </form>
 </div>
 
 @await Component.InvokeAsync("ItemList", new { saleId = Model.SaleId })
 
 @await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
 
-<div class="container">
-  <div class="row mt-3">
-    @*<a asp-page="/Sale/Guest" asp-route-saleid="@Model.SaleId" class="btn btn-success">Proceed</a>*@
+<div class="row mt-3">
+  <div class="col" style="text-align: center;">
     <form method="post" asp-page-handler="Proceed" asp-route-saleid="@Model.SaleId" style="display: inline-block;">
       <button type="submit" class="btn btn-success">Proceed</button>
     </form>
@@ -55,3 +98,7 @@
     </form>
   </div>
 </div>
+
+@section Scripts{
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

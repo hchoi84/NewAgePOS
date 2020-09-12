@@ -43,3 +43,34 @@ function refundMethod(id) {
     giftCardCodeInputBox.style.display = 'none';
   }
 }
+
+function addRemove(thisId, thatId, whatId) {
+  var thisButton = document.getElementById(thisId);
+  var thisDivId = thisId.replace("Button", "");
+  var thisDiv = document.getElementById(thisDivId);
+
+  var thatButton = document.getElementById(thatId);
+  var thatDivId = thatId.replace("Button", "");
+  var thatDiv = document.getElementById(thatDivId);
+
+  var whatButton = document.getElementById(whatId);
+  var whatDivId = whatId.replace("Button", "");
+  var whatDiv = document.getElementById(whatDivId);
+
+  if (thisDiv.style.display == 'none') {
+    thisDiv.style.display = 'block';
+    thatDiv.style.display = 'none';
+    whatDiv.style.display = 'none';
+    thisButton.className = 'btn btn-primary border-warning';
+    thatButton.className = 'btn btn-primary';
+    whatButton.className = 'btn btn-primary';
+  }
+  else {
+    thisDiv.style.display = 'none';
+    thatDiv.style.display = 'none';
+    whatDiv.style.display = 'none';
+    thisButton.className = 'btn btn-primary';
+    thatButton.className = 'btn btn-primary';
+    whatButton.className = 'btn btn-primary';
+  }
+}

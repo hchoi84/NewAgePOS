@@ -169,6 +169,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleLineModel, dynamic>(query, new { saleId }, connectionStringName, false);
     }
 
+    public void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty)
+    {
+      string query = "INSERT INTO dbo.SaleLines (SaleId, Cost, Price, Qty) VALUES (@saleId, 0, @tradeInValue, @tradeInQty);";
+      _sqlDb.SaveData(query, new { saleId, tradeInValue, tradeInQty }, connectionStringName, false);
+    }
+
     public void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty)
     {
       _sqlDb.SaveData("dbo.spSaleLines_Insert",

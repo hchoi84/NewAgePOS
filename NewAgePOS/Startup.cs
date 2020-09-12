@@ -62,7 +62,6 @@ namespace NewAgePOS
 
       services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
       services.AddScoped<ISkuVault, SkuVault>();
-      services.AddScoped<IShare, Share>();
 
       services.AddAuthorization(options =>
       {
