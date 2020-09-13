@@ -136,6 +136,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<RefundLineModel, dynamic>("dbo.spRefundLines_GetBySaleId", new { saleId }, connectionStringName, true);
     }
 
+    public List<RefundLineModel> RefundLines_GetByTransactionId(int transactionId)
+    {
+      string query = "SELECT * FROM dbo.RefundLines WHERE TransactionId = @transactionId;";
+      return _sqlDb.LoadData<RefundLineModel, dynamic>(query, new { transactionId }, connectionStringName, false);
+    }
+
     public void RefundLines_Insert(int saleLineId, int qty)
     {
       string query = "INSERT INTO dbo.RefundLines (SaleLineId, Qty) VALUES (@saleLineId, @qty)";
@@ -244,6 +250,12 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Transactions
+    public TransactionModel Transactions_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.Transactions WHERE Id = @id;";
+      return _sqlDb.LoadData<TransactionModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
+    }
+
     public List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate)
     {
       string query = "SELECT * FROM dbo.Transactions WHERE Created >= @beginDate AND Created <= @endDate;";

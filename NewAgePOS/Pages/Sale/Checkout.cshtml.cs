@@ -208,7 +208,7 @@ namespace NewAgePOS.Pages.Sale
 
       _sqlDb.Sales_MarkComplete(SaleId);
 
-      return RedirectToPage("Receipt", new { SaleId });
+      return RedirectToPage("Receipt", new { Id = SaleId, IdType = "Sale" });
     }
 
     private async Task<JObject> RemoveProductsFromSkuVault(List<SaleLineModel> saleLines)

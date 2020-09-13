@@ -69,5 +69,7 @@ namespace NewAgePOSLibrary.Data
     List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
     void Transactions_UpdateAmount(int id, float newAmt);
     void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty);
+    List<RefundLineModel> RefundLines_GetByTransactionId(int transactionId);
+    TransactionModel Transactions_GetById(int id);
   }
 }

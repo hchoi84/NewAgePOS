@@ -30,6 +30,7 @@ namespace NewAgePOS.Pages.Sale
     public string Codes { get; set; }
 
     [BindProperty]
+    [Display(Name = "Message (Optional)")]
     public string Message { get; set; }
 
     [BindProperty]
@@ -97,7 +98,7 @@ namespace NewAgePOS.Pages.Sale
 
       refundingLines.ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
 
-      return RedirectToPage("RefundReceipt", new { transactionId });
+      return RedirectToPage("Receipt", new { Id = transactionId, IdType = "Refund" });
     }
 
     private float GetRefundingAmount(List<RefundLineModel> refundingLines)

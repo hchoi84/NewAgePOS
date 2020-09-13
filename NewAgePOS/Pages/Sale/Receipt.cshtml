@@ -1,8 +1,7 @@
-﻿@page "{saleId:min(1)}"
+﻿@page "/{IdType:alpha}/{Id:min(1)}"
 @model NewAgePOS.Pages.Sale.ReceiptModel
 @{
   ViewData["Title"] = "Receipt";
-  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 @if (TempData["Message"] != null)
@@ -20,18 +19,45 @@
     <p class="text-center m-0">909-460-8788</p>
   </div>
   <div>
-    <h4 class="text-center">Sale Receipt</h4>
+    <h4 class="text-center">@Model.IdType Receipt</h4>
   </div>
   <div class="mb-3">
-    <p class="text-center m-0">@Model.SaleId</p>
+    <p class="text-center m-0">@Model.Id</p>
     <p class="text-center m-0">@Model.Created</p>
   </div>
 </div>
 
-@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
+@if (Model.IdType == "Sale")
+{
+  @await Component.InvokeAsync("PriceSummary", new { saleId = Model.Id })
+}
+else
+{
+  <div class="mt-5" style="max-width: 350px; margin: auto;">
+    <div class="row">
+      <div class="col h4">Quantity</div>
+      <div class="col h4 text-right">@Model.RefundItems</div>
+    </div>
+    <div class="row">
+      <div class="col h4">Amount</div>
+      <div class="col h4 text-right">@Model.RefundTotal</div>
+    </div>
+
+    <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
+
+    <div class="row">
+      <div class="col h4">Method</div>
+      <div class="col h4 text-right">@Model.RefundMethod</div>
+    </div>
+  </div>
+}
 
 <div class="my-5">
-  <p class="text-center">All sales are final</p>
+  @if (Model.IdType == "Sale")
+  {
+    <p class="text-center">All sales are final</p>
+  }
+
   @if (string.IsNullOrEmpty(Model.FullName))
   {
     <p class="text-center">Thank you!</p>

@@ -6,9 +6,20 @@
 - Round total down to 5 cents. Record the difference to DB as "Give"
 - Product Search, don't display products with no inventory
 - Include Cost and BCPrice on Product Search result. BCPrice show regular price, not the 15% discounted price.
+- Trade-In. Have amount be entered twice for confirmation
+- Sale/RefundReceipt: Incorporate this to use the same Receipt View
 
 ********** WORKING ON **********
-- Trade-In. Have amount be entered twice for confirmation
+- Test Sale
+	* Purchasing Product(s)
+	* Purchasing GiftCard(s)
+	* Purchasing Product(s) and GiftCard(s)
+	* Ensure receipt shows correctly
+- Test Refund
+  * Refund through Cash
+	* Refund through GiftCard
+	* Ensure receipt shows correctly
+- If test is good, delete RefundReceipt and ISQLData.GetRefundReceiptData
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -17,4 +28,3 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Sale/RefundReceipt: Incorporate this to use the same Receipt View

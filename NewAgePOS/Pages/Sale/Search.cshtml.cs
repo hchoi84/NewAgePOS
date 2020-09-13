@@ -178,5 +178,10 @@ namespace NewAgePOS.Pages.Sale
       TempData["Message"] = "Sale has been cancelled";
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
+
+    public IActionResult OnPostReceipt(int saleId)
+    {
+      return RedirectToPage("Receipt", new { id = saleId, idType = "Sale" });
+    }
   }
 }

@@ -59,7 +59,7 @@
           @if (result.IsComplete)
           {
             <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-warning mt-1">Refund</a>
-            <a asp-page="/Sale/Receipt" asp-route-saleid="@result.SaleId" class="btn btn-primary mt-1 ml-1">Receipt</a>
+            <a asp-page="Receipt" asp-route-id="@result.SaleId" asp-route-idtype="Sale" class="btn btn-primary mt-1 ml-1">Receipt</a>
           }
           else
           {
