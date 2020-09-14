@@ -65,6 +65,7 @@
     <Folder Include="dbo\StoredProcedures\RefundLines" />
     <Folder Include="dbo\StoredProcedures\Sales" />
     <Folder Include="dbo\StoredProcedures\SaleLines" />
+    <Folder Include="dbo\StoredProcedures\GiftCards" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Taxes.sql" />
@@ -76,9 +77,7 @@
     <Build Include="dbo\StoredProcedures\spTaxes_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\spTransactions_Insert.sql" />
     <Build Include="dbo\Tables\RefundLines.sql" />
-    <Build Include="dbo\StoredProcedures\spGetRefundReceiptData.sql" />
     <Build Include="dbo\Tables\GiftCards.sql" />
-    <Build Include="dbo\StoredProcedures\spGiftCards_Insert.sql" />
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_Insert.sql" />
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_Update.sql" />
@@ -89,9 +88,10 @@
     <Build Include="dbo\StoredProcedures\SaleLines\spSaleLines_Insert.sql" />
     <Build Include="dbo\StoredProcedures\SaleLines\spSaleLines_Update.sql" />
     <Build Include="dbo\StoredProcedures\spProducts_GetBySaleId.sql" />
-    <Build Include="dbo\StoredProcedures\spGiftCards_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\RefundLines\spRefundLines_GetBySaleId.sql" />
-    <Build Include="dbo\StoredProcedures\spCustomers_GetByTransactionId.sql" />
+    <Build Include="dbo\StoredProcedures\Customers\spCustomers_GetByTransactionId.sql" />
+    <Build Include="dbo\StoredProcedures\GiftCards\spGiftCards_GetBySaleId.sql" />
+    <Build Include="dbo\StoredProcedures\GiftCards\spGiftCards_Insert.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

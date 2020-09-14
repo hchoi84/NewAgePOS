@@ -66,10 +66,10 @@ namespace NewAgePOS.Pages.Sale
 
     private float CalculateAndStoreRoundedValue()
     {
-      float totalDue = CalculateDueBalance();
+      float totalDue = (float)Math.Round(CalculateDueBalance(), 2);
 
       float factor = 0.05f;
-      float roundedTotalDue = (float)Math.Round(totalDue / factor, MidpointRounding.AwayFromZero) * (float)factor;
+      float roundedTotalDue = (int)(totalDue / factor) * factor;
       float difference = totalDue - roundedTotalDue;
       if (difference == 0) return totalDue;
 
@@ -95,7 +95,7 @@ namespace NewAgePOS.Pages.Sale
       float purchaseAmount = saleLines.Where(sl =>
           sl.ProductId.HasValue || sl.GiftCardId.HasValue)
         .Sum(sl => (sl.Price - (sl.LineDiscountTotal / sl.Qty)) * sl.Qty);
-      float tradeInAmount = saleLines.Where(sl => 
+      float tradeInAmount = saleLines.Where(sl =>
           !sl.ProductId.HasValue && !sl.GiftCardId.HasValue)
         .Sum(sl => sl.Price);
 
@@ -106,6 +106,7 @@ namespace NewAgePOS.Pages.Sale
       float totalDue = subtotalDue + taxDue - paid;
       return totalDue;
     }
+
 
     public IActionResult OnPostApplyPayments()
     {
@@ -200,6 +201,7 @@ namespace NewAgePOS.Pages.Sale
       return dueBalance;
     }
 
+
     public async Task<IActionResult> OnPostCompleteSaleAsync()
     {
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
@@ -247,6 +249,30 @@ namespace NewAgePOS.Pages.Sale
       }
 
       TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
+    }
+
+
+    public IActionResult OnPostDeleteTransaction(int transactionId)
+    {
+      bool isSaleComplete = _sqlDb.Sales_GetById(SaleId).IsComplete;
+      if (isSaleComplete)
+      {
+        TempData["Message"] = "Can not delete transaction because Sale has been completed";
+        return RedirectToPage("Search");
+      }
+
+      TransactionModel transaction = _sqlDb.Transactions_GetById(transactionId);
+      bool isGiftCardTransaction = transaction.GiftCardId.HasValue;
+      if (isGiftCardTransaction)
+      {
+        GiftCardModel giftCard = _sqlDb.GiftCards_GetById(transaction.GiftCardId.Value);
+        giftCard.Amount += transaction.Amount;
+        _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount);
+      }
+
+      _sqlDb.Transactions_DeleteById(transactionId);
+
+      return RedirectToPage(new { SaleId });
     }
   }
 }

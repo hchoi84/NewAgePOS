@@ -81,8 +81,10 @@ namespace SkuVaultLibrary
       JObject jObject = await PostDataAsync(reqUri, content);
 
       JArray warehouses = jObject["Warehouses"].ToObject<JArray>();
-      Secrets.WalnutWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "WALNUT")["Id"].ToObject<int>();
-      Secrets.DropshipWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "DROPSHIP")["Id"].ToObject<int>();
+      //Secrets.WalnutWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "WALNUT")["Id"].ToObject<int>();
+      Secrets.WalnutWHID = 4007;
+      //Secrets.DropshipWHID = warehouses.FirstOrDefault(w => w["Code"].ToString() == "DROPSHIP")["Id"].ToObject<int>();
+      Secrets.DropshipWHID = 4081;
     }
 
     public async Task<JObject> RemoveItemBulkAsync(List<AddRemoveItemBulkModel> itemsToRemove)

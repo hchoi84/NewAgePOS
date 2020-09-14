@@ -19,9 +19,12 @@
 	* Ensure receipt shows correctly
 - If test is good, delete RefundReceipt and ISQLData.GetRefundReceiptData
 - Cancelling Sale: Validate to ensure sale can be cancelled. (!isComplete, no pending transactions associated with sale)
+- Delete any Give Transaction associated with Sale since this is auto generated when the Checkout page is loaded. Therefore, it won't be possible to cancel the transaction prior to deleting it. Other transactions should be cancelled manually by the employee to ensure cancelling a sale by mistake when it could be on hold for later completion
+- Bug: Give amount goes to negative
+- Implement transaction cancelling
 
 ********** WORKING ON **********
-- Implement transaction cancelling
+- Tax: Add with default selection (singleton)
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -29,4 +32,3 @@
 	* Implement it on Refund Receipt (How to use the same receipt view??)
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
-- Tax: Add with default selection (singleton)

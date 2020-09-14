@@ -1,5 +1,4 @@
 ﻿@page "{saleid:min(1)}"
-@using NewAgePOS.ViewModels.Sale
 @model NewAgePOS.Pages.Sale.CheckoutModel
 @{
   ViewData["Title"] = "Checkout";
@@ -38,7 +37,6 @@ else
   </div>
 }
 
-@* TODO: Implement (1) cancellation (for all) and (2) edit (for cash and give) transaction *@
 @if (Model.Transactions.Any())
 {
   <h3 class="mt-5">Transactions</h3>
@@ -57,14 +55,24 @@ else
       method = transaction.Method;
     }
 
-    <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@method" class="form-control" />
-      </div>
-      <div class="col pl-0">
-        <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
-      </div>
-    </div>
+<div class="form-row">
+  <div class="col pr-0">
+    <input readonly value="@method" class="form-control" />
+  </div>
+  <div class="col px-0">
+    <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
+  </div>
+  @if (transaction.Method == "Give")
+  {
+    <button disabled class="btn btn-dark"><i class="fas fa-trash-alt"></i></button>
+  }
+  else
+  {
+    <form method="post" asp-page-handler="DeleteTransaction" asp-route-transactionId="@transaction.Id">
+      <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+    </form>
+  }
+</div>
 
     @if (!string.IsNullOrEmpty(transaction.Message))
     {

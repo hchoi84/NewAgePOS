@@ -255,6 +255,11 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Transactions
+    public void Transactions_DeleteById(int id)
+    {
+      string query = "DELETE FROM dbo.Transactions WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
     public TransactionModel Transactions_GetById(int id)
     {
       string query = "SELECT * FROM dbo.Transactions WHERE Id = @id;";
