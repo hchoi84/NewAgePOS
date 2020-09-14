@@ -18,9 +18,10 @@
 	* Refund through GiftCard
 	* Ensure receipt shows correctly
 - If test is good, delete RefundReceipt and ISQLData.GetRefundReceiptData
+- Cancelling Sale: Validate to ensure sale can be cancelled. (!isComplete, no pending transactions associated with sale)
 
 ********** WORKING ON **********
-- Cancelling Sale: Validate to ensure sale can be cancelled. (!isComplete, no pending transactions associated with sale)
+- Implement transaction cancelling
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -29,4 +30,3 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Implement transaction cancelling
