@@ -8,7 +8,6 @@ namespace NewAgePOSModels.Models
     public int CustomerId { get; set; }
     public int TaxId { get; set; }
     public bool IsComplete { get; set; }
-    public string Message { get; set; }
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }
   }

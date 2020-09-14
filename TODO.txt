@@ -22,9 +22,10 @@
 - Delete any Give Transaction associated with Sale since this is auto generated when the Checkout page is loaded. Therefore, it won't be possible to cancel the transaction prior to deleting it. Other transactions should be cancelled manually by the employee to ensure cancelling a sale by mistake when it could be on hold for later completion
 - Bug: Give amount goes to negative
 - Implement transaction cancelling
+- Remove message from Transactions. All message should be stored in Sale. Change Sale message type to VARCHAR(300)
 
 ********** WORKING ON **********
-- Tax: Add with default selection (singleton)
+- Implement message table that's linked to Sale
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -32,3 +33,4 @@
 	* Implement it on Refund Receipt (How to use the same receipt view??)
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
+- Tax: Add with default selection (singleton)

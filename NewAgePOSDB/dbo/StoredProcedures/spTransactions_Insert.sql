@@ -9,7 +9,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT INTO dbo.Transactions (SaleId, GiftCardId, Amount, Method, Type, Message)
+	INSERT INTO dbo.Transactions (SaleId, GiftCardId, Amount, Method, Type)
 	OUTPUT inserted.Id
-	VALUES (@saleId, @giftCardId, @amount, @method, @type, @message);
+	VALUES (@saleId, @giftCardId, @amount, @method, @type);
 END

@@ -55,33 +55,24 @@ else
       method = transaction.Method;
     }
 
-<div class="form-row">
-  <div class="col pr-0">
-    <input readonly value="@method" class="form-control" />
-  </div>
-  <div class="col px-0">
-    <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
-  </div>
-  @if (transaction.Method == "Give")
-  {
-    <button disabled class="btn btn-dark"><i class="fas fa-trash-alt"></i></button>
-  }
-  else
-  {
-    <form method="post" asp-page-handler="DeleteTransaction" asp-route-transactionId="@transaction.Id">
-      <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
-    </form>
-  }
-</div>
-
-    @if (!string.IsNullOrEmpty(transaction.Message))
-    {
-      <div class="form-row">
-        <div class="col">
-          <input readonly value="@transaction.Message" class="form-control" />
-        </div>
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@method" class="form-control" />
       </div>
-    }
+      <div class="col px-0">
+        <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
+      </div>
+      @if (transaction.Method == "Give")
+      {
+        <button disabled class="btn btn-dark"><i class="fas fa-trash-alt"></i></button>
+      }
+      else
+      {
+        <form method="post" asp-page-handler="DeleteTransaction" asp-route-transactionId="@transaction.Id">
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+        </form>
+      }
+    </div>
   }
 }
 

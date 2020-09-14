@@ -12,7 +12,6 @@ namespace NewAgePOSModels.Models
     public float Amount { get; set; }
     public string Method { get; set; }
     public string Type { get; set; }
-    public string Message { get; set; }
     public DateTime Created { get; set; }
   }
 }
