@@ -33,23 +33,42 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnGet()
     {
-      CustomerModel customer = _sqlDb.Customers_GetBySaleId(Id);
-      FullName = customer.FullName.Contains("Guest") ? "" : customer.FullName;
+      CustomerModel customer = new CustomerModel();
 
-      if (IdType == "Sale")
+      if (IdType.ToLower() == "sale")
       {
-        bool isComplete = _sqlDb.Sales_GetById(Id).IsComplete;
+        SaleModel sale = _sqlDb.Sales_GetById(Id);
+        if (sale == null)
+        {
+          TempData["Message"] = $"Sale id {Id} was not found";
+          return RedirectToPage("Search");
+        }
+
+        bool isComplete = sale.IsComplete;
         if (!isComplete)
         {
           TempData["Message"] = $"Sale id {Id} is not complete yet";
           return RedirectToPage("Search");
         }
 
+        customer = _sqlDb.Customers_GetBySaleId(Id);
+        FullName = customer.FullName.Contains("Guest") ? "" : customer.FullName;
+
         Created = _sqlDb.Sales_GetById(Id).Created.ToString("yyyy/MM/dd");
         return Page();
       }
-      else if(IdType == "Refund")
+      else if(IdType.ToLower() == "refund")
       {
+        TransactionModel transaction = _sqlDb.Transactions_GetById(Id);
+        if (transaction == null)
+        {
+          TempData["Message"] = $"Transaction id {Id} was not found";
+          return RedirectToPage("Search");
+        }
+
+        customer = _sqlDb.Customers_GetByTransactionId(Id);
+        FullName = customer.FullName.Contains("Guest") ? "" : customer.FullName;
+
         GenerateRefundReceiptData();
         return Page();
       }

@@ -8,8 +8,6 @@
 - Include Cost and BCPrice on Product Search result. BCPrice show regular price, not the 15% discounted price.
 - Trade-In. Have amount be entered twice for confirmation
 - Sale/RefundReceipt: Incorporate this to use the same Receipt View
-
-********** WORKING ON **********
 - Test Sale
 	* Purchasing Product(s)
 	* Purchasing GiftCard(s)
@@ -20,6 +18,8 @@
 	* Refund through GiftCard
 	* Ensure receipt shows correctly
 - If test is good, delete RefundReceipt and ISQLData.GetRefundReceiptData
+
+********** WORKING ON **********
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency

@@ -14,6 +14,7 @@ using NewAgePOSLibrary.Data;
 using SkuVaultLibrary;
 using NewAgePOSModels.Securities;
 using NewAgePOS.Utilities;
+using Microsoft.AspNetCore.Routing;
 
 namespace NewAgePOS
 {
@@ -67,6 +68,12 @@ namespace NewAgePOS
       {
         options.AddPolicy("Manager", policy => policy
           .RequireClaim("Manager", "true"));
+      });
+
+      services.Configure<RouteOptions>(options =>
+      {
+        options.LowercaseUrls = true;
+        options.LowercaseQueryStrings = true;
       });
     }
 

@@ -8,10 +8,11 @@ namespace NewAgePOSLibrary.Data
   {
     #region Customers
     CustomerModel Customers_GetByEmailAddress(string emailAddress);
-    CustomerModel Customers_GetByPhoneNumber(string phoneNumber);
-    List<CustomerModel> Customers_GetByLastName(string lastName);
     CustomerModel Customers_GetById(int id);
+    List<CustomerModel> Customers_GetByLastName(string lastName);
+    CustomerModel Customers_GetByPhoneNumber(string phoneNumber);
     CustomerModel Customers_GetBySaleId(int saleId);
+    CustomerModel Customers_GetByTransactionId(int transactionId);
     int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber);
     void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber);
     #endregion
@@ -20,6 +21,7 @@ namespace NewAgePOSLibrary.Data
     void GiftCards_Delete(int id);
     GiftCardModel GiftCards_GetByCode(string code);
     GiftCardModel GiftCards_GetById(int id);
+    List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
     int GiftCards_Insert(string code, float amount);
     void GiftCards_Update(int id, float amount);
     #endregion
@@ -27,12 +29,14 @@ namespace NewAgePOSLibrary.Data
     #region Products
     ProductModel Products_GetByCode(string sku, string upc);
     ProductModel Products_GetById(int id);
+    List<ProductModel> Products_GetBySaleId(int saleId);
     int Products_Insert(string sku, string upc, float cost, float price, string allName);
     void Products_Update(int productId, float cost, float price, string allName);
     #endregion
 
     #region RefundLines
     List<RefundLineModel> RefundLines_GetBySaleId(int saleId);
+    List<RefundLineModel> RefundLines_GetByTransactionId(int transactionId);
     void RefundLines_Insert(int saleLineId, int qty);
     void RefundLines_MarkComplete(int id, int transactionId);
     void RefundLines_Update(int id, int qty);
@@ -41,6 +45,7 @@ namespace NewAgePOSLibrary.Data
     #region SaleLines
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
+    void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty);
     void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty);
     void SaleLines_Update(int id, int qty, float discPct);
     #endregion
@@ -60,16 +65,10 @@ namespace NewAgePOSLibrary.Data
 
     #region Transactions
     List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
+    TransactionModel Transactions_GetById(int id);
     List<TransactionModel> Transactions_GetBySaleId(int saleId);
     int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message);
-    #endregion
-
-    List<RefundDataModel> GetRefundReceiptData(int transactionId);
-    List<ProductModel> Products_GetBySaleId(int saleId);
-    List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
     void Transactions_UpdateAmount(int id, float newAmt);
-    void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty);
-    List<RefundLineModel> RefundLines_GetByTransactionId(int transactionId);
-    TransactionModel Transactions_GetById(int id);
+    #endregion
   }
 }

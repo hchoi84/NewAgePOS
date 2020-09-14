@@ -23,10 +23,10 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { emailAddress }, connectionStringName, false).FirstOrDefault();
     }
 
-    public CustomerModel Customers_GetByPhoneNumber(string phoneNumber)
+    public CustomerModel Customers_GetById(int id)
     {
-      string query = "SELECT * FROM dbo.Customers WHERE PhoneNumber = @phoneNumber";
-      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { phoneNumber }, connectionStringName, false).FirstOrDefault();
+      string query = "SELECT * FROM dbo.Customers WHERE Id = @id";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
     }
 
     public List<CustomerModel> Customers_GetByLastName(string lastName)
@@ -35,10 +35,10 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { lastName }, connectionStringName, false);
     }
 
-    public CustomerModel Customers_GetById(int id)
+    public CustomerModel Customers_GetByPhoneNumber(string phoneNumber)
     {
-      string query = "SELECT * FROM dbo.Customers WHERE Id = @id";
-      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { id }, connectionStringName, false).FirstOrDefault();
+      string query = "SELECT * FROM dbo.Customers WHERE PhoneNumber = @phoneNumber";
+      return _sqlDb.LoadData<CustomerModel, dynamic>(query, new { phoneNumber }, connectionStringName, false).FirstOrDefault();
     }
 
     public CustomerModel Customers_GetBySaleId(int saleId)
@@ -47,6 +47,11 @@ namespace NewAgePOSLibrary.Data
                                                      new { saleId },
                                                      connectionStringName,
                                                      true).FirstOrDefault();
+    }
+
+    public CustomerModel Customers_GetByTransactionId(int transactionId)
+    {
+      return _sqlDb.LoadData<CustomerModel, dynamic>("dbo.spCustomers_GetByTransactionId", new { transactionId }, connectionStringName, true).FirstOrDefault();
     }
 
     public int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber)
@@ -285,10 +290,5 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query, new { id, newAmt }, connectionStringName, false);
     }
     #endregion
-
-    public List<RefundDataModel> GetRefundReceiptData(int transactionId)
-    {
-      return _sqlDb.LoadData<RefundDataModel, dynamic>("dbo.spGetRefundReceiptData", new { transactionId }, connectionStringName, true);
-    }
   }
 }
