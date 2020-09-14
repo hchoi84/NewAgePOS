@@ -19,12 +19,6 @@
         <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
           <partial name="_AccountPartial" />
           <ul class="navbar-nav flex-grow-1">
-            <li class="nav-item dropdown">
-              <a href="#" class="nav-link text-dark dropdown-toggle" id="products-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Products</a>
-              <div class="dropdown-menu" aria-labelledby="products-dropdown">
-                <a asp-page="/Product/Search" class="dropdown-item">Search</a>
-              </div>
-            </li>
 
             <li class="nav-item dropdown">
               <a href="#" class="nav-link text-dark dropdown-toggle" id="sale-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sales</a>
@@ -37,9 +31,10 @@
             </li>
 
             <li class="nav-item dropdown">
-              <a href="#" class="nav-link text-dark dropdown-toggle" id="report-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reports</a>
+              <a href="#" class="nav-link text-dark dropdown-toggle" id="report-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Other</a>
               <div class="dropdown-menu" aria-labelledby="report-dropdown">
-                <a asp-page="/Report/TransactionHistory" class="dropdown-item">Transaction</a>
+                <a asp-page="/Report/TransactionHistory" class="dropdown-item">Transaction History</a>
+                <a asp-page="/Product/Search" class="dropdown-item">Location Search</a>
               </div>
             </li>
 

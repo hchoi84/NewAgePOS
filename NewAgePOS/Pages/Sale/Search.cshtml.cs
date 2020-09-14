@@ -165,6 +165,20 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPostCancelSale(int saleId)
     {
+      SaleModel sale = _sqlDb.Sales_GetById(saleId);
+      if (!sale.IsComplete)
+      {
+        TempData["Message"] = $"Sale Id {saleId} can not be cancelled because it is completed";
+        return RedirectToPage();
+      }
+
+      TransactionModel transaction = _sqlDb.Transactions_GetBySaleId(saleId).FirstOrDefault();
+      if (transaction != null)
+      {
+        TempData["Message"] = $"Sale Id {saleId} can not be cancelled because it has pending transaction(s)";
+        return RedirectToPage();
+      }
+
       List<int> giftCardIds = _sqlDb.SaleLines_GetBySaleId(saleId)
         .Where(s => s.GiftCardId.HasValue)
         .Select(s => s.GiftCardId.Value)
