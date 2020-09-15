@@ -52,7 +52,7 @@ else
     }
     else
     {
-      method = transaction.Method;
+      method = transaction.Method.ToString();
     }
 
     <div class="form-row">
@@ -62,7 +62,7 @@ else
       <div class="col px-0">
         <input readonly value="@transaction.Amount.ToString("C2", dollar)" class="form-control" />
       </div>
-      @if (transaction.Method == "Give")
+      @if (transaction.Method == MethodEnum.Give)
       {
         <button disabled class="btn btn-dark"><i class="fas fa-trash-alt"></i></button>
       }

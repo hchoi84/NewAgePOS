@@ -24,8 +24,8 @@ namespace NewAgePOS.Pages.Sale
       _skuVault = skuVault;
     }
 
-    private ReadOnlyCollection<string> TransactionOrderPref { get; }
-      = new ReadOnlyCollection<string>(new string[] { "GiftCard", "Cash", "Give" });
+    private ReadOnlyCollection<MethodEnum> TransactionOrderPref { get; }
+      = new ReadOnlyCollection<MethodEnum>(new MethodEnum[] { MethodEnum.GiftCard, MethodEnum.Cash, MethodEnum.Give });
 
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
@@ -73,10 +73,10 @@ namespace NewAgePOS.Pages.Sale
       float difference = totalDue - roundedTotalDue;
       if (difference == 0) return totalDue;
 
-      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == "Give");
+      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
       if (giveTransaction == null)
       {
-        _sqlDb.Transactions_Insert(SaleId, null, difference, "Give", "Checkout", Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout, Checkout.Message);
         Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       }
       else if (giveTransaction.Amount != difference)
@@ -125,7 +125,7 @@ namespace NewAgePOS.Pages.Sale
 
       if (!string.IsNullOrEmpty(Checkout.GiftCardCodes))
         dueBalance = ProcessGiftCards(dueBalance, msgs);
-      else if (Checkout.PaymentMethod == "Cash" && Checkout.Amount > 0)
+      else if (Checkout.PaymentMethod == MethodEnum.Cash.ToString() && Checkout.Amount > 0)
         dueBalance = ProcessCash(dueBalance);
 
       if (Checkout.GiveAmount != 0)
@@ -157,7 +157,7 @@ namespace NewAgePOS.Pages.Sale
 
         float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
 
-        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, "GiftCard", "Checkout", Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout, Checkout.Message);
         _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
 
         dueBalance -= payingAmt;
@@ -168,7 +168,10 @@ namespace NewAgePOS.Pages.Sale
 
     private float ProcessCash(float dueBalance)
     {
-      TransactionModel cashTransaction = Transactions.Where(t => t.Method == "Cash" && t.Type == "Checkout").FirstOrDefault();
+      TransactionModel cashTransaction = Transactions.Where(t => 
+          t.Method == MethodEnum.Cash && 
+          t.Type == TypeEnum.Checkout)
+        .FirstOrDefault();
 
       if (cashTransaction != null)
       {
@@ -177,7 +180,7 @@ namespace NewAgePOS.Pages.Sale
       }
       else
       {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, Checkout.PaymentMethod, "Checkout", Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, MethodEnum.Cash, TypeEnum.Checkout, Checkout.Message);
       }
 
       return dueBalance -= Checkout.Amount;
@@ -185,7 +188,10 @@ namespace NewAgePOS.Pages.Sale
 
     private float ProcessGive(float dueBalance)
     {
-      TransactionModel giveTransaction = Transactions.Where(t => t.Method == "Give" && t.Type == "Checkout").FirstOrDefault();
+      TransactionModel giveTransaction = Transactions.Where(t => 
+          t.Method == MethodEnum.Give && 
+          t.Type == TypeEnum.Checkout)
+        .FirstOrDefault();
 
       if (giveTransaction != null)
       {
@@ -194,7 +200,7 @@ namespace NewAgePOS.Pages.Sale
       }
       else
       {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, "Give", "Checkout", Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, MethodEnum.Give, TypeEnum.Checkout, Checkout.Message);
       }
 
       dueBalance -= Checkout.GiveAmount;

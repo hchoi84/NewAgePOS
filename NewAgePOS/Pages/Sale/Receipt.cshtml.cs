@@ -85,7 +85,7 @@ namespace NewAgePOS.Pages.Sale
       TransactionModel transaction = _sqlDb.Transactions_GetById(Id);
       Created = transaction.Created.ToString("yyyy/MM/dd");
       RefundTotal = transaction.Amount.ToString("C2", dollar);
-      RefundMethod = transaction.Method;
+      RefundMethod = transaction.Method.ToString();
     }
   }
 }

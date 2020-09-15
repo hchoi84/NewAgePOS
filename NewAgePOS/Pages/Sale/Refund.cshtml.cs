@@ -38,8 +38,8 @@ namespace NewAgePOS.Pages.Sale
 
     public List<SelectListItem> RefundMethods { get; } = new List<SelectListItem>
     {
-      new SelectListItem { Text = "Cash", Value = "Cash"},
-      new SelectListItem { Text = "Gift Card", Value = "GiftCard" }
+      new SelectListItem { Text = "Cash", Value = MethodEnum.Cash.ToString()},
+      new SelectListItem { Text = "Gift Card", Value = MethodEnum.GiftCard.ToString() }
     };
 
     public IActionResult OnGet()
@@ -67,11 +67,11 @@ namespace NewAgePOS.Pages.Sale
 
       int transactionId = 0;
 
-      if (RefundMethod == "Cash")
+      if (RefundMethod == MethodEnum.Cash.ToString())
       {
-        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, RefundMethod, "Refund", Message);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, MethodEnum.Cash, TypeEnum.Refund, Message);
       }
-      else if (RefundMethod == "GiftCard")
+      else if (RefundMethod == MethodEnum.GiftCard.ToString())
       {
         if (string.IsNullOrEmpty(GiftCardCode))
         {
@@ -93,12 +93,12 @@ namespace NewAgePOS.Pages.Sale
           giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundingAmount);
         }
 
-        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, RefundMethod, "Refund", Message);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, MethodEnum.GiftCard, TypeEnum.Refund, Message);
       }
 
       refundingLines.ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
 
-      return RedirectToPage("Receipt", new { Id = transactionId, IdType = "Refund" });
+      return RedirectToPage("Receipt", new { Id = transactionId, IdType = TypeEnum.Refund.ToString() });
     }
 
     private float GetRefundingAmount(List<RefundLineModel> refundingLines)
@@ -106,8 +106,8 @@ namespace NewAgePOS.Pages.Sale
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      float refundableAmount = transactions.Where(t => t.Type == "Checkout").Sum(t => t.Amount)
-        - transactions.Where(t => t.Type == "Refund").Sum(t => t.Amount);
+      float refundableAmount = transactions.Where(t => t.Type == TypeEnum.Checkout).Sum(t => t.Amount)
+        - transactions.Where(t => t.Type == TypeEnum.Refund).Sum(t => t.Amount);
 
       float refundingAmount = refundingLines.Sum(rl =>
       {

@@ -67,7 +67,7 @@ namespace NewAgePOSLibrary.Data
     List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate);
     TransactionModel Transactions_GetById(int id);
     List<TransactionModel> Transactions_GetBySaleId(int saleId);
-    int Transactions_Insert(int saleId, int? giftCardId, float amount, string method, string type, string message);
+    int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type, string message);
     void Transactions_UpdateAmount(int id, float newAmt);
     void Transactions_DeleteById(int id);
     #endregion

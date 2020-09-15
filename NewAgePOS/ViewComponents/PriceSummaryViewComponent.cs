@@ -27,7 +27,7 @@ namespace NewAgePOS.ViewComponents
     {
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
-      List<TransactionModel> paidTransactions = transactions.Where(t => t.Type == "Checkout").ToList();
+      List<TransactionModel> paidTransactions = transactions.Where(t => t.Type == TypeEnum.Checkout).ToList();
       List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleId(saleId);
       TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
 
@@ -42,18 +42,18 @@ namespace NewAgePOS.ViewComponents
           .Sum(s => s.LineTotal),
         TaxPct = tax.TaxPct,
         PaidGiftCard = paidTransactions.Where(p =>
-            p.Type == "Checkout" &&
-            p.Method == "GiftCard")
+            p.Type == TypeEnum.Checkout &&
+            p.Method == MethodEnum.GiftCard)
           .Sum(p => p.Amount),
         PaidCash = paidTransactions.Where(p =>
-            p.Type == "Checkout" &&
-            p.Method == "Cash")
+            p.Type == TypeEnum.Checkout &&
+            p.Method == MethodEnum.Cash)
           .Sum(p => p.Amount),
         PaidGive = paidTransactions.Where(p =>
-            p.Type == "Checkout" &&
-            p.Method == "Give")
+            p.Type == TypeEnum.Checkout &&
+            p.Method == MethodEnum.Give)
           .Sum(p => p.Amount),
-        RefundedAmount = transactions.Where(t => t.Type == "Refund")
+        RefundedAmount = transactions.Where(t => t.Type == TypeEnum.Refund)
           .Sum(t => t.Amount),
         RefundingAmount = refundLines.Where(rl => rl.TransactionId == 0)
           .Sum(rl =>

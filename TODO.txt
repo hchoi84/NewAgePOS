@@ -25,7 +25,7 @@
 - Remove message from Transactions. All message should be stored in Sale. Change Sale message type to VARCHAR(300)
 
 ********** WORKING ON **********
-- Implement message table that's linked to Sale
+- Implement TransactionMethod and TransactionType Enums
 
 ********** PENDING **********
 - Centralize Price Summary view for consistency
@@ -34,3 +34,4 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
+- Implement message table that's linked to Sale

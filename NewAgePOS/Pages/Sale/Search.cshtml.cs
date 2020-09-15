@@ -173,13 +173,13 @@ namespace NewAgePOS.Pages.Sale
       }
 
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
-      if (transactions.FirstOrDefault(t => t.Method != "Give") != null)
+      if (transactions.FirstOrDefault(t => t.Method != MethodEnum.Give) != null)
       {
         TempData["Message"] = $"Sale Id {saleId} can not be cancelled because it has pending transaction(s)";
         return RedirectToPage();
       }
 
-      TransactionModel giveTransaction = transactions.FirstOrDefault(t => t.Method == "Give");
+      TransactionModel giveTransaction = transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
       if (giveTransaction != null)
         _sqlDb.Transactions_DeleteById(giveTransaction.Id);
 
