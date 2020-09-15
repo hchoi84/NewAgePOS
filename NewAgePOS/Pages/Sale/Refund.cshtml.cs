@@ -69,7 +69,7 @@ namespace NewAgePOS.Pages.Sale
 
       if (RefundMethod == MethodEnum.Cash.ToString())
       {
-        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, MethodEnum.Cash, TypeEnum.Refund, Message);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, MethodEnum.Cash, TypeEnum.Refund);
       }
       else if (RefundMethod == MethodEnum.GiftCard.ToString())
       {
@@ -93,7 +93,7 @@ namespace NewAgePOS.Pages.Sale
           giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundingAmount);
         }
 
-        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, MethodEnum.GiftCard, TypeEnum.Refund, Message);
+        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, MethodEnum.GiftCard, TypeEnum.Refund);
       }
 
       refundingLines.ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));

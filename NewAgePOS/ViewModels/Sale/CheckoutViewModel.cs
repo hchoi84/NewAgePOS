@@ -24,9 +24,6 @@ namespace NewAgePOS.ViewModels.Sale
     [Compare(nameof(GiveAmount), ErrorMessage = "Amount doesn't match")]
     public float GiveAmountConfirmation { get; set; }
 
-    [StringLength(200, ErrorMessage = "{1} Max characters")]
-    public string Message { get; set; }
-
     [Display(Name = "Gift Cards")]
     public string GiftCardCodes { get; set; }
 

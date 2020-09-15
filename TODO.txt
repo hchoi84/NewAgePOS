@@ -1,4 +1,4 @@
-********** DONE **********
+********** DONE (Last finished at the bottom) **********
 - Centralize Product List view for consistency
  * Implement it on Cart
  * Implement it on Checkout
@@ -23,15 +23,16 @@
 - Bug: Give amount goes to negative
 - Implement transaction cancelling
 - Remove message from Transactions. All message should be stored in Sale. Change Sale message type to VARCHAR(300)
-
-********** WORKING ON **********
 - Implement TransactionMethod and TransactionType Enums
 
-********** PENDING **********
+********** WORKING ON **********
+- Implement message table that's linked to Sale
+
+********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency
 	* Implement it on Receipt (Done)
 	* Implement it on Refund Receipt (How to use the same receipt view??)
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Implement message table that's linked to Sale
+- Architect where the Messages should display

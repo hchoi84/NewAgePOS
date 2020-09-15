@@ -76,7 +76,7 @@ namespace NewAgePOS.Pages.Sale
       TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
       if (giveTransaction == null)
       {
-        _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout, Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout);
         Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       }
       else if (giveTransaction.Amount != difference)
@@ -157,7 +157,7 @@ namespace NewAgePOS.Pages.Sale
 
         float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
 
-        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout, Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout);
         _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
 
         dueBalance -= payingAmt;
@@ -180,7 +180,7 @@ namespace NewAgePOS.Pages.Sale
       }
       else
       {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, MethodEnum.Cash, TypeEnum.Checkout, Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, MethodEnum.Cash, TypeEnum.Checkout);
       }
 
       return dueBalance -= Checkout.Amount;
@@ -200,7 +200,7 @@ namespace NewAgePOS.Pages.Sale
       }
       else
       {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, MethodEnum.Give, TypeEnum.Checkout, Checkout.Message);
+        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, MethodEnum.Give, TypeEnum.Checkout);
       }
 
       dueBalance -= Checkout.GiveAmount;

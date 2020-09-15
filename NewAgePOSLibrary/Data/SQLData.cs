@@ -282,10 +282,10 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<TransactionModel, dynamic>(query, new { saleId }, connectionStringName, false);
     }
 
-    public int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type, string message)
+    public int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type)
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
-                    new { saleId, giftCardId, amount, method = method.ToString(), type = type.ToString(), message },
+                    new { saleId, giftCardId, amount, method = method.ToString(), type = type.ToString() },
                     connectionStringName, true).FirstOrDefault();
     }
 
