@@ -24,9 +24,10 @@
 - Implement transaction cancelling
 - Remove message from Transactions. All message should be stored in Sale. Change Sale message type to VARCHAR(300)
 - Implement TransactionMethod and TransactionType Enums
+- Implement message table that references Sales
 
 ********** WORKING ON **********
-- Implement message table that's linked to Sale
+- Architect where the Messages should be displayed/inserted
 
 ********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency
@@ -35,4 +36,3 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Architect where the Messages should display

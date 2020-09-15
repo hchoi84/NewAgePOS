@@ -26,6 +26,10 @@ namespace NewAgePOSLibrary.Data
     void GiftCards_Update(int id, float amount);
     #endregion
 
+    #region Messages
+
+    #endregion
+
     #region Products
     ProductModel Products_GetByCode(string sku, string upc);
     ProductModel Products_GetById(int id);

@@ -92,6 +92,7 @@
     <Build Include="dbo\StoredProcedures\Customers\spCustomers_GetByTransactionId.sql" />
     <Build Include="dbo\StoredProcedures\GiftCards\spGiftCards_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\GiftCards\spGiftCards_Insert.sql" />
+    <Build Include="dbo\Tables\Messages.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

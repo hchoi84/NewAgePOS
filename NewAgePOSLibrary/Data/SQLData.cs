@@ -103,6 +103,10 @@ namespace NewAgePOSLibrary.Data
     }
     #endregion
 
+    #region Messages
+
+    #endregion
+
     #region Products
     public ProductModel Products_GetByCode(string sku, string upc)
     {

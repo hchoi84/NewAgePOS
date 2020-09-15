@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NewAgePOSModels.Models
+﻿namespace NewAgePOSModels.Models
 {
   public enum MethodEnum
   {
