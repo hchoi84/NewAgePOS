@@ -28,6 +28,9 @@
 
 ********** WORKING ON **********
 - Architect where the Messages should be displayed/inserted
+	* D/I Sale/Checkout
+	* D/I Sale/Refund
+	* D Sale/Search
 
 ********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency
