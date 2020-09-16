@@ -86,7 +86,7 @@ namespace NewAgePOS.Pages.Account
       return new JsonResult(true);
     }
 
-    public async Task<(EmployeeModel, string)> RegisterUserAsync()
+    private async Task<(EmployeeModel, string)> RegisterUserAsync()
     {
       Claim newClaim;
 
