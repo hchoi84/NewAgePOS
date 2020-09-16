@@ -75,7 +75,19 @@ namespace NewAgePOS.Pages.Account
       }
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnGetConfirmEmail(string userId, string token)
+    {
+      EmployeeModel employee = await _userManager.FindByIdAsync(userId);
+
+      await _userManager.ConfirmEmailAsync(employee, token);
+
+      TempData["MessageTitle"] = "Email Confirmed";
+      TempData["Message"] = "You may now login";
+
+      return RedirectToPage("Login");
+    }
+
+      public async Task<IActionResult> OnPostAsync()
     {
       if (!ModelState.IsValid) return Page();
 

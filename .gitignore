@@ -14,6 +14,7 @@
 *.env
 *.dockerignore
 *.yml
+TODO.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
