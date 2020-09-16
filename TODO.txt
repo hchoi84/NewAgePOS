@@ -5,9 +5,10 @@
 - Sale/Cart: TradeIn should show up as negative
 - PriceSummary: Give should be part of Discount
 - Sale/Cart: TradeIn remove feature
+- Require Admin for creating new users. Auto create default admin user if there are no users
 
 ********** WORKING ON **********
-- One user one password. Remove registering new user
+- Deploy for beta testing
 
 ********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency

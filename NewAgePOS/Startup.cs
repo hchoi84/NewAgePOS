@@ -13,7 +13,6 @@ using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Data;
 using SkuVaultLibrary;
 using NewAgePOSModels.Securities;
-using NewAgePOS.Utilities;
 using Microsoft.AspNetCore.Routing;
 
 namespace NewAgePOS
@@ -48,6 +47,7 @@ namespace NewAgePOS
         options.Conventions.AuthorizeFolder("/Product");
         options.Conventions.AuthorizeFolder("/Report");
         options.Conventions.AuthorizeFolder("/Sale");
+        options.Conventions.AuthorizePage("/Account/Register", ClaimTypeEnum.Admin.ToString());
       });
 
       services.ConfigureApplicationCookie(options =>
@@ -66,8 +66,8 @@ namespace NewAgePOS
 
       services.AddAuthorization(options =>
       {
-        options.AddPolicy("Manager", policy => policy
-          .RequireClaim("Manager", "true"));
+        options.AddPolicy(ClaimTypeEnum.Admin.ToString(), policy => policy
+          .RequireClaim(ClaimTypeEnum.Admin.ToString(), "true"));
       });
 
       services.Configure<RouteOptions>(options =>

@@ -109,11 +109,10 @@ namespace NewAgePOS.Pages.Account
 
     public async Task<JsonResult> OnPostCheckEmail(string emailAddress)
     {
-      string validDomain = Secrets.ValidDomain;
       string userEnteredDomain = emailAddress.Split('@')[1].ToLower();
 
-      if (userEnteredDomain != validDomain)
-        return new JsonResult($"Only { validDomain } email addresses are allowed");
+      if (userEnteredDomain != Secrets.Domain)
+        return new JsonResult($"Only { Secrets.Domain } email addresses are allowed");
 
       EmployeeModel employee = await _userManager.FindByEmailAsync(emailAddress);
 
