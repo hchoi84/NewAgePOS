@@ -2,7 +2,7 @@
 @using NewAgePOS.Utilities
 @model ItemListVCVM
 
-<h3 class="mt-5">ITEMS</h3>
+<h3 class="mt-5 text-center">ITEMS</h3>
 @foreach (var item in Model.Items)
 {
   if (item != Model.Items.First())
@@ -73,27 +73,28 @@
   else if (item.IsGiftCard)
   {
     <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@item.Sku" class="form-control" />
+      <div class="col-7 pr-0">
+        <input readonly value="(Gift Card) @item.Sku" class="form-control" />
       </div>
       <div class="col px-0">
         <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
       </div>
-      <div class="col pl-0">
+      <div class="col-2 pl-0">
         <input readonly value="@item.Qty" class="form-control" />
       </div>
     </div>
   }
   else
   {
+    string price = (item.Price * -1).ToString("C2", item.Dollar);
     <div class="form-row">
-      <div class="col pr-0">
-        <input readonly value="@item.SaleLineId" class="form-control" />
+      <div class="col-7 pr-0">
+        <input readonly value="(Trade In) @item.SaleLineId" class="form-control" />
       </div>
       <div class="col px-0">
-        <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
+        <input readonly value="@price" class="form-control" />
       </div>
-      <div class="col pl-0">
+      <div class="col-2 px-0">
         <input readonly value="@item.Qty" class="form-control" />
       </div>
     </div>
@@ -101,16 +102,19 @@
 
   @if (Model.PathSource == PathSourceEnum.Cart)
   {
-    <form method="post" asp-page="/Sale/Cart" asp-page-handler="ApplyDiscount" asp-route-SaleLineId="@item.SaleLineId" asp-route-qty="@item.Qty">
-      <div class="form-row">
-        <label class="col-form-label ml-3">Cart Discount %</label>
-        <div class="col">
-          <input name="discPct" value="@item.DiscPct" class="form-control text-info font-weight-bold" />
+    if (item.IsProduct)
+    {
+      <form method="post" asp-page="/Sale/Cart" asp-page-handler="ApplyDiscount" asp-route-SaleLineId="@item.SaleLineId" asp-route-qty="@item.Qty">
+        <div class="form-row">
+          <label class="col-form-label ml-3">Cart Discount %</label>
+          <div class="col">
+            <input name="discPct" value="@item.DiscPct" class="form-control text-info font-weight-bold" />
+          </div>
+          <div class="col">
+            <button type="submit" class="col btn btn-primary" style="width: fit-content;">Apply</button>
+          </div>
         </div>
-        <div class="col">
-          <button type="submit" class="col btn btn-primary" style="width: fit-content;">Apply</button>
-        </div>
-      </div>
-    </form>
+      </form>
+    }
   }
 }

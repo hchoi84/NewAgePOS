@@ -218,6 +218,8 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostAddGiftCards()
     {
+      if (!ModelState.IsValid) return Page();
+
       List<string> msgs = new List<string>();
       List<string> giftCardCodes = CartVM.GiftCardCodes
         .Trim()
@@ -289,8 +291,27 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostAddTradeIn()
     {
+      if (!ModelState.IsValid) return Page();
+
       _sqlDb.SaleLines_Insert(SaleId, CartVM.TradeInValue, CartVM.TradeInQty);
 
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostRemoveTradeIn()
+    {
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      SaleLineModel saleLineToDelete = saleLines.FirstOrDefault(sl => sl.Id == CartVM.SaleLineId);
+
+      if (saleLineToDelete == null)
+      {
+        TempData["Message"] = $"{CartVM.SaleLineId} does not exist";
+        return RedirectToPage();
+      }
+
+      _sqlDb.SaleLines_Delete(saleLineToDelete.Id);
+
+      TempData["Message"] = $"{CartVM.SaleLineId} has been removed";
       return RedirectToPage();
     }
   }

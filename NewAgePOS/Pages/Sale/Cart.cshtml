@@ -11,25 +11,26 @@
   <div class="text-danger">@TempData["Message"]</div>
 }
 
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
-<h4>Add/Remove</h4>
+<h4 class="text-center">Add/Remove</h4>
 <div class="row mb-3">
   <div class="col" style="text-align: center;">
     <button id="AddRemoveProductsButton"
             class="btn btn-primary"
-            onclick="addRemove(this.id, 'AddRemoveGiftCardsButton', 'AddTradeInButton');"
+            onclick="addRemove(this.id, 'AddRemoveGiftCardsButton', 'AddRemoveTradeInButton');"
             style="display: inline-block;">
       Products
     </button>
 
     <button id="AddRemoveGiftCardsButton"
             class="btn btn-primary"
-            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddTradeInButton');"
+            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddRemoveTradeInButton');"
             style="display: inline-block;">
       Gift Cards
     </button>
-    <button id="AddTradeInButton"
+
+    <button id="AddRemoveTradeInButton"
             class="btn btn-primary"
             onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddRemoveGiftCardsButton');"
             style="display: inline-block;">
@@ -40,7 +41,6 @@
 
 <div id="AddRemoveProducts" style="display: none;">
   <form method="post">
-    <h4>Products</h4>
     <div class="form-group">
       <textarea asp-for="CartVM.Codes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
     </div>
@@ -51,20 +51,27 @@
 
 <div id="AddRemoveGiftCards" style="display: none;">
   <form method="post">
-    <h4>Gift Cards</h4>
-    <div class="form-group mb-0">
-      <textarea asp-for="CartVM.GiftCardCodes" class="form-control" rows="2" placeholder="Gift card codes..."></textarea>
+    <div class="form-row">
+      <div class="form-group col">
+        <textarea asp-for="CartVM.GiftCardCodes" class="form-control" rows="2" placeholder="Gift card codes..."></textarea>
+      </div>
     </div>
-    <div class="form-group">
-      <input asp-for="CartVM.GiftCardAmount" class="form-control" />
+    <div class="form-row">
+      <div class="form-group col">
+        <label asp-for="CartVM.GiftCardAmount"></label>
+        <input asp-for="CartVM.GiftCardAmount" class="form-control" />
+      </div>
+      <div class="form-group col">
+        <label asp-for="CartVM.GiftCardAmountConfirm"></label>
+        <input asp-for="CartVM.GiftCardAmountConfirm" class="form-control" />
+      </div>
     </div>
     <button asp-page-handler="AddGiftCards" type="submit" class="btn btn-primary">Add Gift Cards</button>
     <button asp-page-handler="RemoveGiftCards" type="submit" class="btn btn-danger">Remove Gift Cards</button>
   </form>
 </div>
 
-<div id="AddTradeIn" style="display: none;">
-  <h4>Trade In</h4>
+<div id="AddRemoveTradeIn" style="display: none;">
   <form method="post" asp-page-handler="AddTradeIn">
     <div class="form-row">
       <div class="form-group col">
@@ -81,6 +88,15 @@
       </div>
     </div>
     <button type="submit" class="btn btn-primary">Add Trade In</button>
+  </form>
+  <form method="post" class="mt-3" asp-page-handler="RemoveTradeIn">
+    <div class="form-row">
+      <div class="form-group col">
+        <label asp-for="CartVM.SaleLineId"></label>
+        <input asp-for="CartVM.SaleLineId" class="form-control" />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-danger">Remove Trade In</button>
   </form>
 </div>
 

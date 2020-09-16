@@ -2,6 +2,8 @@
 @model NewAgePOS.Pages.Sale.ReceiptModel
 @{
   ViewData["Title"] = "Receipt";
+  string idType = Model.IdType;
+  string receiptName = idType.Substring(0, 1).ToUpper() + idType.Substring(1, idType.Length - 1) + " Receipt";
 }
 
 @if (TempData["Message"] != null)
@@ -19,7 +21,7 @@
     <p class="text-center m-0">909-460-8788</p>
   </div>
   <div>
-    <h4 class="text-center">@Model.IdType Receipt</h4>
+    <h4 class="text-center">@receiptName</h4>
   </div>
   <div class="mb-3">
     <p class="text-center m-0">@Model.Id</p>
@@ -27,7 +29,7 @@
   </div>
 </div>
 
-@if (Model.IdType == "Sale")
+@if (Model.IdType == "sale")
 {
   @await Component.InvokeAsync("PriceSummary", new { saleId = Model.Id })
 }
@@ -53,7 +55,7 @@ else
 }
 
 <div class="my-5">
-  @if (Model.IdType == "Sale")
+  @if (Model.IdType == "sale")
   {
     <p class="text-center">All sales are final</p>
   }

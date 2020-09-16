@@ -7,6 +7,7 @@ namespace NewAgePOS.ViewModels.Sale
 {
   public class CheckoutViewModel
   {
+    [Display(Name = "Payment Method")]
     public string PaymentMethod { get; set; }
 
     public List<SelectListItem> PaymentMethods { get; } = new List<SelectListItem>

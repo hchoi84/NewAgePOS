@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +31,9 @@ namespace NewAgePOS.Pages.Sale
     public IActionResult OnGet()
     {
       CustomerModel customer = new CustomerModel();
+      IdType = IdType.ToLower();
 
-      if (IdType.ToLower() == "sale")
+      if (IdType == "sale")
       {
         SaleModel sale = _sqlDb.Sales_GetById(Id);
         if (sale == null)
@@ -57,7 +55,7 @@ namespace NewAgePOS.Pages.Sale
         Created = _sqlDb.Sales_GetById(Id).Created.ToString("yyyy/MM/dd");
         return Page();
       }
-      else if(IdType.ToLower() == "refund")
+      else if(IdType == "refund")
       {
         TransactionModel transaction = _sqlDb.Transactions_GetById(Id);
         if (transaction == null)

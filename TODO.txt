@@ -1,36 +1,13 @@
 ********** DONE (Last finished at the bottom) **********
-- Centralize Product List view for consistency
- * Implement it on Cart
- * Implement it on Checkout
- * Implement it on Refund
-- Round total down to 5 cents. Record the difference to DB as "Give"
-- Product Search, don't display products with no inventory
-- Include Cost and BCPrice on Product Search result. BCPrice show regular price, not the 15% discounted price.
-- Trade-In. Have amount be entered twice for confirmation
-- Sale/RefundReceipt: Incorporate this to use the same Receipt View
-- Test Sale
-	* Purchasing Product(s)
-	* Purchasing GiftCard(s)
-	* Purchasing Product(s) and GiftCard(s)
-	* Ensure receipt shows correctly
-- Test Refund
-  * Refund through Cash
-	* Refund through GiftCard
-	* Ensure receipt shows correctly
-- If test is good, delete RefundReceipt and ISQLData.GetRefundReceiptData
-- Cancelling Sale: Validate to ensure sale can be cancelled. (!isComplete, no pending transactions associated with sale)
-- Delete any Give Transaction associated with Sale since this is auto generated when the Checkout page is loaded. Therefore, it won't be possible to cancel the transaction prior to deleting it. Other transactions should be cancelled manually by the employee to ensure cancelling a sale by mistake when it could be on hold for later completion
-- Bug: Give amount goes to negative
-- Implement transaction cancelling
-- Remove message from Transactions. All message should be stored in Sale. Change Sale message type to VARCHAR(300)
-- Implement TransactionMethod and TransactionType Enums
-- Implement message table that references Sales
+- Sale/Receipt: Not displaying
+- Sale/Cart: Add the word "Trade In" and "Gift Card" to appropriate line
+- Sale/Cart: GiftCard, enter value twice
+- Sale/Cart: TradeIn should show up as negative
+- PriceSummary: Give should be part of Discount
+- Sale/Cart: TradeIn remove feature
 
 ********** WORKING ON **********
-- Architect where the Messages should be displayed/inserted
-	* D/I Sale/Checkout
-	* D/I Sale/Refund
-	* D Sale/Search
+- One user one password. Remove registering new user
 
 ********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency
@@ -39,3 +16,11 @@
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
+- Ensure any table update also updates Updated column
+- Architect where the Messages should be displayed/inserted
+	* D/I Sale/Checkout
+	* D/I Sale/Refund
+	* D Sale/Search
+- Sale/Checkout: Convert payments to dropdown. It's too cluttered the way it is right now
+- Sale/Checkout: Each payment method should have it's own Method
+- Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code

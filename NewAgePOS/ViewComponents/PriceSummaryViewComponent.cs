@@ -38,6 +38,10 @@ namespace NewAgePOS.ViewComponents
             s.ProductId.HasValue || s.GiftCardId.HasValue)
           .Sum(s => s.LineTotal),
         DiscountAmount = saleLines.Sum(s => s.LineDiscountTotal),
+        GiveAmount = paidTransactions.Where(p =>
+            p.Type == TypeEnum.Checkout &&
+            p.Method == MethodEnum.Give)
+          .Sum(p => p.Amount),
         TradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue)
           .Sum(s => s.LineTotal),
         TaxPct = tax.TaxPct,
@@ -48,10 +52,6 @@ namespace NewAgePOS.ViewComponents
         PaidCash = paidTransactions.Where(p =>
             p.Type == TypeEnum.Checkout &&
             p.Method == MethodEnum.Cash)
-          .Sum(p => p.Amount),
-        PaidGive = paidTransactions.Where(p =>
-            p.Type == TypeEnum.Checkout &&
-            p.Method == MethodEnum.Give)
           .Sum(p => p.Amount),
         RefundedAmount = transactions.Where(t => t.Type == TypeEnum.Refund)
           .Sum(t => t.Amount),
