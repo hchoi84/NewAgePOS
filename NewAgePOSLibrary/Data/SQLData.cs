@@ -56,15 +56,14 @@ namespace NewAgePOSLibrary.Data
 
     public int Customers_Insert(string firstName, string lastName, string emailAddress, string phoneNumber)
     {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spCustomers_Insert",
-                                           new { firstName, lastName, emailAddress, phoneNumber },
-                                           connectionStringName,
-                                           true).FirstOrDefault();
+      string query = "INSERT INTO dbo.Customers (FirstName, LastName, EmailAddress, PhoneNumber) OUTPUT inserted.Id VALUES (@firstName, @lastName, @emailAddress, @phoneNumber)";
+      return _sqlDb.LoadData<int, dynamic>(query, new { firstName, lastName, emailAddress, phoneNumber }, connectionStringName, false).FirstOrDefault();
     }
 
     public void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber)
     {
-      _sqlDb.SaveData("dbo.spCustomers_Update", new { id, firstName, lastName, emailAddress, phoneNumber }, connectionStringName, true);
+      string query = "UPDATE dbo.Customers SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, PhoneNumber = @phoneNumber WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, firstName, lastName, emailAddress, phoneNumber }, connectionStringName, false);
     }
     #endregion
 
@@ -199,9 +198,8 @@ namespace NewAgePOSLibrary.Data
 
     public void SaleLines_Update(int id, int qty, float discPct)
     {
-      _sqlDb.SaveData("dbo.spSaleLines_Update",
-                      new { id, qty, discPct },
-                      connectionStringName, true);
+      string query = "UPDATE dbo.SaleLines SET Qty = @qty, DiscPct = @discPct WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, qty, discPct }, connectionStringName, false);
     }
     #endregion
 
@@ -264,6 +262,7 @@ namespace NewAgePOSLibrary.Data
       string query = "DELETE FROM dbo.Transactions WHERE Id = @id";
       _sqlDb.SaveData(query, new { id }, connectionStringName, false);
     }
+
     public TransactionModel Transactions_GetById(int id)
     {
       string query = "SELECT * FROM dbo.Transactions WHERE Id = @id;";
@@ -288,9 +287,10 @@ namespace NewAgePOSLibrary.Data
 
     public int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type)
     {
-      return _sqlDb.LoadData<int, dynamic>("dbo.spTransactions_Insert",
+      string query = "INSERT INTO dbo.Transactions (SaleId, GiftCardId, Amount, Method, Type) OUTPUT inserted.Id VALUES (@saleId, @giftCardId, @amount, @method, @type)";
+      return _sqlDb.LoadData<int, dynamic>(query,
                     new { saleId, giftCardId, amount, method = method.ToString(), type = type.ToString() },
-                    connectionStringName, true).FirstOrDefault();
+                    connectionStringName, false).FirstOrDefault();
     }
 
     public void Transactions_UpdateAmount(int id, float newAmt)
