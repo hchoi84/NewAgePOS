@@ -69,7 +69,7 @@ namespace NewAgePOS.Pages.Account
         await _userManager.AddClaimAsync(employee, newClaim);
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(employee);
-        var tokenLink = Url.Page("Register", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
+        var tokenLink = Url.Page("Login", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
 
         _emailSender.SendEmailConfirmationToken(employee.FullName, employee.Email, tokenLink);
       }
