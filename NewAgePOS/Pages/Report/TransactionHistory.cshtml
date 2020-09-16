@@ -6,7 +6,7 @@
   CultureInfo dollar = new CultureInfo("en-US");
   if (Model.Transactions != null && Model.Transactions.Any())
   {
-    totalCheckout = Model.Transactions.Where(t => t.Type == TypeEnum.Checkout).Sum(t => t.Amount);
+    totalCheckout = Model.Transactions.Where(t => t.Type == TypeEnum.Checkout && t.Method != MethodEnum.Give).Sum(t => t.Amount);
     totalRefund = Model.Transactions.Where(t => t.Type == TypeEnum.Refund).Sum(t => t.Amount) * -1;
     total = totalCheckout + totalRefund;
   }
@@ -30,24 +30,33 @@
 {
   <h3 class="mb-3">Result</h3>
 
-  foreach (var transaction in Model.Transactions)
+  for (var i = 0; i < Model.Transactions.Count; i++)
   {
-    float amount = transaction.Type == TypeEnum.Refund ? transaction.Amount * -1 : transaction.Amount;
+    TransactionModel t = Model.Transactions[i];
 
     <div class="row mt-3">
       <div class="col pr-0">
         <div class="border rounded bg-dark pl-1 mr-1 mb-1">
-          @transaction.Created.ToShortDateString()
+          @t.Created.ToShortDateString()
         </div>
       </div>
       <div class="col px-0">
         <div class="border rounded bg-dark pl-1 mr-1">
-          @transaction.SaleId
+          (@t.Type.ToString() @t.Method.ToString()) @t.SaleId
         </div>
       </div>
       <div class="col pl-0">
         <div class="border rounded bg-dark pl-1">
-          @amount.ToString("C2", dollar)
+          @{
+            if (t.Type == TypeEnum.Refund)
+            {
+              @((t.Amount * -1).ToString("C2", dollar))
+            }
+            else
+            {
+              @t.Amount.ToString("C2", dollar)
+            }
+          }
         </div>
       </div>
     </div>

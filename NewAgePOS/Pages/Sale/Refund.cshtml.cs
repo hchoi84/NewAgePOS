@@ -30,10 +30,6 @@ namespace NewAgePOS.Pages.Sale
     public string Codes { get; set; }
 
     [BindProperty]
-    [Display(Name = "Message (Optional)")]
-    public string Message { get; set; }
-
-    [BindProperty]
     public string GiftCardCode { get; set; }
 
     public List<SelectListItem> RefundMethods { get; } = new List<SelectListItem>
@@ -67,7 +63,12 @@ namespace NewAgePOS.Pages.Sale
 
       int transactionId = 0;
 
-      if (RefundMethod == MethodEnum.Cash.ToString())
+      if (string.IsNullOrEmpty(RefundMethod))
+      {
+        TempData["Message"] = "Please choose refund method";
+        return Page();
+      }
+      else if (RefundMethod == MethodEnum.Cash.ToString())
       {
         transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, MethodEnum.Cash, TypeEnum.Refund);
       }

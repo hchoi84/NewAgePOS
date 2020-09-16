@@ -31,12 +31,6 @@
 @await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId }) 
 
 <form method="post">
-  <div class="form-row mt-3">
-    <div class="col">
-      <label asp-for="@Model.Message"></label>
-      <textarea asp-for="@Model.Message" class="form-control" rows="2"></textarea>
-    </div>
-  </div>
   <div class="form-row mt-1">
     <div class="col-6">
       <select id="RefundMethod" asp-for="@Model.RefundMethod" asp-items="@Model.RefundMethods" class="form-control" onchange="refundMethod('GiftCardCodeInputBox')">

@@ -33,42 +33,6 @@ namespace NewAgePOS.Pages.Account
 
     public void OnGet() { }
 
-    public async Task<IActionResult> OnGetConfirmEmail(string userId, string token)
-    {
-      if (userId == null || token == null)
-      {
-        TempData["MessageTitle"] = "Error";
-        TempData["Message"] = "The email confirmation token link is invalid";
-
-        return RedirectToAction("Login");
-      }
-
-      EmployeeModel employee = await _userManager.FindByIdAsync(userId);
-
-      if (employee == null)
-      {
-        TempData["MessageTitle"] = "Error";
-        TempData["Message"] = "No user found";
-
-        return RedirectToAction("Login");
-      }
-
-      IdentityResult result = await _userManager.ConfirmEmailAsync(employee, token);
-
-      if (!result.Succeeded)
-      {
-        TempData["MessageTitle"] = "Error";
-        TempData["Message"] = "Something went wrong while confirming";
-
-        return RedirectToPage("Login");
-      }
-
-      TempData["MessageTitle"] = "Email Confirmed";
-      TempData["Message"] = "You may now login";
-
-      return RedirectToPage("Login");
-    }
-
     public async Task<IActionResult> OnPostAsync()
     {
       if (!ModelState.IsValid) return Page();
@@ -84,7 +48,7 @@ namespace NewAgePOS.Pages.Account
 
       var token = await _userManager.GenerateEmailConfirmationTokenAsync(employee);
 
-      var tokenLink = Url.Page("Register", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
+      var tokenLink = Url.Page("Login", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
 
       //TODO: Remove on production
       //_logger.LogInformation(tokenLink);

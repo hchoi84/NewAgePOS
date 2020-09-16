@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
@@ -37,7 +38,12 @@ namespace NewAgePOS.Pages.Report
         EndDate = DateTime.Now;
         return Page();
       }
-      else Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate, EndDate);
+
+      Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate, EndDate.AddDays(1))
+          .Where(t => t.Method != MethodEnum.Give)
+          .OrderBy(t => t.SaleId)
+          .ThenBy(t => t.Method)
+          .ToList();
 
       return Page();
     }

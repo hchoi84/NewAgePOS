@@ -47,47 +47,118 @@ namespace NewAgePOS.Pages.Account
     [BindProperty(SupportsGet = true)]
     public string ReturnUrl { get; set; }
 
-    public async Task OnGet()
+    public async Task<IActionResult> OnGet()
     {
-      EmployeeModel emp = _context.Employees.FirstOrDefault();
+      EmployeeModel employee = _context.Employees.FirstOrDefault();
+      string errorMessage = "";
 
-      if (emp == null)
+      if (employee == null)
       {
-        string password = Secrets.SenderPassword;
+        (employee, errorMessage) = await RegisterUserAsync();
 
-        EmployeeModel employee = new EmployeeModel
+        if (!string.IsNullOrEmpty(errorMessage))
         {
-          FirstName = "Admin",
-          LastName = "Admin",
-          Email = Secrets.SenderEmail,
-          UserName = Secrets.SenderEmail
-        };
-
-        await _userManager.CreateAsync(employee, password);
-
-        Claim newClaim = new Claim(ClaimTypeEnum.Admin.ToString(), "true");
-        await _userManager.AddClaimAsync(employee, newClaim);
+          ModelState.AddModelError(string.Empty, errorMessage);
+          return Page();
+        }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(employee);
-        var tokenLink = Url.Page("Login", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
 
-        _emailSender.SendEmailConfirmationToken(employee.FullName, employee.Email, tokenLink);
+        var tokenLink = Url.Page("login", "confirmemail", new { userId = employee.Id, token }, Request.Scheme);
+
+        //TODO: Remove on production
+        //_logger.LogInformation(tokenLink);
+
+        try
+        {
+          _emailSender.SendEmailConfirmationToken(employee.FullName, employee.Email, tokenLink);
+        }
+        catch (Exception e)
+        {
+          ModelState.AddModelError(string.Empty, "Something went wrong. Please contact the Admin");
+
+          return Page();
+        }
+
+        TempData["MessageTitle"] = "Registration Success!";
+        TempData["Message"] = "Please check your email for confirmation link. Allow up to 5 minutes for the email to arrive.";
       }
+
+      return Page();
+    }
+
+    private async Task<(EmployeeModel, string)> RegisterUserAsync()
+    {
+      Claim newClaim;
+
+      EmployeeModel employee = new EmployeeModel
+      {
+        FirstName = "Admin",
+        LastName = "Admin",
+        Email = Secrets.SenderEmail,
+        UserName = Secrets.SenderEmail
+      };
+
+      IdentityResult identityResult = await _userManager.CreateAsync(employee, Secrets.SenderPassword);
+
+      if (!identityResult.Succeeded)
+      {
+        List<string> errorMsg = new List<string>();
+
+        foreach (var error in identityResult.Errors)
+        {
+          errorMsg.Add(error.Description);
+        }
+
+        return (null, string.Join("; ", errorMsg));
+      }
+
+      newClaim = new Claim(ClaimTypeEnum.Admin.ToString(), "true");
+
+      identityResult = await _userManager.AddClaimAsync(employee, newClaim);
+
+      if (!identityResult.Succeeded) return (null, "Failed to add Claim");
+
+      return (employee, "");
     }
 
     public async Task<IActionResult> OnGetConfirmEmail(string userId, string token)
     {
+      if (userId == null || token == null)
+      {
+        TempData["MessageTitle"] = "Error";
+        TempData["Message"] = "The email confirmation token link is invalid";
+
+        return RedirectToAction("Login");
+      }
+
       EmployeeModel employee = await _userManager.FindByIdAsync(userId);
 
-      await _userManager.ConfirmEmailAsync(employee, token);
+      if (employee == null)
+      {
+        TempData["MessageTitle"] = "Error";
+        TempData["Message"] = "No user found";
+
+        return RedirectToAction("Login");
+      }
+
+      IdentityResult result = await _userManager.ConfirmEmailAsync(employee, token);
+
+      if (!result.Succeeded)
+      {
+        TempData["MessageTitle"] = "Error";
+        TempData["Message"] = "Something went wrong while confirming";
+
+        return RedirectToPage("Login");
+      }
 
       TempData["MessageTitle"] = "Email Confirmed";
       TempData["Message"] = "You may now login";
 
-      return RedirectToPage("Login");
+      return RedirectToPage();
     }
 
-      public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync()
     {
       if (!ModelState.IsValid) return Page();
 
