@@ -86,7 +86,20 @@ namespace NewAgePOS.Pages
       await CheckAndUpdateExistingLines(productCodes, codesWithQty);
 
       List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
+      
+      await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
 
+      if (codesWithQty.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
+        TempData["Message"] = $"Was not able to find { notFoundCodes }";
+      }
+
+      return RedirectToPage();
+    }
+
+    private void CreateSaleLines(Dictionary<string, int> codesWithQty, List<JObject> jObjects)
+    {
       foreach (var item in jObjects)
       {
         string sku, upc;
@@ -101,21 +114,13 @@ namespace NewAgePOS.Pages
 
         _sqlDb.SaleLines_Insert(SaleId, productId, null, qty1 + qty2);
       }
-
-      if (codesWithQty.Count > 0)
-      {
-        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
-        TempData["Message"] = $"Was not able to find { notFoundCodes }";
-      }
-
-      return RedirectToPage();
     }
 
     private void CheckProductAgainstDB(JObject item, out string sku, out string upc, out int productId)
     {
       sku = item[CAStrings.sku].ToString();
       upc = item[CAStrings.upc].ToString();
-      float cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 : 
+      float cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
         item[CAStrings.cost].ToObject<float>();
       float price = item[CAStrings.attributes]
         .FirstOrDefault(i => i[CAStrings.name]
