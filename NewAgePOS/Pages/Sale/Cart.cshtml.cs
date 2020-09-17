@@ -64,7 +64,7 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
-    #region Add Products
+    #region Products
     public async Task<IActionResult> OnPostAddProductsAsync()
     {
       if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
@@ -74,96 +74,99 @@ namespace NewAgePOS.Pages
         .Split(Environment.NewLine)
         .ToList();
 
-      List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
-
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
-
-      UpdateCart(groupedCodes, saleLines, products);
-      if (groupedCodes.Count > 0) await GetFromChannelAdvisor(groupedCodes);
-      if (groupedCodes.Count > 0)
+      Dictionary<string, int> codesWithQty = new Dictionary<string, int>();
+      productCodes.ForEach(p =>
       {
-        string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
-        TempData["Message"] = $"Unable to find { notFoundCodes } in cart, ChannelAdvisor, and manually entered product record";
+        if (codesWithQty.TryGetValue(p, out int qty))
+          codesWithQty[p]++;
+        else
+          codesWithQty.Add(p, 1);
+      });
+
+      await CheckAndUpdateExistingLines(productCodes, codesWithQty);
+
+      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
+
+      foreach (var item in jObjects)
+      {
+        string sku, upc;
+        int productId;
+        CheckProductAgainstDB(item, out sku, out upc, out productId);
+
+        if (codesWithQty.TryGetValue(sku, out int qty1))
+          codesWithQty.Remove(sku);
+
+        if (codesWithQty.TryGetValue(upc, out int qty2))
+          codesWithQty.Remove(upc);
+
+        _sqlDb.SaleLines_Insert(SaleId, productId, null, qty1 + qty2);
+      }
+
+      if (codesWithQty.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
+        TempData["Message"] = $"Was not able to find { notFoundCodes }";
       }
 
       return RedirectToPage();
     }
 
-    private void UpdateCart(List<IGrouping<string, string>> groupedCodes, List<SaleLineModel> saleLines, List<ProductModel> products)
+    private void CheckProductAgainstDB(JObject item, out string sku, out string upc, out int productId)
     {
-      for (int i = groupedCodes.Count - 1; i >= 0; i--)
+      sku = item[CAStrings.sku].ToString();
+      upc = item[CAStrings.upc].ToString();
+      float cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 : 
+        item[CAStrings.cost].ToObject<float>();
+      float price = item[CAStrings.attributes]
+        .FirstOrDefault(i => i[CAStrings.name]
+          .ToString() == CAStrings.bcprice)[CAStrings.Value]
+        .ToObject<float>();
+      string allName = item[CAStrings.attributes]
+        .FirstOrDefault(i => i[CAStrings.name]
+          .ToString() == CAStrings.allName)[CAStrings.Value]
+        .ToString();
+
+      productId = 0;
+      ProductModel product = _sqlDb.Products_GetByCode(sku, upc);
+
+      if (product == null)
+        productId = _sqlDb.Products_Insert(sku, upc, cost, price, allName);
+      else if (product.Cost != cost || product.Price != price || product.AllName != allName)
+        _sqlDb.Products_Update(product.Id, cost, price, allName);
+      else
+        productId = product.Id;
+    }
+
+    private async Task CheckAndUpdateExistingLines(List<string> productCodes, Dictionary<string, int> codesWithQty)
+    {
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
+      List<Task> tasks = new List<Task>();
+
+      foreach (var productCode in productCodes.Distinct())
       {
+        int qtyToAdd = 0;
         ProductModel product = new ProductModel();
         SaleLineModel saleLine = new SaleLineModel();
 
-        if (groupedCodes[i].Key.Contains("_"))
-          product = products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
+        if (productCode.Contains("_"))
+          product = products.FirstOrDefault(p => p.Sku.ToLower() == productCode.ToLower());
         else
-          product = products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
+          product = products.FirstOrDefault(p => p.Upc == productCode);
 
         if (product != null)
         {
-          saleLine = saleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
-          saleLine.Qty += groupedCodes[i].Count();
-          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
-          groupedCodes.RemoveAt(i);
+          codesWithQty.TryGetValue(productCode, out qtyToAdd);
+          codesWithQty.Remove(productCode);
+
+          saleLine = saleLines.First(sl => sl.ProductId == product.Id);
+          saleLine.Qty += qtyToAdd;
+          tasks.Add(Task.Run(() => _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct)));
         }
       }
+
+      await Task.WhenAll(tasks);
     }
-
-    private async Task GetFromChannelAdvisor(List<IGrouping<string, string>> groupedCodes)
-    {
-      Dictionary<string, int> uniqueCodes = groupedCodes
-        .ToDictionary(g => g.Key, g => g.Count(), StringComparer.InvariantCultureIgnoreCase);
-
-      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(groupedCodes.Select(g => g.Key).ToList());
-
-      foreach (var item in jObjects)
-      {
-        int productId = 0;
-        string sku = item[CAStrings.sku].ToString();
-        string upc = item[CAStrings.upc].ToString();
-        float cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
-          item[CAStrings.cost].ToObject<float>();
-        float price = item[CAStrings.attributes]
-          .FirstOrDefault(i => i[CAStrings.name]
-            .ToString() == CAStrings.bcprice)[CAStrings.Value]
-          .ToObject<float>();
-        string allName = item[CAStrings.attributes]
-          .FirstOrDefault(i => i[CAStrings.name]
-            .ToString() == CAStrings.allName)[CAStrings.Value]
-          .ToString();
-
-        ProductModel product = _sqlDb.Products_GetByCode(sku, upc);
-        if (product == null)
-          productId = _sqlDb.Products_Insert(sku, upc, cost, price, allName);
-        else if (product.Cost != cost || product.Price != price || product.AllName != allName)
-          _sqlDb.Products_Update(product.Id, cost, price, allName);
-        else
-          productId = product.Id;
-
-        int qty1 = 0;
-        int qty2 = 0;
-
-        if (uniqueCodes.ContainsKey(sku))
-        {
-          qty1 = uniqueCodes[sku];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key.ToLower() == sku.ToLower()));
-        }
-
-        if (uniqueCodes.ContainsKey(upc))
-        {
-          qty2 = uniqueCodes[upc];
-          groupedCodes.Remove(groupedCodes.FirstOrDefault(g => g.Key == upc));
-        }
-
-        int qty = qty1 + qty2;
-
-        _sqlDb.SaleLines_Insert(SaleId, productId, null, qty);
-      }
-    }
-    #endregion
 
     public IActionResult OnPostRemoveProducts()
     {
@@ -215,7 +218,9 @@ namespace NewAgePOS.Pages
 
       return RedirectToPage();
     }
+    #endregion
 
+    #region Gift Cards
     public IActionResult OnPostAddGiftCards()
     {
       if (!ModelState.IsValid) return Page();
@@ -266,11 +271,11 @@ namespace NewAgePOS.Pages
 
         if (gc == null)
         {
-          TempData["Message"] = $"{ code } was not found in the cart";
+          msgs.Add($"{ code } was not found in the cart");
           continue;
         }
 
-        int saleLineId = saleLines.FirstOrDefault(s => s.GiftCardId.Value == gc.Id).Id;
+        int saleLineId = saleLines.FirstOrDefault(s => s.GiftCardId.HasValue && s.GiftCardId.Value == gc.Id).Id;
         _sqlDb.SaleLines_Delete(saleLineId);
         _sqlDb.GiftCards_Delete(gc.Id);
       }
@@ -279,6 +284,7 @@ namespace NewAgePOS.Pages
 
       return RedirectToPage();
     }
+    #endregion
 
     public IActionResult OnPostProceed()
     {
@@ -289,6 +295,7 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
 
+    #region Trade Ins
     public IActionResult OnPostAddTradeIn()
     {
       if (!ModelState.IsValid) return Page();
@@ -314,5 +321,6 @@ namespace NewAgePOS.Pages
       TempData["Message"] = $"{CartVM.SaleLineId} has been removed";
       return RedirectToPage();
     }
+    #endregion
   }
 }

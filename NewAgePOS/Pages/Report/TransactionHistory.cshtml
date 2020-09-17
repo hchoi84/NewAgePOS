@@ -34,30 +34,26 @@
   {
     TransactionModel t = Model.Transactions[i];
 
-    <div class="row mt-3">
-      <div class="col pr-0">
-        <div class="border rounded bg-dark pl-1 mr-1 mb-1">
-          @t.Created.ToShortDateString()
-        </div>
+    <div class="form-row mt-3">
+      <div class="col">
+        <input value="@t.Created.ToShortDateString()" class="form-control" />
       </div>
-      <div class="col px-0">
-        <div class="border rounded bg-dark pl-1 mr-1">
-          (@t.Type.ToString() @t.Method.ToString()) @t.SaleId
-        </div>
+      <div class="col">
+        <input value="(@t.Type.ToString() @t.Method.ToString()) @t.SaleId" class="form-control" />
       </div>
-      <div class="col pl-0">
-        <div class="border rounded bg-dark pl-1">
-          @{
-            if (t.Type == TypeEnum.Refund)
-            {
-              @((t.Amount * -1).ToString("C2", dollar))
-            }
-            else
-            {
-              @t.Amount.ToString("C2", dollar)
-            }
+      <div class="col">
+        @{
+          string amount = "";
+          if (t.Type == TypeEnum.Refund)
+          {
+            amount = (t.Amount * -1).ToString("C2", dollar);
           }
-        </div>
+          else
+          {
+            amount = t.Amount.ToString("C2", dollar);
+          }
+        }
+        <input value="@amount" class="form-control" />
       </div>
     </div>
   }
