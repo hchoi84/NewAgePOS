@@ -166,7 +166,7 @@ namespace NewAgePOS.Pages.Sale
     public IActionResult OnPostCancelSale(int saleId)
     {
       SaleModel sale = _sqlDb.Sales_GetById(saleId);
-      if (!sale.IsComplete)
+      if (sale.IsComplete)
       {
         TempData["Message"] = $"Sale Id {saleId} can not be cancelled because it is completed";
         return RedirectToPage();
