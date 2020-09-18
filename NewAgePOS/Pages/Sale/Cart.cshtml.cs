@@ -78,9 +78,13 @@ namespace NewAgePOS.Pages
       await Task.Run(() => productCodes.ForEach(p =>
       {
         if (codesWithQty.TryGetValue(p, out int qty))
+        {
           codesWithQty[p]++;
+        }
         else
+        {
           codesWithQty.Add(p, 1);
+        }
       }));
 
       return new JsonResult(codesWithQty);
