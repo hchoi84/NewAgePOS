@@ -64,7 +64,7 @@ namespace NewAgePOS.Pages.Account
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(employee);
 
-        var tokenLink = Url.Page("login", "confirmemail", new { userId = employee.Id, token }, Request.Scheme);
+        var tokenLink = Url.Page("Login", "ConfirmEmail", new { userId = employee.Id, token }, Request.Scheme);
 
         //TODO: Remove on production
         //_logger.LogInformation(tokenLink);

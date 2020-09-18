@@ -69,39 +69,34 @@ namespace NewAgePOS.Pages
     {
       if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
 
-      List<string> productCodes = CartVM.Codes.Trim()
-        .Replace(" ", string.Empty)
+      List<string> productCodes = CartVM.Codes
+        .Trim()
         .Split(Environment.NewLine)
+        .Select(p => p.Trim())
         .ToList();
 
       Dictionary<string, int> codesWithQty = new Dictionary<string, int>();
       await Task.Run(() => productCodes.ForEach(p =>
       {
         if (codesWithQty.TryGetValue(p, out int qty))
-        {
           codesWithQty[p]++;
-        }
         else
-        {
           codesWithQty.Add(p, 1);
-        }
       }));
 
-      return new JsonResult(codesWithQty);
+      await CheckAndUpdateExistingLines(productCodes, codesWithQty);
 
-      //await CheckAndUpdateExistingLines(productCodes, codesWithQty);
+      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
 
-      //List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
-      
-      //await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
+      await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
 
-      //if (codesWithQty.Count > 0)
-      //{
-      //  string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
-      //  TempData["Message"] = $"Was not able to find { notFoundCodes }";
-      //}
+      if (codesWithQty.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
+        TempData["Message"] = $"Was not able to find { notFoundCodes }";
+      }
 
-      //return RedirectToPage();
+      return RedirectToPage();
     }
 
     private void CreateSaleLines(Dictionary<string, int> codesWithQty, List<JObject> jObjects)
@@ -188,8 +183,8 @@ namespace NewAgePOS.Pages
 
       List<string> productCodes = CartVM.Codes
         .Trim()
-        .Replace(" ", string.Empty)
         .Split(Environment.NewLine)
+        .Select(p => p.Trim())
         .ToList();
 
       List<IGrouping<string, string>> groupedCodes = productCodes
