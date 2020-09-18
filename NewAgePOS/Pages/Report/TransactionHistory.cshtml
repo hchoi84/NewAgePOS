@@ -41,13 +41,13 @@
 
     <div class="form-row">
       <div class="col">
-        <input value="@ts[i].Created.ToString("MM/dd hh:mm tt")" class="form-control" />
+        <input readonly value="@ts[i].Created.ToString("MM/dd hh:mm tt")" class="form-control" />
       </div>
       <div class="col">
-        <input value="@ts[i].Method.ToString()" class="form-control" />
+        <input readonly value="@ts[i].Method.ToString()" class="form-control" />
       </div>
       <div class="col">
-        <input value="@amount.ToString("C2", dollar)" class="form-control" />
+        <input readonly value="@amount.ToString("C2", dollar)" class="form-control" />
       </div>
     </div>
   }

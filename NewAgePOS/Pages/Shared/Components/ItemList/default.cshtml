@@ -72,9 +72,11 @@
   }
   else if (item.IsGiftCard)
   {
+    string last3Digits = item.Sku.Substring(item.Sku.Length - 3);
+
     <div class="form-row">
       <div class="col-7 pr-0">
-        <input readonly value="(Gift Card) @item.Sku" class="form-control" />
+        <input readonly value="(Gift Card) ****@last3Digits" class="form-control" />
       </div>
       <div class="col px-0">
         <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
