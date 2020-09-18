@@ -7,6 +7,11 @@
 
 <h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
 
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger mt-3 text-center">@TempData["Message"]</div>
+}
+
 <form method="get">
   <div class="form-row">
     <div class="col">
@@ -27,11 +32,6 @@
     </div>
   </div>
 </form>
-
-@if (TempData["Message"] != null)
-{
-  <div class="text-danger mt-3">@TempData["Message"]</div>
-}
 
 @if (Model.Results != null)
 {

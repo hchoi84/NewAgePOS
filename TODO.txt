@@ -7,10 +7,12 @@
 - Sale/Cart: TradeIn remove feature
 - Require Admin for creating new users. Auto create default admin user if there are no users
 - Deploy for beta testing
+- Sale/Checkout: Convert payments to dropdown similar to cart add/remove. It's too cluttered the way it is right now
+- Sale/Checkout: Each payment method should have it's own Method
 
 ********** WORKING ON **********
-- Sale/Checkout: Convert payments to dropdown. It's too cluttered the way it is right now
-- Sale/Checkout: Each payment method should have it's own Method
+- Center all messages directly below the page title
+- Report/TransactionHistory: More organized report view
 
 ********** PENDING (No particular order) **********
 - Centralize Price Summary view for consistency

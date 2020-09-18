@@ -2,14 +2,8 @@
 @model NewAgePOS.Pages.Report.TransactionHistoryModel
 @{
   ViewData["Title"] = "Transaction History";
-  float totalCheckout = 0, totalRefund = 0, total = 0;
   CultureInfo dollar = new CultureInfo("en-US");
-  if (Model.Transactions != null && Model.Transactions.Any())
-  {
-    totalCheckout = Model.Transactions.Where(t => t.Type == TypeEnum.Checkout && t.Method != MethodEnum.Give).Sum(t => t.Amount);
-    totalRefund = Model.Transactions.Where(t => t.Type == TypeEnum.Refund).Sum(t => t.Amount) * -1;
-    total = totalCheckout + totalRefund;
-  }
+  float earning = 0;
 }
 
 <h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
@@ -30,53 +24,43 @@
 
 @if (Model.Transactions != null && Model.Transactions.Any())
 {
-  <h3 class="mb-3">Result</h3>
+  List<TransactionModel> ts = Model.Transactions;
 
-  for (var i = 0; i < Model.Transactions.Count; i++)
+  for (var i = 0; i < ts.Count; i++)
   {
-    TransactionModel t = Model.Transactions[i];
+    int multiplier = 1;
+    if (ts[i].Type == TypeEnum.Refund) multiplier = -1;
 
-    <div class="form-row mt-3">
+    float amount = ts[i].Amount * multiplier;
+    if (ts[i].Method == MethodEnum.Cash) earning += amount;
+
+    if (i == 0 || ts[i].SaleId != ts[i - 1].SaleId)
+    {
+      <h4 class="text-center mt-3">@ts[i].SaleId</h4>
+    }
+
+    <div class="form-row">
       <div class="col">
-        <input value="@t.Created.ToShortDateString()" class="form-control" />
+        <input value="@ts[i].Created.ToString("MM/dd hh:mm tt")" class="form-control" />
       </div>
       <div class="col">
-        <input value="(@t.Type.ToString() @t.Method.ToString()) @t.SaleId" class="form-control" />
+        <input value="@ts[i].Method.ToString()" class="form-control" />
       </div>
       <div class="col">
-        @{
-          string amount = "";
-          if (t.Type == TypeEnum.Refund)
-          {
-            amount = (t.Amount * -1).ToString("C2", dollar);
-          }
-          else
-          {
-            amount = t.Amount.ToString("C2", dollar);
-          }
-        }
-        <input value="@amount" class="form-control" />
+        <input value="@amount.ToString("C2", dollar)" class="form-control" />
       </div>
     </div>
   }
 
-  <h3 class="mt-5 mb-3">Summary</h3>
-  <div style="max-width: 300px;">
+  <div style="max-width: 350px; margin: auto;">
+    <h4 class="mt-5 mb-3 text-center">Summary</h4>
     <div class="row">
       <div class="col">Transactions</div>
-      <div class="col text-right">@Model.Transactions.Count()</div>
+      <div class="col text-right">@Model.Transactions.Count</div>
     </div>
     <div class="row">
-      <div class="col">Checkout</div>
-      <div class="col text-right">@totalCheckout.ToString("C2", dollar)</div>
-    </div>
-    <div class="row">
-      <div class="col">Refund</div>
-      <div class="col text-right">@totalRefund.ToString("C2", dollar)</div>
-    </div>
-    <div class="row">
-      <div class="col">Total</div>
-      <div class="col text-right">@total.ToString("C2", dollar)</div>
+      <div class="col">Earning</div>
+      <div class="col text-right">@earning.ToString("C2", dollar)</div>
     </div>
   </div>
 }

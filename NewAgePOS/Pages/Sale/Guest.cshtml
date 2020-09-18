@@ -8,7 +8,7 @@
 
 @if (TempData["Message"] != null)
 {
-  <div class="text-info mt-3 h5">@TempData["Message"]</div>
+  <div class="text-danger mt-3 text-center">@TempData["Message"]</div>
 }
 
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
