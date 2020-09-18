@@ -11,63 +11,65 @@
   <div class="mt-5 text-danger hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</div>
 }
 
-<div style="max-width: 300px; margin: auto;">
-  <div class="text-center">
-    <img src="~/images/Golfio_Logo.png" />
-  </div>
-  <div class="my-3">
-    <p class="text-center m-0">19950 E Walnut Dr. N</p>
-    <p class="text-center m-0">Walnut, CA 91789</p>
-    <p class="text-center m-0">909-460-8788</p>
-  </div>
-  <div>
-    <h4 class="text-center">@receiptName</h4>
-  </div>
-  <div class="mb-3">
-    <p class="text-center m-0">@Model.Id</p>
-    <p class="text-center m-0">@Model.Created</p>
-  </div>
-</div>
-
-@if (Model.IdType == "sale")
-{
-  @await Component.InvokeAsync("PriceSummary", new { saleId = Model.Id })
-}
-else
-{
-  <div class="mt-5" style="max-width: 350px; margin: auto;">
-    <div class="row">
-      <div class="col h4">Quantity</div>
-      <div class="col h4 text-right">@Model.RefundItems</div>
+<div style="max-height: 800px; max-width:350px; margin: auto;">
+  
+    <div class="text-center">
+      <img src="~/images/Golfio_Logo.png" />
     </div>
-    <div class="row">
-      <div class="col h4">Amount</div>
-      <div class="col h4 text-right">@Model.RefundTotal</div>
+    <div class="my-3">
+      <p class="text-center m-0">19950 E Walnut Dr. N</p>
+      <p class="text-center m-0">Walnut, CA 91789</p>
+      <p class="text-center m-0">909-460-8788</p>
     </div>
-
-    <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
-
-    <div class="row">
-      <div class="col h4">Method</div>
-      <div class="col h4 text-right">@Model.RefundMethod</div>
+    <div>
+      <h4 class="text-center">@receiptName</h4>
     </div>
-  </div>
-}
+    <div class="mb-3">
+      <p class="text-center m-0">@Model.Id</p>
+      <p class="text-center m-0">@Model.Created</p>
+    </div>
+  
 
-<div class="my-5">
   @if (Model.IdType == "sale")
   {
-    <p class="text-center">All sales are final</p>
-  }
-
-  @if (string.IsNullOrEmpty(Model.FullName))
-  {
-    <p class="text-center">Thank you!</p>
+    @await Component.InvokeAsync("PriceSummary", new { saleId = Model.Id })
   }
   else
   {
-    <p class="text-center">Thank you @Model.FullName!</p>
+    <div class="mt-5">
+      <div class="row">
+        <div class="col h4">Quantity</div>
+        <div class="col h4 text-right">@Model.RefundItems</div>
+      </div>
+      <div class="row">
+        <div class="col h4">Amount</div>
+        <div class="col h4 text-right">@Model.RefundTotal</div>
+      </div>
+
+      <div class="border-top border-bottom border-dark m-1" style="height: 10px"></div>
+
+      <div class="row">
+        <div class="col h4">Method</div>
+        <div class="col h4 text-right">@Model.RefundMethod</div>
+      </div>
+    </div>
   }
+
+  <div class="my-5">
+    @if (Model.IdType == "sale")
+    {
+      <p class="text-center">All sales are final</p>
+    }
+
+    @if (string.IsNullOrEmpty(Model.FullName))
+    {
+      <p class="text-center">Thank you!</p>
+    }
+    else
+    {
+      <p class="text-center">Thank you @Model.FullName!</p>
+    }
+  </div>
 </div>
 
 @section Scripts{

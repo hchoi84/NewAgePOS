@@ -1,9 +1,11 @@
 ﻿@page "{saleid:min(1)}"
 @model NewAgePOS.Pages.Sale.CheckoutModel
 @{
-  ViewData["Title"] = "Checkout";
+  ViewData["Title"] = "Sales Checkout";
   CultureInfo dollar = new CultureInfo("en-US");
 }
+
+<h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
 
 @if (TempData["Message"] != null)
 {
@@ -12,10 +14,10 @@
 
 @await Component.InvokeAsync("ItemList", new { saleId = @Model.SaleId })
 
-<h3 class="mt-5">CUSTOMER INFO</h3>
+<h4 class="mt-5 text-center">CUSTOMER INFO</h4>
 @if (Model.Customer.EmailAddress == "guest@email.com")
 {
-  <h4>Guest Account</h4>
+  <h5 class="text-center">Guest Account</h5>
 }
 else
 {
@@ -39,7 +41,7 @@ else
 
 @if (Model.Transactions.Any())
 {
-  <h3 class="mt-5">Transactions</h3>
+  <h4 class="mt-5 text-center">Transactions</h4>
 
   foreach (TransactionModel transaction in Model.Transactions)
   {
@@ -80,14 +82,14 @@ else
 
 @if (Model.IsZeroBalance)
 {
-  <form method="post" asp-page-handler="CompleteSale" class="mt-1">
+  <form method="post" asp-page-handler="CompleteSale" class="mt-1 text-center">
     <button type="submit" class="btn btn-success">Complete Sale</button>
   </form>
 }
 else
 {
   <form method="post" asp-page-handler="ApplyPayments">
-    <h3 class="mt-5">PAYMENT</h3>
+    <h4 class="mt-5 text-center">PAYMENT</h4>
 
     <div class="form-row mt-3">
       <div class="form-group col">

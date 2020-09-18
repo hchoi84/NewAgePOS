@@ -76,13 +76,13 @@ namespace NewAgePOS.Pages
         .ToList();
 
       Dictionary<string, int> codesWithQty = new Dictionary<string, int>();
-      await Task.Run(() => productCodes.ForEach(p =>
+      productCodes.ForEach(p =>
       {
         if (codesWithQty.TryGetValue(p, out int qty))
           codesWithQty[p]++;
         else
           codesWithQty.Add(p, 1);
-      }));
+      });
 
       await CheckAndUpdateExistingLines(productCodes, codesWithQty);
 
