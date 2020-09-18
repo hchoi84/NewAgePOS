@@ -9,7 +9,7 @@
 
 @if (TempData["Message"] != null)
 {
-  <div class="text-danger">@TempData["Message"]</div>
+  <div class="text-danger text-center">@TempData["Message"]</div>
 }
 
 @await Component.InvokeAsync("ItemList", new { saleId = @Model.SaleId })
@@ -88,41 +88,78 @@ else
 }
 else
 {
-  <form method="post" asp-page-handler="ApplyPayments">
-    <h4 class="mt-5 text-center">PAYMENT</h4>
 
-    <div class="form-row mt-3">
-      <div class="form-group col">
-        <label asp-for="@Model.Checkout.GiftCardCodes"></label>
-        <textarea asp-for="@Model.Checkout.GiftCardCodes" class="form-control" placeholder="Gift Card Codes"></textarea>
-      </div>
+  <h4 class="mt-5 text-center">PAYMENT</h4>
+
+  <div class="row mb-3">
+    <div class="col" style="text-align: center;">
+      <button id="PaymentGiftCardButton"
+              class="btn btn-primary"
+              onclick="addRemove(this.id, 'PaymentOtherButton', 'GiveAmountButton');"
+              style="display: inline-block;">
+        Gift Card
+      </button>
+
+      <button id="PaymentOtherButton"
+              class="btn btn-primary"
+              onclick="addRemove(this.id, 'PaymentGiftCardButton', 'GiveAmountButton');"
+              style="display: inline-block;">
+        Other
+      </button>
+
+      <button id="GiveAmountButton"
+              class="btn btn-primary"
+              onclick="addRemove(this.id, 'PaymentGiftCardButton', 'PaymentOtherButton');"
+              style="display: inline-block;">
+        Give
+      </button>
     </div>
+  </div>
 
-    <div class="form-row">
-      <div class="form-group col">
-        <label asp-for="@Model.Checkout.PaymentMethod"></label>
-        <select asp-for="@Model.Checkout.PaymentMethod" class="form-control" asp-items="@Model.Checkout.PaymentMethods">
-          <option>Choose...</option>
-        </select>
+  <div id="PaymentGiftCard" style="display: none;">
+    <form method="post" asp-page-handler="ApplyGiftCards">
+      <div class="form-row mt-3">
+        <div class="form-group col">
+          <label asp-for="@Model.Checkout.GiftCardCodes"></label>
+          <textarea asp-for="@Model.Checkout.GiftCardCodes" class="form-control" placeholder="Gift Card Codes"></textarea>
+        </div>
       </div>
-      <div class="form-group col">
-        <label asp-for="@Model.Checkout.Amount"></label>
-        <input asp-for="@Model.Checkout.Amount" class="form-control">
-      </div>
-    </div>
+      <button type="submit" class="btn btn-primary">Apply Gift Cards</button>
+    </form>
+  </div>
 
-    <div class="form-row">
-      <div class="form-group col">
-        <label asp-for="@Model.Checkout.GiveAmount" class="col-form-label"></label>
-        <input asp-for="@Model.Checkout.GiveAmount" class="form-control" />
+  <div id="PaymentOther" style="display: none;">
+    <form method="post" asp-page-handler="ApplyPayment">
+      <div class="form-row">
+        <div class="form-group col">
+          <label asp-for="@Model.Checkout.PaymentMethod"></label>
+          <select asp-for="@Model.Checkout.PaymentMethod" class="form-control" asp-items="@Model.Checkout.PaymentMethods">
+            <option value="">Choose...</option>
+          </select>
+        </div>
+        <div class="form-group col">
+          <label asp-for="@Model.Checkout.Amount"></label>
+          <input asp-for="@Model.Checkout.Amount" class="form-control">
+        </div>
       </div>
-      <div class="form-group col">
-        <label asp-for="@Model.Checkout.GiveAmountConfirmation" class="col-form-label"></label>
-        <input asp-for="@Model.Checkout.GiveAmountConfirmation" class="form-control" />
-        <span asp-validation-for="@Model.Checkout.GiveAmountConfirmation" class="text-danger"></span>
-      </div>
-    </div>
+      <button type="submit" class="btn btn-primary">Apply Payment</button>
+    </form>
+  </div>
 
-    <button type="submit" class="btn btn-success mt-1">Apply Payment</button>
-  </form>
+  <div id="GiveAmount" style="display: none;">
+    <form method="post" asp-page-handler="ApplyGiveAmount">
+      <div class="form-row">
+        <div class="form-group col">
+          <label asp-for="@Model.Checkout.GiveAmount" class="col-form-label"></label>
+          <input asp-for="@Model.Checkout.GiveAmount" class="form-control" />
+        </div>
+        <div class="form-group col">
+          <label asp-for="@Model.Checkout.GiveAmountConfirmation" class="col-form-label"></label>
+          <input asp-for="@Model.Checkout.GiveAmountConfirmation" class="form-control" />
+          <span asp-validation-for="@Model.Checkout.GiveAmountConfirmation" class="text-danger"></span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-danger">Apply Give Amount</button>
+    </form>
+  </div>
 }

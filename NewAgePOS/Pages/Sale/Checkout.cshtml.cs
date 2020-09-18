@@ -46,6 +46,13 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
+      Initialize();
+
+      return Page();
+    }
+
+    private void Initialize()
+    {
       Checkout = new CheckoutViewModel();
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
@@ -59,9 +66,6 @@ namespace NewAgePOS.Pages.Sale
         .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
         .ToList();
       IsZeroBalance = dueBalance <= 0;
-      Checkout.PaymentMethod = "Cash";
-
-      return Page();
     }
 
     private float CalculateAndStoreRoundedValue()
@@ -91,6 +95,10 @@ namespace NewAgePOS.Pages.Sale
 
     private float CalculateDueBalance()
     {
+      List<TransactionModel> transactions = new List<TransactionModel>();
+      if (Transactions != null && Transactions.Any()) transactions = Transactions;
+      else transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       float purchaseAmount = saleLines.Where(sl =>
           sl.ProductId.HasValue || sl.GiftCardId.HasValue)
@@ -100,7 +108,7 @@ namespace NewAgePOS.Pages.Sale
         .Sum(sl => sl.Price);
 
       float subtotalDue = purchaseAmount - tradeInAmount;
-      float paid = Transactions.Sum(t => t.Amount);
+      float paid = transactions == null ? 0 : transactions.Sum(t => t.Amount);
       float taxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
       float taxDue = subtotalDue * (taxPct / 100f);
       float totalDue = subtotalDue + taxDue - paid;
@@ -108,67 +116,31 @@ namespace NewAgePOS.Pages.Sale
     }
 
 
-    public IActionResult OnPostApplyPayments()
+    public IActionResult OnPostApplyPayment()
     {
-      if (!ModelState.IsValid) return Page();
-
       if (string.IsNullOrEmpty(Checkout.PaymentMethod))
       {
-        TempData["Message"] = "Please choose payment method";
+        TempData["Message"] = "Please choose a Payment Method";
         return RedirectToPage();
       }
 
-      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
       float dueBalance = CalculateDueBalance();
+      if (Checkout.Amount > dueBalance)
+      {
+        TempData["Message"] = $"Due balance is {dueBalance} and you are trying to collect {Checkout.Amount} which is greater than the due balance";
+        return RedirectToPage();
+      }
 
-      List<string> msgs = new List<string>();
-
-      if (!string.IsNullOrEmpty(Checkout.GiftCardCodes))
-        dueBalance = ProcessGiftCards(dueBalance, msgs);
-      else if (Checkout.PaymentMethod == MethodEnum.Cash.ToString() && Checkout.Amount > 0)
-        dueBalance = ProcessCash(dueBalance);
-
-      if (Checkout.GiveAmount != 0)
-        ProcessGive(dueBalance);
-
-      TempData["Message"] = string.Join(Environment.NewLine, msgs);
+      if (Checkout.PaymentMethod == MethodEnum.Cash.ToString() && Checkout.Amount > 0)
+        ProcessCash();
 
       return RedirectToPage(new { SaleId });
     }
 
-    private float ProcessGiftCards(float dueBalance, List<string> msgs)
+    private void ProcessCash()
     {
-      List<string> giftCardCodes = Checkout.GiftCardCodes.Trim().Split(Environment.NewLine).Distinct().ToList();
-      foreach (var code in giftCardCodes)
-      {
-        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(code);
-
-        if (giftCard == null)
-        {
-          msgs.Add($"{ code } was not found");
-          continue;
-        }
-
-        if (giftCard.Amount <= 0)
-        {
-          msgs.Add($"{ code } has no balance");
-          continue;
-        }
-
-        float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
-
-        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout);
-        _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
-
-        dueBalance -= payingAmt;
-      }
-
-      return dueBalance;
-    }
-
-    private float ProcessCash(float dueBalance)
-    {
-      TransactionModel cashTransaction = Transactions.Where(t => 
+      TransactionModel cashTransaction = _sqlDb.Transactions_GetBySaleId(SaleId)
+        .Where(t => 
           t.Method == MethodEnum.Cash && 
           t.Type == TypeEnum.Checkout)
         .FirstOrDefault();
@@ -182,13 +154,57 @@ namespace NewAgePOS.Pages.Sale
       {
         _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, MethodEnum.Cash, TypeEnum.Checkout);
       }
-
-      return dueBalance -= Checkout.Amount;
     }
 
-    private float ProcessGive(float dueBalance)
+
+    public IActionResult OnPostApplyGiftCards()
     {
-      TransactionModel giveTransaction = Transactions.Where(t => 
+      if (string.IsNullOrEmpty(Checkout.GiftCardCodes))
+      {
+        TempData["Message"] = "Must enter at least 1 gift card code";
+        return RedirectToPage();
+      }
+
+      List<string> msgs = new List<string>();
+      float dueBalance = CalculateDueBalance();
+      List<string> giftCardCodes = Checkout.GiftCardCodes
+        .Trim()
+        .Split(Environment.NewLine)
+        .Select(g => g.Trim())
+        .Distinct()
+        .ToList();
+
+      foreach (var code in giftCardCodes)
+      {
+        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(code);
+
+        if (giftCard == null)
+        {
+          msgs.Add($"{ code } was not found");
+          continue;
+        }
+        else if (giftCard.Amount <= 0)
+        {
+          msgs.Add($"{ code } has no balance");
+          continue;
+        }
+
+        float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
+
+        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout);
+        _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
+      }
+
+      TempData["Message"] = string.Join(Environment.NewLine, msgs);
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostApplyGiveAmount()
+    {
+      float dueBalance = CalculateDueBalance();
+      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+
+      TransactionModel giveTransaction = transactions.Where(t => 
           t.Method == MethodEnum.Give && 
           t.Type == TypeEnum.Checkout)
         .FirstOrDefault();
@@ -203,8 +219,7 @@ namespace NewAgePOS.Pages.Sale
         _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, MethodEnum.Give, TypeEnum.Checkout);
       }
 
-      dueBalance -= Checkout.GiveAmount;
-      return dueBalance;
+      return RedirectToPage(new { SaleId });
     }
 
 
