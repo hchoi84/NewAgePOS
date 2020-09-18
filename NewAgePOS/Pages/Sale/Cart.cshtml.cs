@@ -83,19 +83,21 @@ namespace NewAgePOS.Pages
           codesWithQty.Add(p, 1);
       }));
 
-      await CheckAndUpdateExistingLines(productCodes, codesWithQty);
+      return new JsonResult(codesWithQty);
 
-      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
+      //await CheckAndUpdateExistingLines(productCodes, codesWithQty);
+
+      //List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
       
-      await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
+      //await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
 
-      if (codesWithQty.Count > 0)
-      {
-        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
-        TempData["Message"] = $"Was not able to find { notFoundCodes }";
-      }
+      //if (codesWithQty.Count > 0)
+      //{
+      //  string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
+      //  TempData["Message"] = $"Was not able to find { notFoundCodes }";
+      //}
 
-      return RedirectToPage();
+      //return RedirectToPage();
     }
 
     private void CreateSaleLines(Dictionary<string, int> codesWithQty, List<JObject> jObjects)
