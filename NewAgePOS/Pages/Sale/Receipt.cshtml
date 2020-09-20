@@ -11,24 +11,22 @@
   <div class="mt-5 text-danger text-center hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</div>
 }
 
-<div style="max-height: 800px; max-width:350px; margin: auto;">
-  
-    <div class="text-center">
-      <img src="~/images/Golfio_Logo.png" />
-    </div>
-    <div class="my-3">
-      <p class="text-center m-0">19950 E Walnut Dr. N</p>
-      <p class="text-center m-0">Walnut, CA 91789</p>
-      <p class="text-center m-0">909-460-8788</p>
-    </div>
-    <div>
-      <h4 class="text-center">@receiptName</h4>
-    </div>
-    <div class="mb-3">
-      <p class="text-center m-0">@Model.Id</p>
-      <p class="text-center m-0">@Model.Created</p>
-    </div>
-  
+<div id="receipt" style="max-width: 350px; margin: auto;">
+  <div class="text-center">
+    <img src="~/images/Golfio_Logo.png" />
+  </div>
+  <div class="my-3">
+    <p class="text-center m-0">19950 E Walnut Dr. N</p>
+    <p class="text-center m-0">Walnut, CA 91789</p>
+    <p class="text-center m-0">909-460-8788</p>
+  </div>
+  <div>
+    <h4 class="text-center">@receiptName</h4>
+  </div>
+  <div class="mb-3">
+    <p class="text-center m-0">@Model.Id</p>
+    <p class="text-center m-0">@Model.Created</p>
+  </div>
 
   @if (Model.IdType == "sale")
   {
@@ -70,12 +68,33 @@
       <p class="text-center">Thank you @Model.FullName!</p>
     }
   </div>
+  <div class="hideInPrint text-center">
+    <button class="btn btn-primary" onclick="printReceipt()">Print Recept</button>
+  </div>
 </div>
 
 @section Scripts{
-  <style media="print">
-    .hideInPrint {
-      display: none;
+  <script>
+    function printReceipt() {
+      var receipt = document.getElementById('receipt');
+      var content = receipt.innerHTML;
+
+      var myWindow = window.open('', 'Receipt', 'height=800,width=300');
+      myWindow.document.write('<html><head><title>Receipt</title>');
+      myWindow.document.write('<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />');
+      myWindow.document.write('<link rel="stylesheet" href="/css/site.css" type="text/css" />');
+      @*myWindow.document.write('<style type="text/css"> *, html {margin:0;padding:0;} </style>');*@
+      myWindow.document.write('</head><body>');
+      myWindow.document.write(content);
+      myWindow.document.write('</body></html>');
+      @*myWindow.document.close(); // necessary for IE >= 10*@
+
+      myWindow.onload = function () { // necessary if the div contain images
+
+        @*myWindow.focus(); // necessary for IE >= 10
+        myWindow.print();
+        myWindow.close();*@
+      };
     }
-  </style>
+  </script>
 }

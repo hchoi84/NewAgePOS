@@ -14,7 +14,7 @@
 - Center all messages directly below the page title
 - Report/TransactionHistory: Better organized report view
 - Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code
-- Product Search auto height lines for product names
+- Product Search product name wrap and auto height
 
 ********** WORKING ON **********
 - Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
