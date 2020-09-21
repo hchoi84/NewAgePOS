@@ -52,7 +52,7 @@ namespace NewAgePOS.Pages.Sale
         customer = _sqlDb.Customers_GetBySaleId(Id);
         FullName = customer.FullName.Contains("Guest") ? "" : customer.FullName;
 
-        Created = _sqlDb.Sales_GetById(Id).Created.ToString("yyyy/MM/dd");
+        Created = _sqlDb.Sales_GetById(Id).Created.ToString("MM/dd/yyyy");
         return Page();
       }
       else if(IdType == "refund")

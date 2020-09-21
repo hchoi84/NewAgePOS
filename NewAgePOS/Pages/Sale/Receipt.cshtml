@@ -84,11 +84,9 @@
     <p class="text-centered m-0">909-460-8788</p>
   </div>
   <div>
-    <h4 class="text-centered">@receiptName</h4>
-  </div>
-  <div class="mt-20">
-    <p class="text-centered m-0">@Model.Id</p>
-    <p class="text-centered m-0">@Model.Created</p>
+    <h4 class="text-centered m-0 mt-20">@receiptName</h4>
+    <p class="text-centered m-0">#@Model.Id</p>
+    <p class="text-centered mt-20">@Model.Created</p>
   </div>
 
   @if (Model.IdType == "sale")
