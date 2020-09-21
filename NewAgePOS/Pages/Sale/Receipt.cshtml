@@ -11,7 +11,7 @@
   <div class="mt-5 text-danger text-center hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</div>
 }
 
-<div id="receipt" style="max-width: 350px; margin: auto;">
+<div style="max-width: 350px; margin: auto;">
   <div class="text-center">
     <img src="~/images/Golfio_Logo.png" />
   </div>
@@ -73,6 +73,68 @@
   <button class="btn btn-primary" onclick="printReceipt()">Print Recept</button>
 </div>
 
+
+<div id="receipt" style="display: none;">
+  <div class="text-centered">
+    <img src="~/images/Golfio_Logo.png" />
+  </div>
+  <div class="mt-20">
+    <p class="text-centered m-0">19950 E Walnut Dr. N</p>
+    <p class="text-centered m-0">Walnut, CA 91789</p>
+    <p class="text-centered m-0">909-460-8788</p>
+  </div>
+  <div>
+    <h4 class="text-centered">@receiptName</h4>
+  </div>
+  <div class="mt-20">
+    <p class="text-centered m-0">@Model.Id</p>
+    <p class="text-centered m-0">@Model.Created</p>
+  </div>
+
+  @if (Model.IdType == "sale")
+  {
+    <div class="mt-20">
+      @await Component.InvokeAsync("PriceSummary", new { saleId = Model.Id })
+    </div>
+  }
+  else
+  {
+    <table class="mt-20">
+      <tr>
+        <td>Quantity</td>
+        <td>@Model.RefundItems</td>
+      </tr>
+      <tr>
+        <td>Amount</td>
+        <td>@Model.RefundTotal</td>
+      </tr>
+
+      <tr class="double-line"></tr>
+
+      <tr>
+        <td>Method</td>
+        <td>@Model.RefundMethod</td>
+      </tr>
+    </table>
+  }
+
+  <div class="mt-50">
+    @if (Model.IdType == "sale")
+    {
+      <p class="text-centered">All sales are final</p>
+    }
+
+    @if (string.IsNullOrEmpty(Model.FullName))
+    {
+      <p class="text-centered">Thank you!</p>
+    }
+    else
+    {
+      <p class="text-centered">Thank you @Model.FullName!</p>
+    }
+  </div>
+</div>
+
 @section Scripts{
   <script>
     function printReceipt() {
@@ -81,8 +143,7 @@
 
       var myWindow = window.open('', 'Receipt', 'height=800,width=800');
       myWindow.document.write('<html><head><title>Receipt</title>');
-      myWindow.document.write('<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />');
-      myWindow.document.write('<link rel="stylesheet" href="/css/site.css" type="text/css" />');
+      myWindow.document.write('<link rel="stylesheet" href="/css/receipt.css" type="text/css" />');
       myWindow.document.write('</head><body>');
       myWindow.document.write(content);
       myWindow.document.write('</body></html>');

@@ -16,10 +16,14 @@
 - Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code
 - Product Search product name wrap and auto height
 
+2020/09/19
+
+
 ********** WORKING ON **********
-- Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
+- Printing receipt on Receipt printer
 
 ********** PENDING (No particular order) **********
+- Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
@@ -28,3 +32,4 @@
 	* D/I Sale/Checkout
 	* D/I Sale/Refund
 	* D Sale/Search
+- Change Product Seartch => Location Search

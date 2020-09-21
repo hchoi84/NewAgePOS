@@ -1,0 +1,43 @@
+﻿* {
+  font-size: 20px;
+  font-family: 'Times New Roman';
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-50{
+  margin-top: 50px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.double-line {
+  height: 5px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin: 10px 0px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-centered {
+  text-align: center;
+  align-content: center;
+}
