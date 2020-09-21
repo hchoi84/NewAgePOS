@@ -25,6 +25,7 @@
 - Receipt: Date format to follow US standard MM/DD/YYYY
 - Receipt: Reduce the width of the Price Summary by 10px
 - Receipt: Slightly reduced font size
+- Bug fix: Prevents cashier from collecting more than what's due
 
 ********** WORKING ON **********
 - Architect where the Messages should be displayed/inserted

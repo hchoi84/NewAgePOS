@@ -103,7 +103,28 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Messages
+    public void Messages_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.Messages WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
 
+    public void Messages_Edit(int id, string message)
+    {
+      string query = "UPDATE dbo.Messages SET Message = @message WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, message }, connectionStringName, false);
+    }
+
+    public List<MessageModel> Messages_GetBySaleId(int saleId)
+    {
+      return _sqlDb.LoadData<MessageModel, dynamic>("dbo.spMessages_GetBySaleId", new { saleId }, connectionStringName, true);
+    }
+
+    public int Messages_Insert(int saleId, string message)
+    {
+      string query = "INSERT INTO dbo.Messages (SaleId, Message) VALUE (@saleId, @message)";
+      return _sqlDb.LoadData<int, dynamic>(query, new { saleId, message }, connectionStringName, false).FirstOrDefault();
+    }
     #endregion
 
     #region Products

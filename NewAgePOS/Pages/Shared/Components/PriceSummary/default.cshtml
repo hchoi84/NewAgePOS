@@ -13,14 +13,14 @@
   {
     <div class="row">
       <div class="col h4">Discount</div>
-      <div class="col h4 text-right">@Model.TotalDiscount.ToString("C2", Model.Dollar)</div>
+      <div class="col h4 text-right">@((Model.TotalDiscount * -1).ToString("C2", Model.Dollar))</div>
     </div>
   }
   @if (Model.TradeInAmount > 0)
   {
     <div class="row">
       <div class="col h4">Trade In</div>
-      <div class="col h4 text-right">@Model.TradeInAmount.ToString("C2", Model.Dollar)</div>
+      <div class="col h4 text-right">@((Model.TradeInAmount * -1).ToString("C2", Model.Dollar))</div>
     </div>
   }
   @if (Model.TaxPct > 0)

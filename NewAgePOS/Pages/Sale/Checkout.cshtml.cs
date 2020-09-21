@@ -125,11 +125,6 @@ namespace NewAgePOS.Pages.Sale
       }
 
       float dueBalance = CalculateDueBalance();
-      if (Checkout.Amount > dueBalance)
-      {
-        TempData["Message"] = $"Due balance is {dueBalance} and you are trying to collect {Checkout.Amount} which is greater than the due balance";
-        return RedirectToPage();
-      }
 
       if (Checkout.PaymentMethod == MethodEnum.Cash.ToString() && Checkout.Amount > 0)
         ProcessCash();

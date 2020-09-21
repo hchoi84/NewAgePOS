@@ -27,7 +27,10 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region Messages
-
+    void Messages_Delete(int id);
+    void Messages_Edit(int id, string message);
+    List<MessageModel> Messages_GetBySaleId(int saleId);
+    int Messages_Insert(int saleId, string message);
     #endregion
 
     #region Products
