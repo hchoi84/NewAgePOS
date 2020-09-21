@@ -16,11 +16,21 @@
 - Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code
 - Product Search product name wrap and auto height
 
-2020/09/19
+2020/09/20
+- Receipt template for printing on Direct Thermal printer
+- Updated server to the latest git repo
 
+2020/09/21
+- Receipt: No space between Sale Receipt and the #
+- Receipt: Date format to follow US standard MM/DD/YYYY
+- Receipt: Reduce the width of the Price Summary by 10px
+- Receipt: Slightly reduced font size
 
 ********** WORKING ON **********
-- Printing receipt on Receipt printer
+- Architect where the Messages should be displayed/inserted
+	* D/I Sale/Checkout
+	* D/I Sale/Refund
+	* D Sale/Search
 
 ********** PENDING (No particular order) **********
 - Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
@@ -28,8 +38,4 @@
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
 - Ensure any table update also updates Updated column
-- Architect where the Messages should be displayed/inserted
-	* D/I Sale/Checkout
-	* D/I Sale/Refund
-	* D Sale/Search
 - Change Product Seartch => Location Search
