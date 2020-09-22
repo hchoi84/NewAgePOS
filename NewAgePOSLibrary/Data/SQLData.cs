@@ -122,7 +122,7 @@ namespace NewAgePOSLibrary.Data
 
     public int Messages_Insert(int saleId, string message)
     {
-      string query = "INSERT INTO dbo.Messages (SaleId, Message) VALUE (@saleId, @message)";
+      string query = "INSERT INTO dbo.Messages (SaleId, Message) VALUES (@saleId, @message)";
       return _sqlDb.LoadData<int, dynamic>(query, new { saleId, message }, connectionStringName, false).FirstOrDefault();
     }
     #endregion

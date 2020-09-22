@@ -166,3 +166,6 @@ else
     </form>
   </div>
 }
+
+<h4 class="mt-5 text-center">Messages</h4>
+@await Component.InvokeAsync("Messages", new { saleId = Model.SaleId })

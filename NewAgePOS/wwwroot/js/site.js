@@ -74,3 +74,15 @@ function addRemove(thisId, thatId, whatId) {
     whatButton.className = 'btn btn-primary';
   }
 }
+
+function confirm(id) {
+  var divId = id.replace("Btn", "");
+  var div = document.getElementById(divId);
+
+  if (div.style.display == "none") {
+    div.style.display = "block";
+  }
+  else {
+    div.style.display = "none";
+  }
+}

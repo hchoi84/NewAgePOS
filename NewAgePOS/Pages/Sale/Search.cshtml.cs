@@ -196,5 +196,23 @@ namespace NewAgePOS.Pages.Sale
       TempData["Message"] = "Sale has been cancelled";
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
+
+    public IActionResult OnPostCreateMessage(int saleId, string message)
+    {
+      if (string.IsNullOrEmpty(message))
+      {
+        TempData["Message"] = "Message can not be blank";
+        return RedirectToPage();
+      }
+
+      _sqlDb.Messages_Insert(saleId, message);
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostDeleteMessage(int id)
+    {
+      _sqlDb.Messages_Delete(id);
+      return RedirectToPage();
+    }
   }
 }

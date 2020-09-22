@@ -1,6 +1,51 @@
-﻿@using NewAgePOSModels.Models
-@model List<MessageModel>
+﻿@using NewAgePOS.ViewModels.ViewComponent
+@model MessagesVCVM
 
-<form method="post" asp-page="/Sale/Detail" asp-page-handler="CreateMessage">
-
+<form method="post" asp-page="/Sale/Search" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId">
+  <div class="form-row">
+    <div class="col">
+      <textarea asp-for="@Model.Message" class="form-control" placeholder="Enter message here... 100 max characters"></textarea>
+    </div>
+  </div>
+  <div class="form-row mt-1">
+    <div class="col">
+      <button type="submit" class="btn btn-primary">Add Message</button>
+    </div>
+  </div>
 </form>
+
+@if (Model.Messages != null && Model.Messages.Any())
+{
+  <div class="mt-5"></div>
+  foreach (MessageModel msg in Model.Messages)
+  {
+    <div class="form-row">
+      <div class="col">
+        @msg.Created
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col">
+        <input disabled value="@msg.Message" class="form-control" />
+      </div>
+      <div class="col-auto">
+        <button id="delBtn_@msg.Id" class="btn btn-danger" onclick="confirm(this.id)"><i class="fas fa-trash-alt"></i></button>
+      </div>
+    </div>
+    <div id="del_@msg.Id" style="display:none;">
+      <div class="form-row">
+        <div class="col-auto">
+          <input disabled value="Are you sure?" class="form-control" />
+        </div>
+        <div class="col-auto">
+          <form method="post" asp-page="/Sale/Search" asp-page-handler="DeleteMessage" asp-route-id="@msg.Id">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check-square"></i></button>
+          </form>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-danger"><i class="fas fa-window-close"></i></button>
+        </div>
+      </div>
+    </div>
+  }
+}
