@@ -13,5 +13,6 @@ namespace NewAgePOSModels.Models
     public float Price { get; set; }
     public string AllName { get; set; }
     public DateTime Created { get; set; }
+    public DateTime Updated { get; set; }
   }
 }

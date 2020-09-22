@@ -19,43 +19,41 @@
   <button type="submit" class="btn btn-primary">Search</button>
 </form>
 
-@if (Model.Products != null && Model.Products.Any())
+@if (Model.Results != null && Model.Results.Any())
 {
   <h3>Results</h3>
-  @foreach (var product in Model.Products)
+  @foreach (var result in Model.Results)
   {
-    List<ProductLocationModel> locations = Model.ProductLocations.Where(pl => pl.Code == product.Sku).ToList();
-
-    if (product != Model.Products.First())
+    if (result != Model.Results.First())
     {
       <div class="mt-3"></div>
     }
 
     <div class="row">
       <div class="col px-0">
-        <input value="@product.Sku" class="form-control" readonly>
+        <input value="@result.Sku" class="form-control" readonly>
       </div>
       <div class="col px-0">
-        <input value="@product.Upc" class="form-control" readonly>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col px-0">
-        <p class="form-control m-0" style="height: auto; background-color: #e9ecef;">@product.AllName</p>
+        <input value="@result.Upc" class="form-control" readonly>
       </div>
     </div>
     <div class="row">
       <div class="col px-0">
-        <input value="@product.Cost.ToString("C2")" class="form-control" readonly />
+        <p class="form-control m-0" style="height: auto; background-color: #e9ecef;">@result.AllName</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col px-0">
+        <input value="@result.Cost.ToString("C2")" class="form-control" readonly />
       </div>
       <div class="col px-0">
-        <input value="@product.Price.ToString("C2")" class="form-control" readonly />
+        <input value="@result.Price.ToString("C2")" class="form-control" readonly />
       </div>
     </div>
 
-    if (locations != null && locations.Any())
+    if (result.Locations != null && result.Locations.Any())
     {
-      @foreach (var loc in locations)
+      @foreach (var loc in result.Locations)
       {
         string id = $"{ loc.Code }_{ loc.Location }";
 
@@ -79,7 +77,7 @@
         @if (loc.Location != "STORE")
         {
           <div id="confirmTransfer_@id" class="row mt-1" style="display: none;">
-            <form method="post" class="form-inline" asp-page-handler="Transfer" asp-route-code="@product.Sku" asp-route-location="@loc.Location" asp-route-qty="@loc.Qty" asp-route-codes="@Model.Codes">
+            <form method="post" class="form-inline" asp-page-handler="Transfer" asp-route-code="@result.Sku" asp-route-location="@loc.Location" asp-route-qty="@loc.Qty" asp-route-codes="@Model.Codes">
               <div class="form-group col-4 px-0">
                 <input name="transferqty" class="form-control" type="number" value="1" style="width: 100%" />
               </div>

@@ -28,17 +28,19 @@
 - Bug fix: Prevents cashier from collecting more than what's due
 - Bug fix: Negative currency doesn't display the same US standard format ($123.45). Instead, it shows -$123.45
 - Refactored CultureInfo("en-US") to be set for the entire application
+- Updated Server
 
 2020/09/22
 - Architect where the Messages should be displayed/inserted
 	* D/I Sale/Checkout
 	* D/I Sale/Refund
 
+
 ********** WORKING ON **********
+- Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
 
 
 ********** PENDING (No particular order) **********
-- Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
