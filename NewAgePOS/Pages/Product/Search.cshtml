@@ -2,7 +2,6 @@
 @model NewAgePOS.Pages.Product.SearchModel
 @{
   ViewData["Title"] = "Products Search";
-  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 <h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
@@ -47,10 +46,10 @@
     </div>
     <div class="row">
       <div class="col px-0">
-        <input value="@product.Cost.ToString("C2", dollar)" class="form-control" readonly />
+        <input value="@product.Cost.ToString("C2")" class="form-control" readonly />
       </div>
       <div class="col px-0">
-        <input value="@product.Price.ToString("C2", dollar)" class="form-control" readonly />
+        <input value="@product.Price.ToString("C2")" class="form-control" readonly />
       </div>
     </div>
 

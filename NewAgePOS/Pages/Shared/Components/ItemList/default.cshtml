@@ -27,22 +27,22 @@
     </div>
     <div class="form-row">
       <div class="col-4 pr-0">
-        <input readonly value="@item.Cost.ToString("C2", item.Dollar)" class="form-control" />
+        <input readonly value="@item.Cost.ToString("C2")" class="form-control" />
       </div>
       @if (item.DiscPct > 0)
       {
         float afterDisc = item.Price * (1 - (item.DiscPct / 100f));
         <div class="col px-0">
           <div class="form-control" style="background-color: #e9ecef;">
-            <span class="small text-danger"><s>@item.Price.ToString("C2", item.Dollar)</s></span>
-            <span>@afterDisc.ToString("C2", item.Dollar)</span>
+            <span class="small text-danger"><s>@item.Price.ToString("C2")</s></span>
+            <span>@afterDisc.ToString("C2")</span>
           </div>
         </div>
       }
       else
       {
         <div class="col px-0">
-          <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
+          <input readonly value="@item.Price.ToString("C2")" class="form-control" />
         </div>
       }
       <div class="col-2 pl-0">
@@ -79,7 +79,7 @@
         <input readonly value="(Gift Card) ****@last3Digits" class="form-control" />
       </div>
       <div class="col px-0">
-        <input readonly value="@item.Price.ToString("C2", item.Dollar)" class="form-control" />
+        <input readonly value="@item.Price.ToString("C2")" class="form-control" />
       </div>
       <div class="col-2 pl-0">
         <input readonly value="@item.Qty" class="form-control" />
@@ -88,7 +88,7 @@
   }
   else
   {
-    string price = (item.Price * -1).ToString("C2", item.Dollar);
+    string price = (item.Price * -1).ToString("C2");
     <div class="form-row">
       <div class="col-7 pr-0">
         <input readonly value="(Trade In) @item.SaleLineId" class="form-control" />

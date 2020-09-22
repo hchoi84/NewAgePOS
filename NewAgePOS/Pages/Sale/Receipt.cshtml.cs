@@ -77,12 +77,11 @@ namespace NewAgePOS.Pages.Sale
 
     private void GenerateRefundReceiptData()
     {
-      CultureInfo dollar = new CultureInfo("en-US");
       RefundItems = _sqlDb.RefundLines_GetByTransactionId(Id).Sum(t => t.Qty);
 
       TransactionModel transaction = _sqlDb.Transactions_GetById(Id);
       Created = transaction.Created.ToString("yyyy/MM/dd");
-      RefundTotal = transaction.Amount.ToString("C2", dollar);
+      RefundTotal = transaction.Amount.ToString("C2");
       RefundMethod = transaction.Method.ToString();
     }
   }

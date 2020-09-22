@@ -13,6 +13,7 @@ using NewAgePOSLibrary.Databases;
 using NewAgePOSLibrary.Data;
 using SkuVaultLibrary;
 using NewAgePOSModels.Securities;
+using System.Globalization;
 
 namespace NewAgePOS
 {
@@ -68,6 +69,11 @@ namespace NewAgePOS
         options.AddPolicy(ClaimTypeEnum.Admin.ToString(), policy => policy
           .RequireClaim(ClaimTypeEnum.Admin.ToString(), "true"));
       });
+
+      CultureInfo ci = new CultureInfo("en-US");
+      ci.NumberFormat.CurrencyNegativePattern = 0;
+      CultureInfo.DefaultThreadCurrentCulture = ci;
+      CultureInfo.DefaultThreadCurrentUICulture = ci;
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

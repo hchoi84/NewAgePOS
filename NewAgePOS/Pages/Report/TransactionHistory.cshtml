@@ -2,7 +2,6 @@
 @model NewAgePOS.Pages.Report.TransactionHistoryModel
 @{
   ViewData["Title"] = "Transaction History";
-  CultureInfo dollar = new CultureInfo("en-US");
   float earning = 0;
 }
 
@@ -47,7 +46,7 @@
         <input readonly value="@ts[i].Method.ToString()" class="form-control" />
       </div>
       <div class="col">
-        <input readonly value="@amount.ToString("C2", dollar)" class="form-control" />
+        <input readonly value="@amount.ToString("C2")" class="form-control" />
       </div>
     </div>
   }
@@ -60,7 +59,7 @@
     </div>
     <div class="row">
       <div class="col">Earning</div>
-      <div class="col text-right">@earning.ToString("C2", dollar)</div>
+      <div class="col text-right">@earning.ToString("C2")</div>
     </div>
   </div>
 }

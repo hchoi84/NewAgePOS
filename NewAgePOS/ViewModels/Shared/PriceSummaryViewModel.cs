@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-
-namespace NewAgePOS.ViewModels.Shared
+﻿namespace NewAgePOS.ViewModels.Shared
 {
   public class PriceSummaryViewModel
   {
@@ -21,6 +18,5 @@ namespace NewAgePOS.ViewModels.Shared
     public float Change { get { return Paid - Total; } }
     public float RefundedAmount { get; set; }
     public float RefundingAmount { get; set; }
-    public CultureInfo Dollar { get { return new CultureInfo("en-US"); } }
   }
 }

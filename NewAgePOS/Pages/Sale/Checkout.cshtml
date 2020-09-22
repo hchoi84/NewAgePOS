@@ -2,7 +2,6 @@
 @model NewAgePOS.Pages.Sale.CheckoutModel
 @{
   ViewData["Title"] = "Sales Checkout";
-  CultureInfo dollar = new CultureInfo("en-US");
 }
 
 <h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
@@ -53,12 +52,12 @@ else
       GiftCardModel gc = Model.GiftCards.FirstOrDefault(g => g.Id == transaction.GiftCardId);
       string last3Digits = gc.Code.Substring(gc.Code.Length - 3);
       method = $"{ transaction.Method } (****{ last3Digits })";
-      amount = $"{transaction.Amount.ToString("C2", dollar)} ({gc.Amount.ToString("C2", dollar)})";
+      amount = $"{transaction.Amount.ToString("C2")} ({gc.Amount.ToString("C2")})";
     }
     else
     {
       method = transaction.Method.ToString();
-      amount = transaction.Amount.ToString("C2", dollar);
+      amount = transaction.Amount.ToString("C2");
     }
 
     <div class="form-row">
