@@ -82,7 +82,7 @@ namespace NewAgePOS.Pages.Sale
 
         if (!isValid || SearchQuery.Length != 10)
         {
-          TempData["Message"] = "Invalid Phone Number. 10 numeric characters only";
+          TempData["Message"] = $"Invalid Phone Number ({ phoneNumber }). 10 numeric characters only";
           return Page();
         }
 

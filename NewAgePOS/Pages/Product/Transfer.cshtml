@@ -1,0 +1,201 @@
+﻿@page "{IsBatchRequest:bool?}"
+@model NewAgePOS.Pages.Product.TransferModel
+@{
+  ViewData["Title"] = "Transfer";
+  string titleSubfix = Model.IsReview ? "Batch Items Review" : Model.IsBatchRequest ? "Batch" : "Single";
+}
+
+<h1 class="font-weight-bold text-center my-3">@ViewData["Title"] @titleSubfix</h1>
+
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger mb-3 text-center">@TempData["Message"]</div>
+}
+
+@if (!Model.IsReview)
+{
+  <form method="get" class="mb-5">
+    <div class="form-group">
+      <label asp-for="Codes"></label>
+      <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+    @if (Model.IsBatchRequest)
+    {
+      <a class="btn btn-info" asp-page-handler="DisplayXferReqItems">Display Items (@Model.XferBatchReqCount)</a>
+    }
+  </form>
+}
+
+@if (Model.Results != null && Model.Results.Any())
+{
+  <h4 class="text-center">Results</h4>
+
+  if (Model.IsBatchRequest)
+  {
+    <form method="post">
+      @for (var i = 0; i < Model.Results.Count; i++)
+      {
+        int whQty = Model.Results[i].Locations.Where(l => l.Location != "STORE").Sum(l => l.Qty);
+
+        if (Model.Results[i] != Model.Results.First())
+        {
+          <div class="mt-3"></div>
+        }
+
+        <div class="row">
+          <div class="col pr-0">
+            <input asp-for="@Model.Results[i].Sku" class="form-control" readonly>
+          </div>
+          <div class="col pl-0">
+            <input value="@Model.Results[i].Upc" class="form-control" readonly>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <p class="form-control m-0" style="height: auto; background-color: #e9ecef;">@Model.Results[i].AllName</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col pr-0">
+            <input value="@Model.Results[i].Cost.ToString("C2")" class="form-control" readonly />
+          </div>
+          <div class="col pl-0">
+            <input value="@Model.Results[i].Price.ToString("C2")" class="form-control" readonly />
+          </div>
+        </div>
+
+        @for (var y = 0; y < Model.Results[i].Locations.Count; y++)
+        {
+          <div class="row">
+            <div class="col pr-0">
+              <input value="@Model.Results[i].Locations[y].Location" class="form-control" readonly>
+            </div>
+            <div class="col pl-0">
+              <input value="@Model.Results[i].Locations[y].Qty" class="form-control" readonly>
+            </div>
+          </div>
+        }
+
+        @if (whQty > 0)
+        {
+          <div class="row">
+            <div class="col-auto pr-0">
+              <input value="Transfer Request Quantity" class="form-control" readonly />
+            </div>
+            <div class="col px-0">
+              <input asp-for="@Model.Results[i].RequestQty" class="form-control" />
+            </div>
+            <div class="col-1 px-0">
+              <input value=" / " class="form-control text-center" readonly />
+            </div>
+            <div class="col-1 pl-0">
+              <input value="@whQty" class="form-control text-center" readonly />
+            </div>
+          </div>
+        }
+      }
+
+      @if (Model.IsReview)
+      {
+        <button type="submit" asp-page-handler="EditXferReqItems" class="btn btn-primary mt-1">Edit Xfer Items</button>
+      }
+      else
+      {
+        <button type="submit" asp-page-handler="AddToXferReqItems" class="btn btn-primary mt-1">Add To Xfer Items</button>
+      }
+    </form>
+  }
+  else
+  {
+    @foreach (var result in Model.Results)
+    {
+      if (result != Model.Results.First())
+      {
+        <div class="mt-3"></div>
+      }
+
+      <div class="row">
+        <div class="col pr-0">
+          <input value="@result.Sku" class="form-control" readonly>
+        </div>
+        <div class="col pl-0">
+          <input value="@result.Upc" class="form-control" readonly>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <p class="form-control m-0" style="height: auto; background-color: #e9ecef;">@result.AllName</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col pr-0">
+          <input value="@result.Cost.ToString("C2")" class="form-control" readonly />
+        </div>
+        <div class="col pl-0">
+          <input value="@result.Price.ToString("C2")" class="form-control" readonly />
+        </div>
+      </div>
+
+      if (result.Locations != null && result.Locations.Any())
+      {
+        @foreach (var loc in result.Locations)
+        {
+          string id = $"{ loc.Code }_{ loc.Location }";
+
+          <div class="row">
+            <div class="col-6 pr-0">
+              <input value="@loc.Location" class="form-control" readonly>
+            </div>
+            <div class="col px-0">
+              <input value="@loc.Qty" class="form-control" readonly>
+            </div>
+            <div class="col-auto pl-0">
+              @if (loc.Location != "STORE")
+              {
+                <a id="confirmTransferButton_@id" class="btn btn-primary" onclick="confirmTransfer('@id')">
+                  <i class="fas fa-dolly"></i>
+                </a>
+              }
+              else
+              {
+                <button disabled class="btn btn-dark">
+                  <i class="fas fa-dolly"></i>
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (loc.Location != "STORE")
+          {
+            <div id="confirmTransfer_@id" style="display: none;">
+              <form method="post" class="form-inline row"
+                    asp-page-handler="Transfer"
+                    asp-route-code="@result.Sku"
+                    asp-route-location="@loc.Location"
+                    asp-route-qty="@loc.Qty"
+                    asp-route-codes="@Model.Codes">
+                <div class="col-6 pr-0">
+                  <input value="Confirm Transfer Quantity" class="form-control text-right" style="width: 100%" />
+                </div>
+                <div class="col px-0">
+                  <input name="transferqty" class="form-control" type="number" value="1" style="width: 100%" />
+                </div>
+                <div class="col-auto px-0">
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check-square"></i>
+                  </button>
+                </div>
+                <div class="col-auto pl-0">
+                  <a href="#confirmTransfer_@id" class="btn btn-danger" onclick="confirmTransfer('@id')">
+                    <i class="fas fa-window-close"></i>
+                  </a>
+                </div>
+              </form>
+            </div>
+          }
+        }
+      }
+    }
+  }
+}

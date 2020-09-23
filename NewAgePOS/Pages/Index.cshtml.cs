@@ -15,7 +15,8 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnGet()
     {
-      return Redirect("/Sale/Search");
+      //return Redirect("/Sale/Search");
+      return Redirect("/Product/Transfer/true?Codes=ANN0026");
     }
   }
 }
