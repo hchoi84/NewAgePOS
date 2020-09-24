@@ -40,7 +40,6 @@ namespace NewAgePOS.Pages.Report
       }
 
       Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate, EndDate.AddDays(1))
-          .Where(t => t.Method != MethodEnum.Give)
           .OrderBy(t => t.SaleId)
           .ThenBy(t => t.Method)
           .ToList();

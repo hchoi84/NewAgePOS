@@ -292,12 +292,11 @@ namespace NewAgePOSLibrary.Data
 
     public List<TransactionModel> Transactions_GetByDateRange(DateTime beginDate, DateTime endDate)
     {
-      string query = "SELECT * FROM dbo.Transactions WHERE Created >= @beginDate AND Created <= @endDate;";
       return _sqlDb.LoadData<TransactionModel, dynamic>(
-        query,
+        "spTransactions_GetByDateRange",
         new { beginDate = beginDate.ToShortDateString(), endDate = endDate.ToShortDateString() },
         connectionStringName,
-        false);
+        true);
     }
 
     public List<TransactionModel> Transactions_GetBySaleId(int saleId)

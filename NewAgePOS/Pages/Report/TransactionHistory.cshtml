@@ -28,10 +28,20 @@
   for (var i = 0; i < ts.Count; i++)
   {
     int multiplier = 1;
-    if (ts[i].Type == TypeEnum.Refund) multiplier = -1;
+
+    if (ts[i].Type == TypeEnum.Checkout && ts[i].Method == MethodEnum.Cash) earning += ts[i].Amount;
+    else if (ts[i].Type == TypeEnum.Checkout && ts[i].Method == MethodEnum.Change)
+    {
+      earning -= ts[i].Amount;
+      multiplier = -1;
+    }
+    else if (ts[i].Type == TypeEnum.Refund && ts[i].Method == MethodEnum.Cash)
+    {
+      earning -= ts[i].Amount;
+      multiplier = -1;
+    }
 
     float amount = ts[i].Amount * multiplier;
-    if (ts[i].Method == MethodEnum.Cash) earning += amount;
 
     if (i == 0 || ts[i].SaleId != ts[i - 1].SaleId)
     {
@@ -39,13 +49,13 @@
     }
 
     <div class="form-row">
-      <div class="col">
+      <div class="col pr-0">
         <input readonly value="@ts[i].Created.ToString("MM/dd hh:mm tt")" class="form-control" />
       </div>
-      <div class="col">
-        <input readonly value="@ts[i].Method.ToString()" class="form-control" />
+      <div class="col px-0">
+        <input readonly value="@ts[i].Type.ToString() @ts[i].Method.ToString()" class="form-control" />
       </div>
-      <div class="col">
+      <div class="col pl-0">
         <input readonly value="@amount.ToString("C2")" class="form-control" />
       </div>
     </div>
@@ -58,7 +68,7 @@
       <div class="col text-right">@Model.Transactions.Count</div>
     </div>
     <div class="row">
-      <div class="col">Earning</div>
+      <div class="col">Cash Earning</div>
       <div class="col text-right">@earning.ToString("C2")</div>
     </div>
   </div>

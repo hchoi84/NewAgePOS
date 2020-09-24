@@ -50,15 +50,22 @@
 - Modified Sale/Checkout Give algo to only calculate if the due balance is greater than 0 and doesn't have any non-Give transactions
 - Edited spSales_CancelById stored procedure to remove any associated messages as well
 - Implemented UTCtoPST() for server
+- Transfer Batch Request: Not adding in quantity check of Request vs Available. More products could be coming in. Also, warehouse will eventually check when processing.
+- Transaction History: Updated to only show transactions from completed sales
+- Transaction History: Modified how data is shown for clarity
+- Transactions: Records change
+- Transaction Method: Added Change
+- Transaction Checkout: Calculates Change and determines whether to create or update dbo.Transactions
+- TransactionModel: Updated Created property to convert UTC to PST
+- Refund: Fixed splitting multiple codes
+- Added spTransactions_GetByDateRange to posdb
 
 
 ********** WORKING ON **********
 - Transfer Batch Request: Finalize button to clear session
-- Transfer Batch Request: Not adding in quantity check of Request vs Available. More products could be coming in. Also, warehouse will eventually check when processing.
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
 - Ensure any table update also updates Updated column
-- Change Product Search => Location Search

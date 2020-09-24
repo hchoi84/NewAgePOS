@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Shared;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -34,7 +35,7 @@ namespace NewAgePOS.ViewComponents
       PriceSummaryViewModel model = new PriceSummaryViewModel
       {
         Quantity = saleLines.Sum(s => s.Qty),
-        Subtotal = saleLines.Where(s => 
+        Subtotal = saleLines.Where(s =>
             s.ProductId.HasValue || s.GiftCardId.HasValue)
           .Sum(s => s.LineTotal),
         DiscountAmount = saleLines.Sum(s => s.LineDiscountTotal),
@@ -63,7 +64,38 @@ namespace NewAgePOS.ViewComponents
           })
       };
 
+      model.Change = CalculateChange(saleId,
+        transactions.FirstOrDefault(t => t.Method == MethodEnum.Change),
+        model.Paid,
+        model.Total);
+
       return model;
+    }
+
+    private float CalculateChange(int saleId, TransactionModel changeTransaction, float paid, float total)
+    {
+      float change = paid - total;
+
+      if (change <= 0) return change;
+
+      string path = ViewContext.View.Path;
+      if (!path.Contains(PathSourceEnum.Checkout.ToString())) return change;
+
+      if (changeTransaction != null)
+      {
+        bool isSameAmount = changeTransaction.Amount == change;
+        if (!isSameAmount)
+        {
+          changeTransaction.Amount = change;
+          _sqlDb.Transactions_UpdateAmount(changeTransaction.Id, changeTransaction.Amount);
+        }
+      }
+      else
+      {
+        _sqlDb.Transactions_Insert(saleId, null, change, MethodEnum.Change, TypeEnum.Checkout);
+      }
+
+      return change;
     }
   }
 }

@@ -4,6 +4,7 @@
   {
     None,
     Cart,
-    Refund
+    Refund,
+    Checkout
   }
 }

@@ -15,7 +15,7 @@
     public float PaidGiftCard { get; set; }
     public float PaidCash { get; set; }
     public float Remaining { get { return Total - Paid; } }
-    public float Change { get { return Paid - Total; } }
+    public float Change { get; set; }
     public float RefundedAmount { get; set; }
     public float RefundingAmount { get; set; }
   }

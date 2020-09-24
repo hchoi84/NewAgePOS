@@ -1,6 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using NewAgePOS.Utilities;
+using System;
 
 namespace NewAgePOSModels.Models
 {
@@ -8,6 +7,7 @@ namespace NewAgePOSModels.Models
   {
     private MethodEnum _method;
     private TypeEnum _type;
+    private DateTime _created;
 
     public int Id { get; set; }
     public int SaleId { get; set; }
@@ -21,6 +21,9 @@ namespace NewAgePOSModels.Models
       get { return _type; }
       set { _type = (TypeEnum)Enum.Parse(typeof(TypeEnum), value.ToString()); }
     }
-    public DateTime Created { get; set; }
+    public DateTime Created {
+      get { return _created.UTCtoPST(); }
+      set { _created = value; }
+    }
   }
 }

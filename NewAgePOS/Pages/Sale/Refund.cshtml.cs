@@ -122,7 +122,10 @@ namespace NewAgePOS.Pages.Sale
 
     public IActionResult OnPostAdd()
     {
-      List<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).ToList();
+      List<string> productCodes = Codes.Trim()
+        .Split(Environment.NewLine)
+        .Select(c => c.Trim())
+        .ToList();
       List<IGrouping<string, string>> groupedCodes = productCodes.GroupBy(p => p).ToList();
 
       List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);

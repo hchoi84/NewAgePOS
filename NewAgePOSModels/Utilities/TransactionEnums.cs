@@ -4,7 +4,8 @@
   {
     GiftCard,
     Cash,
-    Give
+    Give,
+    Change
   }
 
   public enum TypeEnum
