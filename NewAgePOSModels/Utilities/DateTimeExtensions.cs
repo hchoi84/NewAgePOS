@@ -5,7 +5,7 @@ namespace NewAgePOS.Utilities
 {
   public static class DateTimeExtensions
   {
-    public static DateTime USTtoPST(this DateTime dateTime)
+    public static DateTime UTCtoPST(this DateTime dateTime)
     {
       if (!Secrets.DBIsLocal)
       {

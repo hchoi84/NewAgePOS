@@ -11,7 +11,7 @@ namespace NewAgePOSModels.Models
     public string Code { get; set; }
     public float Amount { get; set; }
     public DateTime Created {
-      get { return _created.USTtoPST(); }
+      get { return _created.UTCtoPST(); }
       set { _created = value; }
     }
     public DateTime Updated { get; set; }

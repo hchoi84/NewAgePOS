@@ -34,12 +34,22 @@
 - Architect where the Messages should be displayed/inserted
 	* D/I Sale/Checkout
 	* D/I Sale/Refund
+- Refactored Location Search for efficiency and in preparation for batch transfer request
 
 2020/09/23
+- Renamed Location Search to Transfer
 - Transfer request
 	* Utilize Session for quicker processing
+	* Transfer page will now handle both Single, Batch, and Batch Review
 	* Single: Modified layout and converted buttons to icons
 	* Batch: Add/Edit/Remove products to batch request.
+- Tested UTC to PST time conversion
+- Added missing Stored Procedure (spMessages_GetBySaleId)
+
+2020/09/24
+- Modified Sale/Checkout Give algo to only calculate if the due balance is greater than 0 and doesn't have any non-Give transactions
+- Edited spSales_CancelById stored procedure to remove any associated messages as well
+- Implemented UTCtoPST() for server
 
 
 ********** WORKING ON **********

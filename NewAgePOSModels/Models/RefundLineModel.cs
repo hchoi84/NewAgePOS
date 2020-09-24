@@ -14,7 +14,7 @@ namespace NewAgePOSModels.Models
     public int TransactionId { get; set; }
     public int Qty { get; set; }
     public DateTime Created {
-      get { return _created.USTtoPST(); }
+      get { return _created.UTCtoPST(); }
       set { _created = value; }
     }
     public DateTime Updated { get; set; }
