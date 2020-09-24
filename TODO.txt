@@ -35,10 +35,16 @@
 	* D/I Sale/Checkout
 	* D/I Sale/Refund
 
+2020/09/23
+- Transfer request
+	* Utilize Session for quicker processing
+	* Single: Modified layout and converted buttons to icons
+	* Batch: Add/Edit/Remove products to batch request.
+
 
 ********** WORKING ON **********
-- Transfer request. Add products to transfer request. Warehouse retrieves and brings it. Will need status to indicate whether the transfer request has been completed or not.
-
+- Transfer Batch Request: Finalize button to clear session
+- Transfer Batch Request: Not adding in quantity check of Request vs Available. More products could be coming in. Also, warehouse will eventually check when processing.
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply
