@@ -1,4 +1,5 @@
-﻿using NewAgePOSModels.Securities;
+﻿using NewAgePOS.Utilities;
+using NewAgePOSModels.Securities;
 using System;
 
 namespace NewAgePOSModels.Models
@@ -12,20 +13,9 @@ namespace NewAgePOSModels.Models
     public int TaxId { get; set; }
     public bool IsComplete { get; set; }
     public DateTime Created {
-      get {
-        if (!Secrets.DBIsLocal)
-        {
-          TimeZoneInfo pst = TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles");
-          return TimeZoneInfo.ConvertTimeFromUtc(_created, pst);
-        }
-        else
-        {
-          return _created;
-        }
-      }
+      get { return _created.USTtoPST(); }
       set { _created = value; }
     }
-
     public DateTime Updated { get; set; }
   }
 }

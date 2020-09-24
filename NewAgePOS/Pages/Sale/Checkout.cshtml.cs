@@ -60,7 +60,11 @@ namespace NewAgePOS.Pages.Sale
         .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
         .ToList();
 
-      float dueBalance = CalculateAndStoreRoundedValue();
+      float dueBalance = (float)Math.Round(CalculateDueBalance(), 2);
+
+      bool hasNonGiveTransactions = Transactions.FirstOrDefault(t => t.Method != MethodEnum.Give) != null;
+      if (dueBalance > 0 && !hasNonGiveTransactions)
+        dueBalance = CalculateAndStoreRoundedValue(dueBalance);
 
       Transactions = Transactions
         .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
@@ -68,10 +72,8 @@ namespace NewAgePOS.Pages.Sale
       IsZeroBalance = dueBalance <= 0;
     }
 
-    private float CalculateAndStoreRoundedValue()
+    private float CalculateAndStoreRoundedValue(float totalDue)
     {
-      float totalDue = (float)Math.Round(CalculateDueBalance(), 2);
-
       float factor = 0.05f;
       float roundedTotalDue = (int)(totalDue / factor) * factor;
       float difference = totalDue - roundedTotalDue;

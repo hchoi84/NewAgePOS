@@ -1,15 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NewAgePOS.Utilities;
+using System;
 
 namespace NewAgePOSModels.Models
 {
   public class MessageModel
   {
+    private DateTime _created;
+
     public int Id { get; set; }
     public int SaleId { get; set; }
     public string Message { get; set; }
-    public DateTime Created { get; set; }
+    public DateTime Created {
+      get { return _created.USTtoPST(); }
+      set { _created = value; }
+    }
     public DateTime Updated { get; set; }
   }
 }

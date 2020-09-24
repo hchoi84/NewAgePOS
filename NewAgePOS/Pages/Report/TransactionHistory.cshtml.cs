@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using NewAgePOS.Utilities;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 

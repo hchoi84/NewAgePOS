@@ -6,6 +6,8 @@ BEGIN
 
 	DELETE FROM dbo.SaleLines WHERE SaleId = @id;
 
+	DELETE FROM dbo.Messages WHERE SaleId = @id;
+
 	DELETE FROM dbo.Sales WHERE Id = @id;
 
 END
