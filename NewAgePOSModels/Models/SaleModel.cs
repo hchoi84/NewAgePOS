@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NewAgePOSModels.Securities;
+using System;
 
 namespace NewAgePOSModels.Models
 {
@@ -12,8 +13,15 @@ namespace NewAgePOSModels.Models
     public bool IsComplete { get; set; }
     public DateTime Created {
       get {
-        TimeZoneInfo pst = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
-        return TimeZoneInfo.ConvertTimeFromUtc(_created, pst);
+        if (!Secrets.DBIsLocal)
+        {
+          TimeZoneInfo pst = TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles");
+          return TimeZoneInfo.ConvertTimeFromUtc(_created, pst);
+        }
+        else
+        {
+          return _created;
+        }
       }
       set { _created = value; }
     }
