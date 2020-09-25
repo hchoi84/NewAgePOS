@@ -96,6 +96,10 @@ namespace NewAgePOS.ViewComponents
     private float GetRefundingAmount(int saleId, List<RefundLineModel> refundLines, List<SaleLineModel> saleLines, List<TransactionModel> transactions)
     {
       List<RefundLineModel> refundingLines = refundLines.Where(rl => rl.TransactionId == 0).ToList();
+      if (!refundingLines.Any())
+      {
+        return 0;
+      }
 
       float refundingAmount = refundingLines.Sum(rl =>
       {
