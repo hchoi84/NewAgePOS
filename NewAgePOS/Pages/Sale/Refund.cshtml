@@ -14,9 +14,8 @@
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 <div class="row">
-  <div class="col-6">
+  <div class="col">
     <form method="post">
-      <h4 class="mt-5 text-center">Refund</h4>
       <div class="form-group">
         <label asp-for="Codes"></label>
         <textarea asp-for="Codes" class="form-control" rows="3"></textarea>

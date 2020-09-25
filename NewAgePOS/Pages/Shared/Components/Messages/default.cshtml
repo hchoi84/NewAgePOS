@@ -4,12 +4,15 @@
 <form method="post" asp-page="/Sale/Search" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId">
   <div class="form-row">
     <div class="col">
-      <textarea asp-for="@Model.Message" class="form-control" placeholder="Enter message here... 100 max characters"></textarea>
+      <textarea asp-for="@Model.Message" class="form-control" onkeyup="countCharacters(this.id, 'MessageCountDisplay', 'MessageSubmitButton')" placeholder="Enter message here... 100 max characters"></textarea>
     </div>
   </div>
   <div class="form-row mt-1">
+    <div class="col-auto">
+      <button id="MessageSubmitButton" type="submit" class="btn btn-primary">Add Message</button>
+    </div>
     <div class="col">
-      <button type="submit" class="btn btn-primary">Add Message</button>
+      <span id="MessageCountDisplay" class="text-info"></span>
     </div>
   </div>
 </form>

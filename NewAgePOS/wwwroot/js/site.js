@@ -86,3 +86,20 @@ function confirm(id) {
     div.style.display = "none";
   }
 }
+
+function countCharacters(inputId, displayId, buttonId) {
+  var input = document.getElementById(inputId);
+  var display = document.getElementById(displayId);
+  var button = document.getElementById(buttonId);
+  var count = input.value.length;
+  display.innerText = count + " / 100";
+
+  if (count > 100) {
+    display.className = "text-danger";
+    button.disabled = true;
+  }
+  else {
+    display.className = "text-info";
+    button.disabled = false;
+  }
+}

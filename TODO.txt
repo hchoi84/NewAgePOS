@@ -64,12 +64,16 @@
 - Sale/Receipt: Shrunk width of PriceSummary from 340px to 300px
 - Sale/Receipt: Added time to receipt
 - Sale/Receipt: "Sale Receipt" to "Sales Receipt"
-
 - Sale/Refund: Fixed miscalculation on Refunding amount
+
+2020/09/25
+- Sale/Refund: Changed textarea title to "Items to Remove SKUs or UPCs" for clarification. User states Add/Remove button is confusing as they may think Remove means to remove the product from what's already been purchased
+- Sale/Refund: Changed column width to take up full space instead of half way since there isn't anything else on the right side
+- Message: Added character count. Button disables if it goes over the max char limit
+- Transfer Batch Request: Finalize button to clear session
 
 
 ********** WORKING ON **********
-- Transfer Batch Request: Finalize button to clear session
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

@@ -37,11 +37,11 @@ namespace NewAgePOS.Pages.Product
     [BindProperty]
     public List<LocationSearchViewModel> Results { get; set; }
 
-    public int XferBatchReqCount { get; set; }
-    public bool IsReview { get; set; }
-
     [BindProperty]
     public Dictionary<string, int> XferReqQuantity { get; set; }
+
+    public int XferBatchReqCount { get; set; }
+    public bool IsReview { get; set; }
 
     public async Task<IActionResult> OnGet()
     {
@@ -247,6 +247,12 @@ namespace NewAgePOS.Pages.Product
       HttpContext.Session.SetObject("XferReqItems", xferReqItems);
 
       return RedirectToPage("/Product/Transfer", "DisplayXferReqItems", new { IsReview, IsBatchRequest });
+    }
+
+    public IActionResult OnPostClearBatchRequest()
+    {
+      HttpContext.Session.Remove("XferReqItems");
+      return RedirectToPage(new { IsBatchRequest });
     }
   }
 }

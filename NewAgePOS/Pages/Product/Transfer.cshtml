@@ -12,7 +12,20 @@
   <div class="text-danger mb-3 text-center">@TempData["Message"]</div>
 }
 
-@if (!Model.IsReview)
+@if (Model.IsReview)
+{
+  <form method="post" asp-page-handler="ClearBatchRequest" class="mb-5">
+    <div class="row">
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Clear List</button>
+      </div>
+      <div class="col">
+        <p class="text-info">Ensure the list has been given to the warehouse</p>
+      </div>
+    </div>
+  </form>
+}
+else
 {
   <form method="get" class="mb-5">
     <div class="form-group">

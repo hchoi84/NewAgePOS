@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 
@@ -27,7 +26,7 @@ namespace NewAgePOS.Pages.Sale
     public string RefundMethod { get; set; }
 
     [BindProperty]
-    [Display(Name = "SKUs or UPCs")]
+    [Display(Name = "Items to Refund SKUs or UPCs")]
     public string Codes { get; set; }
 
     [BindProperty]
