@@ -160,6 +160,12 @@ namespace NewAgePOSLibrary.Data
     #endregion
 
     #region RefundLines
+    public void RefundLines_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.RefundLines WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, connectionStringName, false);
+    }
+
     public List<RefundLineModel> RefundLines_GetBySaleId(int saleId)
     {
       return _sqlDb.LoadData<RefundLineModel, dynamic>("dbo.spRefundLines_GetBySaleId", new { saleId }, connectionStringName, true);

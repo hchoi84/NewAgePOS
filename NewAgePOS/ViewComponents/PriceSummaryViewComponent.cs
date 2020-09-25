@@ -56,12 +56,7 @@ namespace NewAgePOS.ViewComponents
           .Sum(p => p.Amount),
         RefundedAmount = transactions.Where(t => t.Type == TypeEnum.Refund)
           .Sum(t => t.Amount),
-        RefundingAmount = refundLines.Where(rl => rl.TransactionId == 0)
-          .Sum(rl =>
-          {
-            SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
-            return rl.Qty * (saleLine.Price - saleLine.LineDiscountTotal / (float)saleLine.Qty);
-          })
+        RefundingAmount = GetRefundingAmount(saleId, refundLines, saleLines, transactions)
       };
 
       model.Change = CalculateChange(saleId,
@@ -96,6 +91,39 @@ namespace NewAgePOS.ViewComponents
       }
 
       return change;
+    }
+
+    private float GetRefundingAmount(int saleId, List<RefundLineModel> refundLines, List<SaleLineModel> saleLines, List<TransactionModel> transactions)
+    {
+      List<RefundLineModel> refundingLines = refundLines.Where(rl => rl.TransactionId == 0).ToList();
+
+      float refundingAmount = refundingLines.Sum(rl =>
+      {
+        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
+        float priceAfterDiscount = saleLine.Price - saleLine.LineDiscountTotal / saleLine.Qty;
+        return rl.Qty * priceAfterDiscount;
+      });
+
+      float refundableAmount = 0;
+      foreach (var t in transactions)
+      {
+        if (t.Type == TypeEnum.Checkout)
+        {
+          if (t.Method == MethodEnum.GiftCard || t.Method == MethodEnum.Cash)
+            refundableAmount += t.Amount;
+          else
+            refundableAmount -= t.Amount;
+        }
+        else
+        {
+          refundableAmount -= t.Amount;
+        }
+      }
+
+      if (refundableAmount < refundingAmount)
+        refundingAmount = refundableAmount;
+
+      return refundableAmount;
     }
   }
 }

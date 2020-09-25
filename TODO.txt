@@ -60,6 +60,12 @@
 - Refund: Fixed splitting multiple codes
 - Added spTransactions_GetByDateRange to posdb
 
+- Sale/Refund: Fixed where removing already refunded product quantity deletes dbo.RefundLines
+- Sale/Refund & PriceSummaryViewComponent: Calculate previously refunded transactions and Give amount. Previously wasn't calculating Give amount
+- Sale/Receipt: Shrunk width of PriceSummary from 340px to 300px
+- Sale/Receipt: Added time to receipt
+- Sale/Receipt: "Sale Receipt" to "Sales Receipt"
+
 
 ********** WORKING ON **********
 - Transfer Batch Request: Finalize button to clear session
@@ -69,3 +75,4 @@
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
 - Ensure any table update also updates Updated column
+- Sale/Search: Implement displaying pending sales

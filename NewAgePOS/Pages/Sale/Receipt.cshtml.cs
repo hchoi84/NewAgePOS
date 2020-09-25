@@ -51,7 +51,7 @@ namespace NewAgePOS.Pages.Sale
         customer = _sqlDb.Customers_GetBySaleId(Id);
         FullName = customer.FullName.Contains("Guest") ? "" : customer.FullName;
 
-        Created = _sqlDb.Sales_GetById(Id).Created.ToString("MM/dd/yyyy");
+        Created = _sqlDb.Sales_GetById(Id).Created.ToString();
         return Page();
       }
       else if(IdType == "refund")
@@ -79,7 +79,7 @@ namespace NewAgePOS.Pages.Sale
       RefundItems = _sqlDb.RefundLines_GetByTransactionId(Id).Sum(t => t.Qty);
 
       TransactionModel transaction = _sqlDb.Transactions_GetById(Id);
-      Created = transaction.Created.ToString("yyyy/MM/dd");
+      Created = transaction.Created.ToString();
       RefundTotal = transaction.Amount.ToString("C2");
       RefundMethod = transaction.Method.ToString();
     }
