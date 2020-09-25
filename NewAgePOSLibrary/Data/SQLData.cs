@@ -151,11 +151,11 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<int, dynamic>(query, new { sku, upc, cost, price, allName }, connectionStringName, false).FirstOrDefault();
     }
 
-    public void Products_Update(int productId, float cost, float price, string allName)
+    public void Products_Update(ProductModel product)
     {
-      string updateDate = DateTime.Now.ToShortDateString();
-      string query = "UPDATE dbo.Products SET Cost = @cost, Price = @price, AllName = @allName, Updated = @updateDate WHERE Id = @productId;";
-      _sqlDb.SaveData(query, new { productId, cost, price, allName, updateDate }, connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.Products SET Sku = @sku, Upc = @upc, Cost = @cost, Price = @price, AllName = @allName, Updated = @updated WHERE Id = @id;";
+      _sqlDb.SaveData(query, new { id = product.Id, sku = product.Sku, upc = product.Upc, cost = product.Cost, price = product.Price, allName = product.AllName, updated }, connectionStringName, false);
     }
     #endregion
 

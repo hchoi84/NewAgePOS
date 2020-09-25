@@ -38,10 +38,11 @@ namespace NewAgePOSLibrary.Data
     ProductModel Products_GetById(int id);
     List<ProductModel> Products_GetBySaleId(int saleId);
     int Products_Insert(string sku, string upc, float cost, float price, string allName);
-    void Products_Update(int productId, float cost, float price, string allName);
+    void Products_Update(ProductModel product);
     #endregion
 
     #region RefundLines
+    void RefundLines_Delete(int id);
     List<RefundLineModel> RefundLines_GetBySaleId(int saleId);
     List<RefundLineModel> RefundLines_GetByTransactionId(int transactionId);
     void RefundLines_Insert(int saleLineId, int qty);
@@ -77,7 +78,6 @@ namespace NewAgePOSLibrary.Data
     int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type);
     void Transactions_UpdateAmount(int id, float newAmt);
     void Transactions_DeleteById(int id);
-    void RefundLines_Delete(int id);
     #endregion
   }
 }

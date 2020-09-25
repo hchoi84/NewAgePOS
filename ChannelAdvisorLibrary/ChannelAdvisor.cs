@@ -109,5 +109,36 @@ namespace ChannelAdvisorLibrary
 
       return jObjects;
     }
+
+
+    public async Task<IEnumerable<JObject>> GetProductsByCodeAsync(IEnumerable<string> codes)
+    {
+      string expand = "Attributes";
+      string select = "Sku,Upc,Cost,WarehouseLocation";
+      List<string> filterContents = new List<string>();
+      List<JObject> jObjects = new List<JObject>();
+
+      foreach (var code in codes)
+      {
+        if (code.Length == 7) filterContents.Add($"ParentSku eq '{ code }'");
+        else if (code.Contains('_')) filterContents.Add($"Sku eq '{ code }'");
+        else filterContents.Add($"Upc eq '{ code }'");
+      }
+
+      while (filterContents.Count > 0)
+      {
+        bool isMoreThan9 = filterContents.Count > 9;
+        int x = isMoreThan9 ? 9 : filterContents.Count;
+
+        List<string> first9 = filterContents.GetRange(0, x).ToList();
+        filterContents.RemoveRange(0, x);
+
+        string filter = $"ProfileId eq { Secrets.MainProfileId } and ({ string.Join(" or ", first9) })";
+
+        jObjects.AddRange(await GetProductsAsync(filter, expand, select));
+      }
+
+      return jObjects;
+    }
   }
 }

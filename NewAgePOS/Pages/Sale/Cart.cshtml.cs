@@ -6,6 +6,7 @@ using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Internal;
+using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels.Sale;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
@@ -49,6 +50,160 @@ namespace NewAgePOS.Pages
       return Page();
     }
 
+    #region Products
+    public async Task<IActionResult> OnPostAddProductsAsync()
+    {
+      if (string.IsNullOrEmpty(CartVM.Codes))
+      {
+        TempData["Message"] = "Codes can not be blank. Please enter at least one SKU or UPC";
+        return RedirectToPage();
+      }
+
+      Dictionary<string, int> codeCount = CartVM.Codes.CountIt();
+      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+
+      if (!saleLines.Any())
+      {
+        IEnumerable<ProductModel> products = await GetFromCaAsync(codeCount.Select(c => c.Key));
+        AddProductsToDb(products);
+        AddSaleLinesToDb(products, codeCount);
+      }
+      else
+      {
+        List<ProductModel> productModels = _sqlDb.Products_GetBySaleId(SaleId);
+
+        foreach (var code in codeCount)
+        {
+          ProductModel p = productModels.FirstOrDefault(p => p.Sku == code.Key || p.Upc == code.Key);
+          if (p == null) continue;
+
+          SaleLineModel s = saleLines.FirstOrDefault(s => s.ProductId == p.Id);
+          s.Qty += code.Value;
+          _sqlDb.SaleLines_Update(s.Id, s.Qty, s.DiscPct);
+          codeCount.Remove(code.Key);
+        }
+      }
+
+      if (codeCount.Count > 0)
+      {
+        IEnumerable<ProductModel> products = await GetFromCaAsync(codeCount.Select(c => c.Key));
+        AddProductsToDb(products);
+        AddSaleLinesToDb(products, codeCount);
+      }
+
+      if (codeCount.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", codeCount.Select(c => c.Key));
+        TempData["Message"] = $"Was not able to find { notFoundCodes } in CA";
+      }
+
+      return RedirectToPage();
+    }
+
+    private async Task<IEnumerable<ProductModel>> GetFromCaAsync(IEnumerable<string> codes)
+    {
+      IEnumerable<JObject> items = await _ca.GetProductsByCodeAsync(codes);
+      List<ProductModel> products = new List<ProductModel>();
+
+      foreach (JObject item in items)
+      {
+        ProductModel product = new ProductModel();
+        product.Sku = item[CAStrings.sku].ToString();
+        product.Upc = item[CAStrings.upc].ToString();
+        product.Cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0
+          : item[CAStrings.cost].ToObject<float>();
+        product.Price = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name]
+            .ToString() == CAStrings.bcprice)[CAStrings.Value]
+          .ToObject<float>();
+        product.AllName = item[CAStrings.attributes]
+          .FirstOrDefault(i => i[CAStrings.name]
+            .ToString() == CAStrings.allName)[CAStrings.Value]
+          .ToString();
+
+        products.Add(product);
+      }
+
+      return products;
+    }
+
+    private void AddProductsToDb(IEnumerable<ProductModel> products)
+    {
+      foreach (var product in products)
+      {
+        ProductModel p = _sqlDb.Products_GetByCode(product.Sku, product.Upc);
+        if (p == null)
+        {
+          int id = _sqlDb.Products_Insert(product.Sku, product.Upc, product.Cost, product.Price, product.AllName);
+          product.Id = id;
+          continue;
+        }
+
+        product.Id = p.Id;
+        if (product.Sku != p.Sku || product.Upc != p.Upc || product.Cost != p.Cost || product.Price != p.Price || product.AllName != p.AllName)
+        {
+          _sqlDb.Products_Update(product);
+        }
+      }
+    }
+
+    private void AddSaleLinesToDb(IEnumerable<ProductModel> products, Dictionary<string, int> codeCount)
+    {
+      foreach (var product in products)
+      {
+        int qty1, qty2;
+        if (!codeCount.TryGetValue(product.Sku, out qty1)) qty1 = 0;
+        if (!codeCount.TryGetValue(product.Upc, out qty2)) qty2 = 0;
+
+        _sqlDb.SaleLines_Insert(SaleId, product.Id, null, qty1 + qty2);
+
+        if (qty1 > 0) codeCount.Remove(product.Sku);
+        if (qty2 > 0) codeCount.Remove(product.Upc);
+      }
+    }
+
+    public IActionResult OnPostRemoveProducts()
+    {
+      if (string.IsNullOrEmpty(CartVM.Codes))
+      {
+        TempData["Message"] = "Codes can not be blank. Please enter at least one SKU or UPC";
+        return RedirectToPage();
+      }
+
+      IEnumerable<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+      if (saleLines == null)
+      {
+        TempData["Message"] = "There are no items in the cart to update";
+        return RedirectToPage();
+      }
+
+      Dictionary<string, int> codeCount = CartVM.Codes.CountIt();
+      IEnumerable<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
+
+      foreach (var code in codeCount)
+      {
+        ProductModel product = products.FirstOrDefault(p => p.Sku.ToUpper() == code.Key || p.Upc == code.Key);
+        if (product == null) continue;
+
+        SaleLineModel saleLine = saleLines.FirstOrDefault(s => s.ProductId == product.Id);
+        saleLine.Qty -= code.Value;
+
+        if (saleLine.Qty <= 0) _sqlDb.SaleLines_Delete(saleLine.Id);
+        else _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
+
+        codeCount.Remove(code.Key);
+      }
+
+      if (codeCount.Count > 0)
+      {
+        string notFoundCodes = string.Join(", ", codeCount.Select(c => c.Key));
+        TempData["Message"] = $"Was not able to find { notFoundCodes } in the Cart";
+      }
+
+      return RedirectToPage();
+    }
+    #endregion
+
     public IActionResult OnPostApplyDiscount(int saleLineId, int qty, float discPct)
     {
       if (discPct > 100)
@@ -61,168 +216,6 @@ namespace NewAgePOS.Pages
 
       return RedirectToPage();
     }
-
-    #region Products
-    public async Task<IActionResult> OnPostAddProductsAsync()
-    {
-      if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
-
-      List<string> productCodes = CartVM.Codes
-        .Trim()
-        .Split(Environment.NewLine)
-        .Select(p => p.Trim())
-        .ToList();
-
-      Dictionary<string, int> codesWithQty = new Dictionary<string, int>();
-      productCodes.ForEach(p =>
-      {
-        if (codesWithQty.TryGetValue(p, out int qty))
-          codesWithQty[p]++;
-        else
-          codesWithQty.Add(p, 1);
-      });
-
-      await CheckAndUpdateExistingLines(productCodes, codesWithQty);
-
-      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(codesWithQty.Select(c => c.Key).ToList());
-
-      await Task.Run(() => CreateSaleLines(codesWithQty, jObjects));
-
-      if (codesWithQty.Count > 0)
-      {
-        string notFoundCodes = string.Join(", ", codesWithQty.Select(c => c.Key));
-        TempData["Message"] = $"Was not able to find { notFoundCodes }";
-      }
-
-      return RedirectToPage();
-    }
-
-    private void CreateSaleLines(Dictionary<string, int> codesWithQty, List<JObject> jObjects)
-    {
-      foreach (var item in jObjects)
-      {
-        string sku, upc;
-        int productId;
-        CheckProductAgainstDB(item, out sku, out upc, out productId);
-
-        if (codesWithQty.TryGetValue(sku, out int qty1))
-          codesWithQty.Remove(sku);
-
-        if (codesWithQty.TryGetValue(upc, out int qty2))
-          codesWithQty.Remove(upc);
-
-        _sqlDb.SaleLines_Insert(SaleId, productId, null, qty1 + qty2);
-      }
-    }
-
-    private void CheckProductAgainstDB(JObject item, out string sku, out string upc, out int productId)
-    {
-      sku = item[CAStrings.sku].ToString();
-      upc = item[CAStrings.upc].ToString();
-      float cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
-        item[CAStrings.cost].ToObject<float>();
-      float price = item[CAStrings.attributes]
-        .FirstOrDefault(i => i[CAStrings.name]
-          .ToString() == CAStrings.bcprice)[CAStrings.Value]
-        .ToObject<float>();
-      string allName = item[CAStrings.attributes]
-        .FirstOrDefault(i => i[CAStrings.name]
-          .ToString() == CAStrings.allName)[CAStrings.Value]
-        .ToString();
-
-      productId = 0;
-      ProductModel product = _sqlDb.Products_GetByCode(sku, upc);
-
-      if (product == null)
-        productId = _sqlDb.Products_Insert(sku, upc, cost, price, allName);
-      else if (product.Cost != cost || product.Price != price || product.AllName != allName)
-        _sqlDb.Products_Update(product.Id, cost, price, allName);
-      else
-        productId = product.Id;
-    }
-
-    private async Task CheckAndUpdateExistingLines(List<string> productCodes, Dictionary<string, int> codesWithQty)
-    {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
-      List<Task> tasks = new List<Task>();
-
-      foreach (var productCode in productCodes.Distinct())
-      {
-        int qtyToAdd = 0;
-        ProductModel product = new ProductModel();
-        SaleLineModel saleLine = new SaleLineModel();
-
-        if (productCode.Contains("_"))
-          product = products.FirstOrDefault(p => p.Sku.ToLower() == productCode.ToLower());
-        else
-          product = products.FirstOrDefault(p => p.Upc == productCode);
-
-        if (product != null)
-        {
-          codesWithQty.TryGetValue(productCode, out qtyToAdd);
-          codesWithQty.Remove(productCode);
-
-          saleLine = saleLines.First(sl => sl.ProductId == product.Id);
-          saleLine.Qty += qtyToAdd;
-          tasks.Add(Task.Run(() => _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct)));
-        }
-      }
-
-      await Task.WhenAll(tasks);
-    }
-
-    public IActionResult OnPostRemoveProducts()
-    {
-      if (string.IsNullOrEmpty(CartVM.Codes)) return RedirectToPage();
-
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      List<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
-
-      List<string> productCodes = CartVM.Codes
-        .Trim()
-        .Split(Environment.NewLine)
-        .Select(p => p.Trim())
-        .ToList();
-
-      List<IGrouping<string, string>> groupedCodes = productCodes
-        .GroupBy(p => p)
-        .ToList();
-
-      for (int i = groupedCodes.Count - 1; i >= 0; i--)
-      {
-        ProductModel product = new ProductModel();
-
-        if (groupedCodes[i].Key.Contains("_"))
-          product = products.FirstOrDefault(p => p.Sku.ToLower() == groupedCodes[i].Key.ToLower());
-        else
-          product = products.FirstOrDefault(p => p.Upc == groupedCodes[i].Key);
-
-        if (product != null)
-        {
-          SaleLineModel saleLine = saleLines.FirstOrDefault(s => s.ProductId.Value == product.Id);
-          saleLine.Qty -= groupedCodes[i].Count();
-
-          if (saleLine.Qty <= 0)
-          {
-            _sqlDb.SaleLines_Delete(saleLines[i].Id);
-            continue;
-          }
-
-          _sqlDb.SaleLines_Update(saleLine.Id, saleLine.Qty, saleLine.DiscPct);
-          groupedCodes.RemoveAt(i);
-        }
-      }
-
-      if (groupedCodes.Count > 0)
-      {
-        string notFoundCodes = string.Join(", ", groupedCodes.Select(g => g.Key));
-        TempData["Message"] = $"Unable to find { notFoundCodes } in cart";
-      }
-
-      return RedirectToPage();
-    }
-    #endregion
 
     #region Gift Cards
     public IActionResult OnPostAddGiftCards()

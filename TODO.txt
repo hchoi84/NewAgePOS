@@ -71,6 +71,8 @@
 - Sale/Refund: Changed column width to take up full space instead of half way since there isn't anything else on the right side
 - Message: Added character count. Button disables if it goes over the max char limit
 - Transfer Batch Request: Finalize button to clear session
+- Sale/Cart: Refactored Adding/Removing products
+- Sale/Cart: Fixed a potential bug that can arise when adding more than 9 different products
 
 
 ********** WORKING ON **********
