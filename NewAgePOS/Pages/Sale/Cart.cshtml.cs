@@ -151,9 +151,8 @@ namespace NewAgePOS.Pages
     {
       foreach (var product in products)
       {
-        int qty1, qty2;
-        if (!codeCount.TryGetValue(product.Sku, out qty1)) qty1 = 0;
-        if (!codeCount.TryGetValue(product.Upc, out qty2)) qty2 = 0;
+        if (!codeCount.TryGetValue(product.Sku, out int qty1)) qty1 = 0;
+        if (!codeCount.TryGetValue(product.Upc, out int qty2)) qty2 = 0;
 
         _sqlDb.SaleLines_Insert(SaleId, product.Id, null, qty1 + qty2);
 

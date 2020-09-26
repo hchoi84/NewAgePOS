@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
+using NewAgePOSModels.Securities;
+using NewAgePOSModels.Utilities;
 
 namespace NewAgePOS.Pages.Report
 {
@@ -34,12 +36,21 @@ namespace NewAgePOS.Pages.Report
     {
       if (BeginDate == new DateTime() || EndDate == new DateTime())
       {
-        BeginDate = DateTime.Now;
-        EndDate = DateTime.Now;
+        if (Secrets.DBIsLocal)
+        {
+          BeginDate = DateTime.Now.Date;
+          EndDate = DateTime.Now.Date;
+        }
+        else
+        {
+          BeginDate = DateTime.UtcNow.UTCtoPST().Date;
+          EndDate = DateTime.UtcNow.UTCtoPST().Date;
+        }
         return Page();
       }
 
-      Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate, EndDate.AddDays(1))
+      Console.WriteLine($"PST: { BeginDate } - UTC: { BeginDate.PSTtoUTC() }");
+      Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate.PSTtoUTC(), EndDate.AddDays(1).PSTtoUTC())
           .OrderBy(t => t.SaleId)
           .ThenBy(t => t.Method)
           .ToList();
