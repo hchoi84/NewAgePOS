@@ -1,5 +1,4 @@
-﻿using NewAgePOS.Utilities;
-using NewAgePOSModels.Securities;
+﻿using NewAgePOSModels.Utilities;
 using System;
 
 namespace NewAgePOSModels.Models

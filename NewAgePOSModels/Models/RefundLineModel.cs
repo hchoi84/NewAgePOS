@@ -1,7 +1,5 @@
-﻿using NewAgePOS.Utilities;
+﻿using NewAgePOSModels.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NewAgePOSModels.Models
 {
