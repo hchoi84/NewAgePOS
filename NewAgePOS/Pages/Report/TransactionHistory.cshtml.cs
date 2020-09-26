@@ -49,8 +49,8 @@ namespace NewAgePOS.Pages.Report
         return Page();
       }
 
-      Console.WriteLine($"PST: { BeginDate } - UTC: { BeginDate.PSTtoUTC() }");
       Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate.PSTtoUTC(), EndDate.AddDays(1).PSTtoUTC())
+          .Where(t => Math.Round(t.Amount, 2) != 0f)
           .OrderBy(t => t.SaleId)
           .ThenBy(t => t.Method)
           .ToList();

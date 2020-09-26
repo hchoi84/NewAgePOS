@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NewAgePOS.ViewModels.ViewComponent;
 using NewAgePOSLibrary.Data;
-using NewAgePOSModels.Models;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace NewAgePOS.ViewComponents
@@ -19,6 +17,7 @@ namespace NewAgePOS.ViewComponents
     public IViewComponentResult Invoke(int saleId)
     {
       MessagesVCVM model = new MessagesVCVM();
+      model.ReturnUrl = HttpContext.Request.Path;
       model.SaleId = saleId;
       model.Messages = _sqlDb.Messages_GetBySaleId(saleId).OrderByDescending(m => m.Created).ToList();
 

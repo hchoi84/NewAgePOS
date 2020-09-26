@@ -1,6 +1,6 @@
 ﻿@model NewAgePOS.ViewModels.Shared.PriceSummaryViewModel
 
-<div class="mt-5" style="max-width: 300px; margin: auto;">
+<div class="mt-5" style="max-width: 325px; margin: auto;">
   <div class="row">
     <div class="col h4">Quantity</div>
     <div class="col h4 text-right">@Model.Quantity</div>
@@ -43,7 +43,7 @@
       <div class="col h4 text-right">@Model.Paid.ToString("C2")</div>
     </div>
   }
-  @if (Model.Remaining != Model.Total && Model.Remaining > 0)
+  @if (Model.Remaining != Model.Total && Math.Round(Model.Remaining, 2) > 0)
   {
     <div class="row">
       <div class="col h4">Remaining</div>

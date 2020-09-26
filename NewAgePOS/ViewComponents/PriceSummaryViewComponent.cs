@@ -54,47 +54,20 @@ namespace NewAgePOS.ViewComponents
             p.Type == TypeEnum.Checkout &&
             p.Method == MethodEnum.Cash)
           .Sum(p => p.Amount),
+        Change = transactions.FirstOrDefault(t => t.Method == MethodEnum.Change) == null ? 0
+          : transactions.FirstOrDefault(t => t.Method == MethodEnum.Change).Amount,
         RefundedAmount = transactions.Where(t => t.Type == TypeEnum.Refund)
           .Sum(t => t.Amount),
         RefundingAmount = GetRefundingAmount(saleId, refundLines, saleLines, transactions)
       };
 
-      model.Change = CalculateChange(saleId,
-        transactions.FirstOrDefault(t => t.Method == MethodEnum.Change),
-        model.Paid,
-        model.Total);
-
       return model;
-    }
-
-    private float CalculateChange(int saleId, TransactionModel changeTransaction, float paid, float total)
-    {
-      float change = paid - total;
-
-      if (change <= 0) return change;
-
-      string path = ViewContext.View.Path;
-      if (!path.Contains(PathSourceEnum.Checkout.ToString())) return change;
-
-      if (changeTransaction != null)
-      {
-        bool isSameAmount = changeTransaction.Amount == change;
-        if (!isSameAmount)
-        {
-          changeTransaction.Amount = change;
-          _sqlDb.Transactions_UpdateAmount(changeTransaction.Id, changeTransaction.Amount);
-        }
-      }
-      else
-      {
-        _sqlDb.Transactions_Insert(saleId, null, change, MethodEnum.Change, TypeEnum.Checkout);
-      }
-
-      return change;
     }
 
     private float GetRefundingAmount(int saleId, List<RefundLineModel> refundLines, List<SaleLineModel> saleLines, List<TransactionModel> transactions)
     {
+      if (ViewContext.View.Path.Contains("Checkout")) return 0;
+
       List<RefundLineModel> refundingLines = refundLines.Where(rl => rl.TransactionId == 0).ToList();
       if (!refundingLines.Any())
       {

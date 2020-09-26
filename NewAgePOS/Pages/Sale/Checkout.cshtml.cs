@@ -224,6 +224,7 @@ namespace NewAgePOS.Pages.Sale
     {
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       JObject result = await RemoveProductsFromSkuVault(saleLines);
+      RecordChangeIfAny(saleLines);
       GenerateErrorMessage(result);
 
       _sqlDb.Sales_MarkComplete(SaleId);
@@ -252,6 +253,19 @@ namespace NewAgePOS.Pages.Sale
 
       JObject result = await _skuVault.RemoveItemBulkAsync(itemsToRemove);
       return result;
+    }
+
+    private void RecordChangeIfAny(List<SaleLineModel> saleLines)
+    {
+      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+
+      float purchaseAmount = saleLines.Where(s => s.ProductId.HasValue || s.GiftCardId.HasValue).Sum(s => s.LineTotal - s.LineDiscountTotal);
+      float tradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue).Sum(s => s.LineTotal - s.LineDiscountTotal);
+      float transactionAmount = transactions.Sum(t => t.Amount);
+      float change = purchaseAmount - tradeInAmount - transactionAmount;
+
+      if (change > 0)
+        _sqlDb.Transactions_Insert(SaleId, null, change, MethodEnum.Change, TypeEnum.Checkout);
     }
 
     private void GenerateErrorMessage(JObject result)

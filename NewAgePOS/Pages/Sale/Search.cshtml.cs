@@ -197,16 +197,22 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
 
-    public IActionResult OnPostCreateMessage(int saleId, string message)
+    public IActionResult OnPostCreateMessage(int saleId, string message, string returnUrl)
     {
       if (string.IsNullOrEmpty(message))
       {
         TempData["Message"] = "Message can not be blank";
-        return RedirectToPage();
+        if (Url.IsLocalUrl(returnUrl))
+          return Redirect(returnUrl);
+        else
+          return RedirectToPage();
       }
 
       _sqlDb.Messages_Insert(saleId, message);
-      return RedirectToPage();
+      if (Url.IsLocalUrl(returnUrl))
+        return Redirect(returnUrl);
+      else
+        return RedirectToPage();
     }
 
     public IActionResult OnPostDeleteMessage(int id)
