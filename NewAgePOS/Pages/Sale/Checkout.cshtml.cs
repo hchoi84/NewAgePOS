@@ -62,37 +62,28 @@ namespace NewAgePOS.Pages.Sale
 
       float dueBalance = (float)Math.Round(CalculateDueBalance(), 2);
 
-      bool hasNonGiveTransactions = Transactions.FirstOrDefault(t => t.Method != MethodEnum.Give) != null;
-      if (dueBalance > 0 && !hasNonGiveTransactions)
-        dueBalance = CalculateAndStoreRoundedValue(dueBalance);
+      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
+      if (dueBalance > 0 && giveTransaction == null)
+        dueBalance = CalculateGive(dueBalance);
 
       Transactions = Transactions
         .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
         .ToList();
+
       IsZeroBalance = dueBalance <= 0;
     }
 
-    private float CalculateAndStoreRoundedValue(float totalDue)
+    private float CalculateGive(float dueBalance)
     {
       float factor = 0.05f;
-      float roundedTotalDue = (int)(totalDue / factor) * factor;
-      float difference = totalDue - roundedTotalDue;
-      if (difference == 0) return totalDue;
+      float roundedDueBalance = (int)(dueBalance / factor) * factor;
+      float difference = dueBalance - roundedDueBalance;
+      if (difference == 0) return dueBalance;
 
-      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
-      if (giveTransaction == null)
-      {
-        _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout);
-        Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      }
-      else if (giveTransaction.Amount != difference)
-      {
-        giveTransaction.Amount += difference;
-        _sqlDb.Transactions_UpdateAmount(giveTransaction.Id, giveTransaction.Amount);
-        Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      }
+      _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout);
+      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
 
-      return totalDue;
+      return roundedDueBalance;
     }
 
     private float CalculateDueBalance()
@@ -137,8 +128,8 @@ namespace NewAgePOS.Pages.Sale
     private void ProcessCash()
     {
       TransactionModel cashTransaction = _sqlDb.Transactions_GetBySaleId(SaleId)
-        .Where(t => 
-          t.Method == MethodEnum.Cash && 
+        .Where(t =>
+          t.Method == MethodEnum.Cash &&
           t.Type == TypeEnum.Checkout)
         .FirstOrDefault();
 
@@ -201,8 +192,8 @@ namespace NewAgePOS.Pages.Sale
       float dueBalance = CalculateDueBalance();
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
 
-      TransactionModel giveTransaction = transactions.Where(t => 
-          t.Method == MethodEnum.Give && 
+      TransactionModel giveTransaction = transactions.Where(t =>
+          t.Method == MethodEnum.Give &&
           t.Type == TypeEnum.Checkout)
         .FirstOrDefault();
 

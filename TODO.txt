@@ -75,17 +75,18 @@
 - Sale/Cart: Fixed a potential bug that can arise when adding more than 9 different products
 - Transaction History, time conflict. 
 
+2020/09/26
 - Bug: After adding message, it goes to Sale/Search page. Have it redirect back to the original page
-- Input SaleId on the header for all Sale steps
-- Receipt shows Remaining $0.00
-- Change receipt font size to 18, up price summary width to 325px
-- Change should only be calculate during CompleteSaleAsync()
-- Transaction History: Display change only if rounded to 2 decimal is greater than 0
+- UI/UX: Input SaleId on the header for all Sale steps
+- UI/UX: Don't show Remaining $0.00 on receipt
+- UI/UX: Change receipt font size to 18, up price summary width to 325px
+- UI/UX: Transaction History: Display change only if rounded to 2 decimal is greater than 0
+- Improvement: Change should only be calculate during CompleteSaleAsync()
 
+- Bug: Give gets calculated every time page loads. If Give transaction exists, don't calculate
 
 ********** WORKING ON **********
 - Transaction History, display messages
-- Applying give amount recalculates Give again
 - Automatic height for AllName and Messages
 
 ********** PENDING (No particular order) **********
