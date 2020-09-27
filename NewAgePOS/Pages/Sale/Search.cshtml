@@ -5,7 +5,7 @@
   ViewData["Title"] = "Sales Search";
 }
 
-<h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
+<partial name="_HeaderPartial" model="0" />
 
 @if (TempData["Message"] != null)
 {
@@ -57,18 +57,40 @@
           <input readonly class="col-6 form-control" value="@result.EmailAddress" />
         </div>
         <div class="row">
+          <a class="btn btn-primary mt-1"
+             asp-page="/Sale/Message"
+             asp-route-saleId="@result.SaleId">
+            @if (result.MessageCount > 0)
+            {
+              <i class="fas fa-envelope-open-text"></i> @result.MessageCount
+            }
+            else
+            {
+              <i class="fas fa-envelope-open"></i> @result.MessageCount
+            }
+          </a>
 
           @if (result.IsComplete)
           {
-            <a asp-page="/Sale/Refund" asp-route-saleid="@result.SaleId" class="btn btn-warning mt-1">Refund</a>
-            <a asp-page="Receipt" asp-route-id="@result.SaleId" asp-route-idtype="Sale" class="btn btn-primary mt-1 ml-1">Receipt</a>
+            <a class="btn btn-warning mt-1 ml-1"
+               asp-page="/Sale/Refund"
+               asp-route-saleid="@result.SaleId">Refund</a>
+
+            <a class="btn btn-warning mt-1 ml-1"
+               asp-page="Receipt"
+               asp-route-id="@result.SaleId"
+               asp-route-idtype="Sale">Receipt</a>
           }
           else
           {
-            <a asp-page="/Sale/Cart" asp-route-saleid="@result.SaleId" class="btn btn-success mt-1">Continue</a>
+            <a class="btn btn-success mt-1 ml-1"
+               asp-page="/Sale/Cart"
+               asp-route-saleid="@result.SaleId">Continue</a>
 
-            <form asp-page-handler="CancelSale" asp-route-saleid="@result.SaleId">
-              <button type="submit" class="btn btn-danger ml-1 mt-1">Cancel Sale</button>
+            <form method="post"
+                  asp-page-handler="CancelSale"
+                  asp-route-saleid="@result.SaleId">
+              <button type="submit" class="btn btn-danger mt-1 ml-1">Cancel Sale</button>
             </form>
           }
         </div>

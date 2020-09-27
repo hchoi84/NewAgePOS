@@ -5,7 +5,7 @@
   float earning = 0;
 }
 
-<h1 class="font-weight-bold text-center my-3">@ViewData["Title"]</h1>
+<partial name="_HeaderPartial" model="0" />
 
 <form method="get" class="mb-5">
   <div class="form-row">
@@ -45,7 +45,26 @@
 
     if (i == 0 || ts[i].SaleId != ts[i - 1].SaleId)
     {
-      <h4 class="text-center mt-3">@ts[i].SaleId</h4>
+      int msgCount = Model.MessagesCount[ts[i].SaleId];
+      <div class="row justify-content-center">
+        <div class="col-auto my-auto mx-0">
+          <a class="btn btn-primary"
+             asp-page="/Sale/Message"
+             asp-route-saleId="@ts[i].SaleId">
+            @if (msgCount > 0)
+            {
+              <i class="fas fa-envelope-open-text"></i> @msgCount
+            }
+            else
+            {
+              <i class="fas fa-envelope-open"></i> @msgCount
+            }
+          </a>
+        </div>
+        <div class="col-auto">
+          <h4 class="text-center mt-3">@ts[i].SaleId</h4>
+        </div>
+      </div>
     }
 
     <div class="form-row">

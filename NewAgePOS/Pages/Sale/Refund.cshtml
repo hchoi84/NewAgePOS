@@ -4,7 +4,7 @@
   ViewData["Title"] = "Sales Refund";
 }
 
-<h1 class="font-weight-bold text-center my-3">@ViewData["Title"] #@Model.SaleId</h1>
+<partial name="_HeaderPartial" model="@Model.SaleId" />
 
 @if (TempData["Message"] != null)
 {

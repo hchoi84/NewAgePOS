@@ -120,6 +120,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<MessageModel, dynamic>("dbo.spMessages_GetBySaleId", new { saleId }, _connectionStringName, true);
     }
 
+    public int Messages_GetCountBySaleId(int saleId)
+    {
+      string query = "SELECT COUNT(Id) FROM dbo.Messages WHERE SaleId = @saleId";
+      return _sqlDb.LoadData<int, dynamic>(query, new { saleId }, _connectionStringName, false).FirstOrDefault();
+    }
+
     public int Messages_Insert(int saleId, string message)
     {
       string query = "INSERT INTO dbo.Messages (SaleId, Message) VALUES (@saleId, @message)";

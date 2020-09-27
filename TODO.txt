@@ -82,12 +82,17 @@
 - UI/UX: Change receipt font size to 18, up price summary width to 325px
 - UI/UX: Transaction History: Display change only if rounded to 2 decimal is greater than 0
 - Improvement: Change should only be calculate during CompleteSaleAsync()
+- Bug: Give gets calculated every time page loads. If Give transaction exists, don't calculate (Special cases will need to be tested)
 
-- Bug: Give gets calculated every time page loads. If Give transaction exists, don't calculate
+2020/09/27
+- Implemented messages count to Sale/Search and TransactionHistory
+- Implemented _HeaderPartial
+- Implemented Sale/Message
+
 
 ********** WORKING ON **********
-- Transaction History, display messages
 - Automatic height for AllName and Messages
+- Put vertical margins on messages
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply
@@ -95,3 +100,6 @@
 - Tax: Add with default selection (singleton)
 - Ensure any table update also updates Updated column
 - Sale/Search: Implement displaying pending sales
+- Sale/Search: Implement optional date range criteria
+- Sale/Search: Implement page selector
+- Sale/Search: Remove "Results" header

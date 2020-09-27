@@ -78,6 +78,7 @@ namespace NewAgePOSLibrary.Data
     int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type);
     void Transactions_UpdateAmount(int id, float newAmt);
     void Transactions_DeleteById(int id);
+    int Messages_GetCountBySaleId(int saleId);
     #endregion
   }
 }

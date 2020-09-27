@@ -1,0 +1,14 @@
+﻿@page "{saleId:min(1)}"
+@model NewAgePOS.Pages.Sale.MessageModel
+@{
+  ViewData["Title"] = "Sales Messages";
+}
+
+<partial name="_HeaderPartial" model="@Model.SaleId" />
+
+@if (TempData["Message"] != null)
+{
+  <div class="text-danger mb-3 text-center">@TempData["Message"]</div>
+}
+
+@await Component.InvokeAsync("Messages", new { saleId = Model.SaleId })

@@ -149,11 +149,12 @@ namespace NewAgePOS.Pages.Sale
       Results.Add(new SearchViewModel
       {
         SaleId = sale.Id,
-        Created = sale.Created,
         IsComplete = sale.IsComplete,
-        EmailAddress = customer.EmailAddress,
         FullName = customer.FullName,
-        PhoneNumber = customer.PhoneNumber
+        EmailAddress = customer.EmailAddress,
+        PhoneNumber = customer.PhoneNumber,
+        MessageCount = _sqlDb.Messages_GetCountBySaleId(sale.Id),
+        Created = sale.Created,
       });
     }
 

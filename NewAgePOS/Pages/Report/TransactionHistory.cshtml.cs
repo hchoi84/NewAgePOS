@@ -31,6 +31,7 @@ namespace NewAgePOS.Pages.Report
     public DateTime EndDate { get; set; }
 
     public List<TransactionModel> Transactions { get; set; }
+    public Dictionary<int, int> MessagesCount { get; set; }
 
     public IActionResult OnGet()
     {
@@ -54,6 +55,14 @@ namespace NewAgePOS.Pages.Report
           .OrderBy(t => t.SaleId)
           .ThenBy(t => t.Method)
           .ToList();
+
+      MessagesCount = new Dictionary<int, int>();
+      Transactions
+        .Select(t => t.SaleId)
+        .Distinct()
+        .ToList()
+        .ForEach(saleId =>
+          MessagesCount.Add(saleId, _sqlDb.Messages_GetCountBySaleId(saleId)));
 
       return Page();
     }
