@@ -1,7 +1,7 @@
 ﻿@using NewAgePOS.ViewModels.ViewComponent
 @model MessagesVCVM
 
-<form method="post" asp-page="/Sale/Search" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId" asp-route-returnurl="@Model.ReturnUrl">
+<form method="post" asp-page="/Sale/Message" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId" asp-route-returnurl="@Model.ReturnUrl">
   <div class="form-row">
     <div class="col">
       <textarea asp-for="@Model.Message" class="form-control" onkeyup="countCharacters(this.id, 'MessageCountDisplay', 'MessageSubmitButton')" placeholder="Enter message here... 100 max characters"></textarea>
@@ -22,14 +22,14 @@
   <div class="mt-5"></div>
   foreach (MessageModel msg in Model.Messages)
   {
-    <div class="form-row">
+    <div class="form-row mt-2">
       <div class="col">
         @msg.Created
       </div>
     </div>
     <div class="form-row">
       <div class="col">
-        <input disabled value="@msg.Message" class="form-control" />
+        <p disabled class="form-control m-0" style="height:auto;">@msg.Message</p>
       </div>
       <div class="col-auto">
         <button id="delBtn_@msg.Id" class="btn btn-danger" onclick="confirm(this.id)"><i class="fas fa-trash-alt"></i></button>
@@ -41,7 +41,7 @@
           <input disabled value="Are you sure?" class="form-control" />
         </div>
         <div class="col-auto">
-          <form method="post" asp-page="/Sale/Search" asp-page-handler="DeleteMessage" asp-route-id="@msg.Id">
+          <form method="post" asp-page="/Sale/Message" asp-page-handler="DeleteMessage" asp-route-id="@msg.Id">
             <button type="submit" class="btn btn-primary"><i class="fas fa-check-square"></i></button>
           </form>
         </div>

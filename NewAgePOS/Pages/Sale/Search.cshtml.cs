@@ -198,28 +198,18 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
 
-    public IActionResult OnPostCreateMessage(int saleId, string message, string returnUrl)
+    public IActionResult OnGetGetPendingSales()
     {
-      if (string.IsNullOrEmpty(message))
-      {
-        TempData["Message"] = "Message can not be blank";
-        if (Url.IsLocalUrl(returnUrl))
-          return Redirect(returnUrl);
-        else
-          return RedirectToPage();
-      }
+      Results = new List<SearchViewModel>();
 
-      _sqlDb.Messages_Insert(saleId, message);
-      if (Url.IsLocalUrl(returnUrl))
-        return Redirect(returnUrl);
-      else
-        return RedirectToPage();
-    }
+      _sqlDb.Sales_GetPending()
+        .ForEach(s =>
+        {
+          CustomerModel customer = _sqlDb.Customers_GetBySaleId(s.Id);
+          GenerateResults(s, customer);
+        });
 
-    public IActionResult OnPostDeleteMessage(int id)
-    {
-      _sqlDb.Messages_Delete(id);
-      return RedirectToPage();
+      return Page();
     }
   }
 }

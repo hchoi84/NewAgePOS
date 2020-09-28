@@ -255,6 +255,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { customerId }, _connectionStringName, false);
     }
 
+    public List<SaleModel> Sales_GetPending()
+    {
+      string query = "SELECT * FROM dbo.Sales WHERE IsComplete = 0";
+      return _sqlDb.LoadData<SaleModel, dynamic>(query, new { }, _connectionStringName, false);
+    }
+
     public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",

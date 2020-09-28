@@ -89,17 +89,24 @@
 - Implemented _HeaderPartial
 - Implemented Sale/Message
 
-
-********** WORKING ON **********
+2020/09/28
+- Pushed to server
 - Automatic height for AllName and Messages
 - Put vertical margins on messages
+- Sale/Search: Remove "Results" header
+- Move message related handlers from Sale/Search to Sale/Message
+- Sale/Search: Implement displaying pending sales
+
+
+
+********** WORKING ON **********
+
+
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
 - Ensure any table update also updates Updated column
-- Sale/Search: Implement displaying pending sales
 - Sale/Search: Implement optional date range criteria
 - Sale/Search: Implement page selector
-- Sale/Search: Remove "Results" header

@@ -79,6 +79,7 @@ namespace NewAgePOSLibrary.Data
     void Transactions_UpdateAmount(int id, float newAmt);
     void Transactions_DeleteById(int id);
     int Messages_GetCountBySaleId(int saleId);
+    List<SaleModel> Sales_GetPending();
     #endregion
   }
 }

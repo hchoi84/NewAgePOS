@@ -12,7 +12,7 @@
   <div class="text-danger mt-3 text-center">@TempData["Message"]</div>
 }
 
-<form method="get">
+<form method="get" class="mb-5">
   <div class="form-row">
     <div class="col">
       <select asp-for="SearchMethod" asp-items="Model.SearchMethods" class="form-control" onchange='searchQueryMsg("searchQueryMsg")'>
@@ -26,6 +26,9 @@
   <div class="form-row">
     <div class="col">
       <button type="submit" class="btn btn-primary mt-1">Search</button>
+      <a class="btn btn-primary mt-1" asp-page-handler="GetPendingSales" data-toggle="tooltip" data-placement="bottom" title="Pending Sales">
+        <i class="fas fa-spinner"></i>
+      </a>
     </div>
     <div class="col">
       <span id="searchQueryMsg" class="small text-info"></span>
@@ -35,28 +38,36 @@
 
 @if (Model.Results != null)
 {
-  <h4 class="mt-5 mb-3 text-center">Results</h4>
-
-  <div class="container">
-    @if (Model.Results.Any())
+  @if (Model.Results.Any())
+  {
+    @foreach (var result in Model.Results)
     {
-      @foreach (var result in Model.Results)
+      if (result != Model.Results.First())
       {
-        if (result != Model.Results.First())
-        {
-          <div class="mt-3"></div>
-        }
+        <div class="mt-3"></div>
+      }
 
-        <div class="row">
-          <input readonly class="col-5 form-control" value="@result.Created.ToString("yyyy/MM/dd")" />
-          <input readonly class="col-2 form-control" value="@result.SaleId" />
-          <input readonly class="col-5 form-control" value="@result.PhoneNumber" />
+      <div class="form-row">
+        <div class="col-5 pr-0">
+          <input readonly class="form-control" value="@result.Created.ToString("yyyy/MM/dd")" />
         </div>
-        <div class="row">
-          <input readonly class="col-6 form-control" value="@result.FullName" />
-          <input readonly class="col-6 form-control" value="@result.EmailAddress" />
+        <div class="col-2 px-0">
+          <input readonly class="form-control" value="@result.SaleId" />
         </div>
-        <div class="row">
+        <div class="col-5 pl-0">
+          <input readonly class="form-control" value="@result.PhoneNumber" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="col-6 pr-0">
+          <input readonly class="form-control" value="@result.FullName" />
+        </div>
+        <div class="col-6 pl-0">
+          <input readonly class="form-control" value="@result.EmailAddress" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="col">
           <a class="btn btn-primary mt-1"
              asp-page="/Sale/Message"
              asp-route-saleId="@result.SaleId">
@@ -72,39 +83,44 @@
 
           @if (result.IsComplete)
           {
-            <a class="btn btn-warning mt-1 ml-1"
+            <a class="btn btn-danger mt-1"
                asp-page="/Sale/Refund"
                asp-route-saleid="@result.SaleId">Refund</a>
 
-            <a class="btn btn-warning mt-1 ml-1"
+            <a class="btn btn-primary mt-1"
                asp-page="Receipt"
                asp-route-id="@result.SaleId"
                asp-route-idtype="Sale">Receipt</a>
           }
           else
           {
-            <a class="btn btn-success mt-1 ml-1"
+            <a class="btn btn-success mt-1"
                asp-page="/Sale/Cart"
                asp-route-saleid="@result.SaleId">Continue</a>
 
-            <form method="post"
+            <form method="post" style="display:inline-block;"
                   asp-page-handler="CancelSale"
                   asp-route-saleid="@result.SaleId">
-              <button type="submit" class="btn btn-danger mt-1 ml-1">Cancel Sale</button>
+              <button type="submit" class="btn btn-danger mt-1">Cancel Sale</button>
             </form>
           }
         </div>
-      }
-    }
-    else
-    {
-      <div class="row">
-        <div class="col text-info">No Results</div>
       </div>
     }
-  </div>
+  }
+  else
+  {
+    <div class="form-row">
+      <div class="col text-info text-center">No Results</div>
+    </div>
+  }
 }
 
 @section Scripts{
+  <script>
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
   <script src="~/js/site.js" asp-append-version="true"></script>
 }
