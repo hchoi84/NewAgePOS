@@ -16,11 +16,11 @@
 - Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code
 - Product Search product name wrap and auto height
 
-2020/09/20
+2020/09/20 Sunday
 - Receipt template for printing on Direct Thermal printer
 - Updated server to the latest git repo
 
-2020/09/21
+2020/09/21 Monday
 - Receipt: No space between Sale Receipt and the #
 - Receipt: Date format to follow US standard MM/DD/YYYY
 - Receipt: Reduce the width of the Price Summary by 10px
@@ -30,13 +30,13 @@
 - Refactored CultureInfo("en-US") to be set for the entire application
 - Updated Server
 
-2020/09/22
+2020/09/22 Tuesday
 - Architect where the Messages should be displayed/inserted
 	* D/I Sale/Checkout
 	* D/I Sale/Refund
 - Refactored Location Search for efficiency and in preparation for batch transfer request
 
-2020/09/23
+2020/09/23 Wednesday
 - Renamed Location Search to Transfer
 - Transfer request
 	* Utilize Session for quicker processing
@@ -46,7 +46,7 @@
 - Tested UTC to PST time conversion
 - Added missing Stored Procedure (spMessages_GetBySaleId)
 
-2020/09/24
+2020/09/24 Thursday
 - Modified Sale/Checkout Give algo to only calculate if the due balance is greater than 0 and doesn't have any non-Give transactions
 - Edited spSales_CancelById stored procedure to remove any associated messages as well
 - Implemented UTCtoPST() for server
@@ -66,7 +66,7 @@
 - Sale/Receipt: "Sale Receipt" to "Sales Receipt"
 - Sale/Refund: Fixed miscalculation on Refunding amount
 
-2020/09/25
+2020/09/25 Friday
 - Sale/Refund: Changed textarea title to "Items to Remove SKUs or UPCs" for clarification. User states Add/Remove button is confusing as they may think Remove means to remove the product from what's already been purchased
 - Sale/Refund: Changed column width to take up full space instead of half way since there isn't anything else on the right side
 - Message: Added character count. Button disables if it goes over the max char limit
@@ -75,7 +75,7 @@
 - Sale/Cart: Fixed a potential bug that can arise when adding more than 9 different products
 - Transaction History, time conflict. 
 
-2020/09/26
+2020/09/26 Saturday
 - Bug: After adding message, it goes to Sale/Search page. Have it redirect back to the original page
 - UI/UX: Input SaleId on the header for all Sale steps
 - UI/UX: Don't show Remaining $0.00 on receipt
@@ -84,23 +84,24 @@
 - Improvement: Change should only be calculate during CompleteSaleAsync()
 - Bug: Give gets calculated every time page loads. If Give transaction exists, don't calculate (Special cases will need to be tested)
 
-2020/09/27
+2020/09/27 Sunday
 - Implemented messages count to Sale/Search and TransactionHistory
-- Implemented _HeaderPartial
+- Implemented _HeaderPartial for uniform header design
 - Implemented Sale/Message
 
-2020/09/28
+2020/09/28 Monday
 - Pushed to server
-- Automatic height for AllName and Messages
-- Put vertical margins on messages
-- Sale/Search: Remove "Results" header
-- Move message related handlers from Sale/Search to Sale/Message
-- Sale/Search: Implement displaying pending sales
+- UI/UX: Automatic height for AllName and Messages
+- UI/UX: Sale/Message: Put vertical margins on messages
+- UI/UX: Sale/Search: Remove "Results" header
+- UI/UX: Sale/Search: Refactoring, button icons, tooltip, margins, etc.
+- Refactor: Move message related handlers from Sale/Search to Sale/Message
+- Feature: Sale/Search: Implement displaying pending sales
 
 
 
 ********** WORKING ON **********
-
+- Refactor Add/Removing Gift Cards
 
 
 ********** PENDING (No particular order) **********
@@ -110,3 +111,4 @@
 - Ensure any table update also updates Updated column
 - Sale/Search: Implement optional date range criteria
 - Sale/Search: Implement page selector
+- Overall Gift Card balance

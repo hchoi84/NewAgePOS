@@ -219,77 +219,94 @@ namespace NewAgePOS.Pages
     #region Gift Cards
     public IActionResult OnPostAddGiftCards()
     {
-      if (!ModelState.IsValid) return Page();
+      List<string> errorMsgs = new List<string>();
 
-      List<string> msgs = new List<string>();
-      List<string> giftCardCodes = CartVM.GiftCardCodes
-        .Trim()
-        .Replace(" ", string.Empty)
-        .Split(Environment.NewLine)
-        .Distinct()
-        .ToList();
+      if (String.IsNullOrEmpty(CartVM.GiftCardCodes) || CartVM.GiftCardAmount == 0 || CartVM.GiftCardAmountConfirm == 0) 
+        errorMsgs.Add("All Gift Card fields are required");
+      else if (CartVM.GiftCardAmount <= 0) 
+        errorMsgs.Add("Gift Card Amount must be greater than 0");
+      else if (CartVM.GiftCardAmount != CartVM.GiftCardAmountConfirm) 
+        errorMsgs.Add("Gift Card Amount does not match with the confirmation amount");
 
-      foreach (string code in giftCardCodes)
+      if (errorMsgs.Any())
       {
-        GiftCardModel gc = _sqlDb.GiftCards_GetByCode(code);
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
+        return Page();
+      }
 
-        if (gc != null)
+      Dictionary<string, int> codeCounts = CartVM.GiftCardCodes.CountIt();
+
+      foreach (var code in codeCounts)
+      {
+        if (code.Key.Length != 13)
         {
-          msgs.Add($"{ code } already exists. Skipped");
+          errorMsgs.Add($"{ code.Key }: Invalid Gift Card code. Must be 13 digits");
           continue;
         }
 
-        int giftCardId = _sqlDb.GiftCards_Insert(code, CartVM.GiftCardAmount);
+        bool gcIsInDB = _sqlDb.GiftCards_GetByCode(code.Key) != null;
 
-        _sqlDb.SaleLines_Insert(SaleId, null, giftCardId, 1);
+        if (gcIsInDB)
+        {
+          errorMsgs.Add($"{ code.Key }: Same code already exists");
+          continue;
+        }
+
+        int gcId = _sqlDb.GiftCards_Insert(code.Key, CartVM.GiftCardAmount);
+        _sqlDb.SaleLines_Insert(SaleId, null, gcId, 1);
       }
 
-      if (msgs.Count > 0) TempData["Message"] = string.Join(Environment.NewLine, msgs);
+      if (errorMsgs.Any())
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
 
       return RedirectToPage();
     }
 
     public IActionResult OnPostRemoveGiftCards()
     {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      List<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
-      List<string> msgs = new List<string>();
-      List<string> giftCardCodes = CartVM.GiftCardCodes
-        .Trim()
-        .Replace(" ", string.Empty)
-        .Split(Environment.NewLine)
-        .Distinct()
-        .ToList();
+      List<string> errorMsgs = new List<string>();
 
-      foreach (string code in giftCardCodes)
+      if (String.IsNullOrEmpty(CartVM.GiftCardCodes))
+        errorMsgs.Add("Gift Card Codes field is required");
+
+      if (errorMsgs.Any())
       {
-        GiftCardModel gc = giftCards.FirstOrDefault(g => g.Code == code);
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
+        return Page();
+      }
 
-        if (gc == null)
+      Dictionary<string, int> codeCounts = CartVM.GiftCardCodes.CountIt();
+      IEnumerable<GiftCardModel> giftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
+      IEnumerable<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
+
+      foreach (var code in codeCounts)
+      {
+        if (code.Key.Length != 13)
         {
-          msgs.Add($"{ code } was not found in the cart");
+          errorMsgs.Add($"{ code.Key }: Invalid Gift Card code. Must be 13 digits");
           continue;
         }
 
-        int saleLineId = saleLines.FirstOrDefault(s => s.GiftCardId.HasValue && s.GiftCardId.Value == gc.Id).Id;
-        _sqlDb.SaleLines_Delete(saleLineId);
+        GiftCardModel gc = giftCards.FirstOrDefault(gc => gc.Code == code.Key);
+
+        if (gc == null)
+        {
+          errorMsgs.Add($"{ code.Key }: Does not exist in current sales");
+          continue;
+        }
+
+        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.GiftCardId == gc.Id);
+
+        _sqlDb.SaleLines_Delete(saleLine.Id);
         _sqlDb.GiftCards_Delete(gc.Id);
       }
 
-      if (msgs.Count > 0) TempData["Message"] = string.Join(Environment.NewLine, msgs);
+      if (errorMsgs.Any())
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
 
       return RedirectToPage();
     }
     #endregion
-
-    public IActionResult OnPostProceed()
-    {
-      if (_sqlDb.SaleLines_GetBySaleId(SaleId).Any())
-        return RedirectToPage("Guest", new { SaleId });
-
-      TempData["Message"] = "There are no items to proceed with";
-      return RedirectToPage();
-    }
 
     #region Trade Ins
     public IActionResult OnPostAddTradeIn()
@@ -318,5 +335,14 @@ namespace NewAgePOS.Pages
       return RedirectToPage();
     }
     #endregion
+
+    public IActionResult OnPostProceed()
+    {
+      if (_sqlDb.SaleLines_GetBySaleId(SaleId).Any())
+        return RedirectToPage("Guest", new { SaleId });
+
+      TempData["Message"] = "There are no items to proceed with";
+      return RedirectToPage();
+    }
   }
 }
