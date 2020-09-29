@@ -5,7 +5,7 @@ namespace NewAgePOS.ViewModels.Sale
   public class CartViewModel
   {
     [Display(Name = "SKUs or UPCs")]
-    public string Codes { get; set; }
+    public string ProductCodes { get; set; }
 
 
     [Display(Name = "Gift Card Codes")]
@@ -15,7 +15,6 @@ namespace NewAgePOS.ViewModels.Sale
     public float GiftCardAmount { get; set; }
 
     [Display(Name = "Cofirm Amount")]
-    [Compare(nameof(GiftCardAmount), ErrorMessage = "Gift Card amount does not match")]
     public float GiftCardAmountConfirm { get; set; }
 
 
@@ -26,7 +25,6 @@ namespace NewAgePOS.ViewModels.Sale
     public float TradeInValue { get; set; }
 
     [Display(Name = "Confirm Value")]
-    [Compare(nameof(TradeInValue), ErrorMessage = "Trade in values do not match")]
     public float ConfirmTradeInValue { get; set; }
 
     [Display(Name = "Quantity")]

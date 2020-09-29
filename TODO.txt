@@ -98,11 +98,12 @@
 - Refactor: Move message related handlers from Sale/Search to Sale/Message
 - Feature: Sale/Search: Implement displaying pending sales
 
+2020/09/29
+- Refactored Add/Remove Gift Cards
+- Refactored Add/Remove Trade Ins for displaying accurate error messages
 
 
 ********** WORKING ON **********
-- Refactor Add/Removing Gift Cards
-
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

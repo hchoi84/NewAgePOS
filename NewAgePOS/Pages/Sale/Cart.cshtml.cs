@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using ChannelAdvisorLibrary;
@@ -53,13 +54,13 @@ namespace NewAgePOS.Pages
     #region Products
     public async Task<IActionResult> OnPostAddProductsAsync()
     {
-      if (string.IsNullOrEmpty(CartVM.Codes))
+      if (string.IsNullOrEmpty(CartVM.ProductCodes))
       {
         TempData["Message"] = "Codes can not be blank. Please enter at least one SKU or UPC";
         return RedirectToPage();
       }
 
-      Dictionary<string, int> codeCount = CartVM.Codes.CountIt();
+      Dictionary<string, int> codeCount = CartVM.ProductCodes.CountIt();
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
       if (!saleLines.Any())
@@ -163,7 +164,7 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostRemoveProducts()
     {
-      if (string.IsNullOrEmpty(CartVM.Codes))
+      if (string.IsNullOrEmpty(CartVM.ProductCodes))
       {
         TempData["Message"] = "Codes can not be blank. Please enter at least one SKU or UPC";
         return RedirectToPage();
@@ -176,7 +177,7 @@ namespace NewAgePOS.Pages
         return RedirectToPage();
       }
 
-      Dictionary<string, int> codeCount = CartVM.Codes.CountIt();
+      Dictionary<string, int> codeCount = CartVM.ProductCodes.CountIt();
       IEnumerable<ProductModel> products = _sqlDb.Products_GetBySaleId(SaleId);
 
       foreach (var code in codeCount)
@@ -311,7 +312,22 @@ namespace NewAgePOS.Pages
     #region Trade Ins
     public IActionResult OnPostAddTradeIn()
     {
-      if (!ModelState.IsValid) return Page();
+      List<string> errorMsgs = new List<string>();
+
+      if (CartVM.TradeInValue == 0 || CartVM.ConfirmTradeInValue == 0 || CartVM.TradeInQty == 0)
+        errorMsgs.Add("All Trade In fields are required");
+      else if (CartVM.TradeInValue != CartVM.ConfirmTradeInValue)
+        errorMsgs.Add("Trade In Value and the Confirm Value does not match");
+      else if (CartVM.TradeInValue <= 0)
+        errorMsgs.Add("Trade In Value must be greater than 0");
+      else if (CartVM.TradeInQty <= 0)
+        errorMsgs.Add("Trade In Quantity must be greater than 0");
+
+      if (errorMsgs.Any())
+      {
+        TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
+        return Page();
+      }
 
       _sqlDb.SaleLines_Insert(SaleId, CartVM.TradeInValue, CartVM.TradeInQty);
 
@@ -320,18 +336,17 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostRemoveTradeIn()
     {
+      if (CartVM.SaleLineId == 0)
+      {
+        TempData["Message"] = "Trade In ID field is required";
+        return Page();
+      }
+
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       SaleLineModel saleLineToDelete = saleLines.FirstOrDefault(sl => sl.Id == CartVM.SaleLineId);
 
-      if (saleLineToDelete == null)
-      {
-        TempData["Message"] = $"{CartVM.SaleLineId} does not exist";
-        return RedirectToPage();
-      }
-
       _sqlDb.SaleLines_Delete(saleLineToDelete.Id);
 
-      TempData["Message"] = $"{CartVM.SaleLineId} has been removed";
       return RedirectToPage();
     }
     #endregion
