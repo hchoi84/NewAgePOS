@@ -99,17 +99,23 @@
 - Feature: Sale/Search: Implement displaying pending sales
 
 2020/09/29
-- Refactored Add/Remove Gift Cards
-- Refactored Add/Remove Trade Ins for displaying accurate error messages
+- Sale/Cart: Refactored Add/Remove Gift Cards
+- Sale/Cart: Refactored Add/Remove Trade Ins for displaying accurate error messages
+
+2020/09/30
+- Updated server
+- Sale/Cart: Prevents applying discount outside of 0 to 100
+- Ensure any table update also updates Updated column
 
 
 ********** WORKING ON **********
+
+
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply
 	* Cash/GiftCard = 0%, CreditCard = default %
 - Tax: Add with default selection (singleton)
-- Ensure any table update also updates Updated column
 - Sale/Search: Implement optional date range criteria
 - Sale/Search: Implement page selector
 - Overall Gift Card balance

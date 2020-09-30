@@ -206,9 +206,9 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostApplyDiscount(int saleLineId, int qty, float discPct)
     {
-      if (discPct > 100)
+      if (discPct < 0 || discPct > 100)
       {
-        TempData["Message"] = "Discount percent can not be greater than 100";
+        TempData["Message"] = "Discount percent must be between 0 and 100";
         return Page();
       }
 

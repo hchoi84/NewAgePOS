@@ -62,8 +62,9 @@ namespace NewAgePOSLibrary.Data
 
     public void Customers_Update(int id, string firstName, string lastName, string emailAddress, string phoneNumber)
     {
-      string query = "UPDATE dbo.Customers SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, PhoneNumber = @phoneNumber WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, firstName, lastName, emailAddress, phoneNumber }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.Customers SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, PhoneNumber = @phoneNumber, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, firstName, lastName, emailAddress, phoneNumber, updated }, _connectionStringName, false);
     }
     #endregion
 
@@ -96,9 +97,9 @@ namespace NewAgePOSLibrary.Data
 
     public void GiftCards_Update(int id, float amount)
     {
-      string updateDate = DateTime.Now.ToShortDateString();
-      string query = "UPDATE dbo.GiftCards SET Amount = @amount, Updated = @updateDate WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, amount, updateDate }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.GiftCards SET Amount = @amount, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, amount, updated }, _connectionStringName, false);
     }
     #endregion
 
@@ -197,8 +198,9 @@ namespace NewAgePOSLibrary.Data
 
     public void RefundLines_Update(int id, int qty)
     {
-      string query = "UPDATE dbo.RefundLines SET Qty = @qty WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, qty }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.RefundLines SET Qty = @qty, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, qty, updated }, _connectionStringName, false);
     }
     #endregion
 
@@ -231,8 +233,9 @@ namespace NewAgePOSLibrary.Data
 
     public void SaleLines_Update(int id, int qty, float discPct)
     {
-      string query = "UPDATE dbo.SaleLines SET Qty = @qty, DiscPct = @discPct WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, qty, discPct }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.SaleLines SET Qty = @qty, DiscPct = @discPct, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, qty, discPct, updated }, _connectionStringName, false);
     }
     #endregion
 
@@ -271,17 +274,17 @@ namespace NewAgePOSLibrary.Data
 
     public void Sales_MarkComplete(int id)
     {
-      string query = "UPDATE dbo.Sales SET IsComplete = 1 WHERE Id = @id";
-
-      _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.Sales SET IsComplete = 1, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, updated }, _connectionStringName, false);
     }
 
     public void Sales_UpdateCustomerId(int saleId, int customerId)
     {
-      string query = "UPDATE dbo.Sales SET CustomerId = @customerId WHERE Id = @saleId";
-
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.Sales SET CustomerId = @customerId, Updated = @updated WHERE Id = @saleId";
       _sqlDb.SaveData(query,
-                      new { saleId, customerId },
+                      new { saleId, customerId, updated },
                       _connectionStringName, false);
     }
     #endregion
@@ -333,8 +336,9 @@ namespace NewAgePOSLibrary.Data
 
     public void Transactions_UpdateAmount(int id, float newAmt)
     {
-      string query = "UPDATE dbo.Transactions SET Amount = @newAmt WHERE Id = @id";
-      _sqlDb.SaveData(query, new { id, newAmt }, _connectionStringName, false);
+      DateTime updated = DateTime.Now;
+      string query = "UPDATE dbo.Transactions SET Amount = @newAmt, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, newAmt, updated }, _connectionStringName, false);
     }
     #endregion
   }
