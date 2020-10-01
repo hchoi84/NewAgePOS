@@ -103,12 +103,32 @@
 - Sale/Cart: Refactored Add/Remove Trade Ins for displaying accurate error messages
 
 2020/09/30
-- Updated server
-- Sale/Cart: Prevents applying discount outside of 0 to 100
-- Ensure any table update also updates Updated column
+- Bug Fix: Sale/Cart: Prevents applying discount outside of 0 to 100
+- DB: Ensure any table update also updates Updated column
+- Updated Server
+
+- Refactor: PriceSummaryViewComponent to fix miscalculation and cleaner code
+- Bug Fix: Order #128 refunding amount isn't accurate. Solved as part of refactoring PriceSummaryViewComponent
+- Bug Fix: "Change" wasn't being recorded due to incorrect comparison sign
+- Refactor: Refunding trigger (buttons) moved to PriceSummary to reduce duplicate refunding amount calculation
 
 
 ********** WORKING ON **********
+Justin:
+- Transfer Batch DB. Multiple dbs. Multiple Xfer Batch requests
+- FINISH button on the transfer batch or create a PROGRESS column
+- Warehouse to pull information, print, and mark as complete
+
+Michael:
+- Xfer list highlight STORE in red. Make location different color
+- Bug Fix: NAJ0468 displays DROPSHIP
+- Xfer Batch List: Sort warehouse location by Location
+
+Michael:
+- Transaction History: Needs to display actual sale amount. It's only showing transaction amounts.
+- Increase error font size
+- Checkout: Cash default, display by default
+- Checkout: Cash input, blank. Currently it's defaulted to 0
 
 
 

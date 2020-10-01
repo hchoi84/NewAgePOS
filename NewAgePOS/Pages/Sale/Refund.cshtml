@@ -30,20 +30,6 @@
 
 @await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
 
-<form method="post">
-  <div class="form-row mt-1">
-    <div class="col-6">
-      <select id="RefundMethod" asp-for="@Model.RefundMethod" asp-items="@Model.RefundMethods" class="form-control" onchange="refundMethod('GiftCardCodeInputBox')">
-        <option value="">Choose method</option>
-      </select>
-    </div>
-    <div id="GiftCardCodeInputBox" class="col" style="display: none;">
-      <input asp-for="@Model.GiftCardCode" class="form-control" placeholder="Scan Gift Card Code Here" />
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary mt-1">Submit Refund</button>
-</form>
-
 <h4 class="mt-5 text-center">Messages</h4>
 @await Component.InvokeAsync("Messages", new { saleId = Model.SaleId })
 

@@ -50,90 +50,65 @@ namespace NewAgePOS.Pages.Sale
       return Page();
     }
 
-    public IActionResult OnPost()
+    public IActionResult OnPostApplyCashRefund(int saleId, float amount)
     {
-      List<RefundLineModel> refundingLines = _sqlDb.RefundLines_GetBySaleId(SaleId).Where(rl => rl.TransactionId == 0).ToList();
-      if (refundingLines == null)
+      if (amount <= 0)
       {
         TempData["Message"] = "Nothing to refund";
         return RedirectToPage();
       }
 
-      float refundingAmount = GetRefundingAmount(refundingLines);
+      int transactionId = _sqlDb.Transactions_Insert(saleId, null, amount, MethodEnum.Cash, TypeEnum.Refund);
 
-      int transactionId = 0;
+      IEnumerable<RefundLineModel> refunding = _sqlDb.RefundLines_GetBySaleId(saleId)
+        .Where(r => !r.TransactionId.HasValue);
 
-      if (string.IsNullOrEmpty(RefundMethod))
+      foreach (var item in refunding)
       {
-        TempData["Message"] = "Please choose refund method";
-        return Page();
+        _sqlDb.RefundLines_MarkComplete(item.Id, transactionId);
       }
-      else if (RefundMethod == MethodEnum.Cash.ToString())
-      {
-        transactionId = _sqlDb.Transactions_Insert(SaleId, null, refundingAmount, MethodEnum.Cash, TypeEnum.Refund);
-      }
-      else if (RefundMethod == MethodEnum.GiftCard.ToString())
-      {
-        if (string.IsNullOrEmpty(GiftCardCode))
-        {
-          TempData["Message"] = "Gift Card Code can't be empty";
-          return Page();
-        }
-
-        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(GiftCardCode);
-        int giftCardId = 0;
-
-        if (giftCard != null)
-        {
-          giftCardId = giftCard.Id;
-          giftCard.Amount += refundingAmount;
-          _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount);
-        }
-        else
-        {
-          giftCardId = _sqlDb.GiftCards_Insert(GiftCardCode, refundingAmount);
-        }
-
-        transactionId = _sqlDb.Transactions_Insert(SaleId, giftCardId, refundingAmount, MethodEnum.GiftCard, TypeEnum.Refund);
-      }
-
-      refundingLines.ForEach(r => _sqlDb.RefundLines_MarkComplete(r.Id, transactionId));
 
       return RedirectToPage("Receipt", new { Id = transactionId, IdType = TypeEnum.Refund.ToString() });
     }
 
-    private float GetRefundingAmount(List<RefundLineModel> refundingLines)
+    public IActionResult OnPostApplyGiftCardRefund(int saleId, float amount, string giftCardCode)
     {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-
-      float refundingAmount = refundingLines.Sum(rl =>
+      if (amount <= 0)
       {
-        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
-        float priceAfterDiscount = saleLine.Price - saleLine.LineDiscountTotal / saleLine.Qty;
-        return rl.Qty * priceAfterDiscount;
-      });
-
-      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      float refundableAmount = 0;
-      foreach (var t in transactions)
-      {
-        if (t.Type == TypeEnum.Checkout)
-        {
-          if (t.Method == MethodEnum.GiftCard || t.Method == MethodEnum.Cash)
-            refundableAmount += t.Amount;
-          else
-            refundableAmount -= t.Amount;
-        }
-        else
-        {
-          refundableAmount -= t.Amount;
-        }
+        TempData["Message"] = "Nothing to refund";
+        return RedirectToPage();
       }
 
-      if (refundableAmount < refundingAmount)
-        refundingAmount = refundableAmount;
+      if (string.IsNullOrEmpty(giftCardCode))
+      {
+        TempData["Message"] = "Gift Card code field is required";
+        return RedirectToPage();
+      }
 
-      return refundableAmount;
+      GiftCardModel gc = _sqlDb.GiftCards_GetByCode(giftCardCode);
+      int gcId = 0;
+      if (gc != null)
+      {
+        gcId = gc.Id;
+        gc.Amount += amount;
+        _sqlDb.GiftCards_Update(gc.Id, gc.Amount);
+      }
+      else
+      {
+        gcId = _sqlDb.GiftCards_Insert(giftCardCode, amount);
+      }
+
+      int transactionId = _sqlDb.Transactions_Insert(saleId, gcId, amount, MethodEnum.GiftCard, TypeEnum.Refund);
+
+      IEnumerable<RefundLineModel> refunding = _sqlDb.RefundLines_GetBySaleId(saleId)
+        .Where(r => !r.TransactionId.HasValue);
+
+      foreach (var item in refunding)
+      {
+        _sqlDb.RefundLines_MarkComplete(item.Id, transactionId);
+      }
+
+      return RedirectToPage("Receipt", new { Id = transactionId, IdType = TypeEnum.Refund.ToString() });
     }
 
     public IActionResult OnPostAdd()
@@ -208,7 +183,8 @@ namespace NewAgePOS.Pages.Sale
         SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.ProductId == product.Id);
         int saleLineId = saleLine.Id;
 
-        RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => rl.SaleLineId == saleLineId && rl.TransactionId == 0);
+        RefundLineModel refundingLine = refundLines.FirstOrDefault(rl => 
+          rl.SaleLineId == saleLineId && !rl.TransactionId.HasValue);
         int refundingQty = refundingLine != null ? refundingLine.Qty : 0;
 
         if (refundingQty == 0)

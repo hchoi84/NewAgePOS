@@ -9,25 +9,25 @@
     <div class="col h4">Subtotal</div>
     <div class="col h4 text-right">@Model.Subtotal.ToString("C2")</div>
   </div>
-  @if (Model.DiscountAmount > 0)
+  @if (Model.Discount > 0)
   {
     <div class="row">
       <div class="col h4">Discount</div>
-      <div class="col h4 text-right">@((Model.TotalDiscount * -1).ToString("C2"))</div>
+      <div class="col h4 text-right">@((Model.Discount * -1).ToString("C2"))</div>
     </div>
   }
-  @if (Model.TradeInAmount > 0)
+  @if (Model.TradeInValue > 0)
   {
     <div class="row">
       <div class="col h4">Trade In</div>
-      <div class="col h4 text-right">@((Model.TradeInAmount * -1).ToString("C2"))</div>
+      <div class="col h4 text-right">@((Model.TradeInValue * -1).ToString("C2"))</div>
     </div>
   }
-  @if (Model.TaxPct > 0)
+  @if (Model.TaxPercent > 0)
   {
     <div class="row">
-      <div class="col h4">Tax @Model.TaxPct %</div>
-      <div class="col h4 text-right">@Model.TaxAmt.ToString("C2")</div>
+      <div class="col h4">Tax @Model.TaxPercent %</div>
+      <div class="col h4 text-right">@Model.TaxAmount.ToString("C2")</div>
     </div>
   }
   <div class="row">
@@ -43,11 +43,11 @@
       <div class="col h4 text-right">@Model.Paid.ToString("C2")</div>
     </div>
   }
-  @if (Model.Remaining != Model.Total && Math.Round(Model.Remaining, 2) > 0)
+  @if (Model.DueBalance != Model.Total && Math.Round(Model.DueBalance, 2) > 0)
   {
     <div class="row">
-      <div class="col h4">Remaining</div>
-      <div class="col h4 text-right">@Model.Remaining.ToString("C2")</div>
+      <div class="col h4">Due Balance</div>
+      <div class="col h4 text-right">@Model.DueBalance.ToString("C2")</div>
     </div>
   }
   @if (Math.Round(Model.Change, 2) > 0)
@@ -76,3 +76,63 @@
     </div>
   }
 </div>
+
+@if (Model.IsFromRefund)
+{
+  <div class="mt-5"></div>
+  <h4 class="text-center">Refund Method</h4>
+  <div class="row mb-2">
+    <div class="col text-center">
+      <a id="cashRefundBtn" 
+         class="btn btn-primary" 
+         onclick="confirm2Btns('cashRefundBtn', 'giftCardRefundBtn')">Cash</a>
+      <a id="giftCardRefundBtn" 
+         class="btn btn-primary" 
+         onclick="confirm2Btns('giftCardRefundBtn', 'cashRefundBtn')">GC</a>
+    </div>
+  </div>
+
+  <div id="cashRefund" style="display:none;">
+    <form method="post" class="form-inline row justify-content-center"
+          asp-page="/Sale/Refund"
+          asp-page-handler="ApplyCashRefund"
+          asp-route-saleId="@Model.SaleId"
+          asp-route-amount="@Model.RefundingAmount">
+      <div class="col-4 pr-0">
+        <input value="Apply refund as cash?" class="form-control text-right" style="width: 100%" disabled />
+      </div>
+      <div class="col-auto px-0">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-check-square"></i>
+        </button>
+      </div>
+      <div class="col-auto pl-0">
+        <a class="btn btn-danger" onclick="confirm('cashRefundBtn')">
+          <i class="fas fa-window-close"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div id="giftCardRefund" style="display:none;">
+    <form method="post" class="form-inline row justify-content-center"
+          asp-page="/Sale/Refund"
+          asp-page-handler="ApplyGiftCardRefund"
+          asp-route-saleId="@Model.SaleId"
+          asp-route-amount="@Model.RefundingAmount">
+      <div class="col-4 pr-0">
+        <input name="giftCardCode" class="form-control" type="text" style="width: 100%" placeholder="Gift Card Code" />
+      </div>
+      <div class="col-auto px-0">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-check-square"></i>
+        </button>
+      </div>
+      <div class="col-auto pl-0">
+        <a class="btn btn-danger" onclick="confirm('giftCardRefundBtn')">
+          <i class="fas fa-window-close"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+}

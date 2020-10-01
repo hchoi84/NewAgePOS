@@ -51,8 +51,8 @@
     </div>
     @if (Model.PathSource == PathSourceEnum.Refund)
     {
-      int refundedQty = Model.Refunds.Where(r => r.TransactionId != 0 && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
-      int refundingQty = Model.Refunds.Where(r => r.TransactionId == 0 && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+      int refundedQty = Model.Refunds.Where(r => r.TransactionId.HasValue && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+      int refundingQty = Model.Refunds.Where(r => !r.TransactionId.HasValue && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
       <div class="form-row">
         <div class="col pr-0">
           <input readonly value="@refundedQty" class="form-control" />

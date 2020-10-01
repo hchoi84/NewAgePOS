@@ -9,7 +9,7 @@ namespace NewAgePOSModels.Models
 
     public int Id { get; set; }
     public int SaleLineId { get; set; }
-    public int TransactionId { get; set; }
+    public int? TransactionId { get; set; }
     public int Qty { get; set; }
     public DateTime Created {
       get { return _created.UTCtoPST(); }

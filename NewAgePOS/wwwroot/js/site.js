@@ -87,6 +87,29 @@ function confirm(id) {
   }
 }
 
+function confirm2Btns(thisId, thatId) {
+  var thisButton = document.getElementById(thisId);
+  var thisDivId = thisId.replace("Btn", "");
+  var thisDiv = document.getElementById(thisDivId);
+
+  var thatButton = document.getElementById(thatId);
+  var thatDivId = thatId.replace("Btn", "");
+  var thatDiv = document.getElementById(thatDivId);
+
+  if (thisDiv.style.display == 'none') {
+    thisDiv.style.display = 'block';
+    thatDiv.style.display = 'none';
+    thisButton.className = 'btn btn-primary border-warning';
+    thatButton.className = 'btn btn-primary';
+  }
+  else {
+    thisDiv.style.display = 'none';
+    thatDiv.style.display = 'none';
+    thisButton.className = 'btn btn-primary';
+    thatButton.className = 'btn btn-primary';
+  }
+}
+
 function countCharacters(inputId, displayId, buttonId) {
   var input = document.getElementById(inputId);
   var display = document.getElementById(displayId);

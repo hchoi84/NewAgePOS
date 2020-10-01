@@ -2,20 +2,22 @@
 {
   public class PriceSummaryViewModel
   {
+    public int SaleId { get; set; }
+    public bool IsFromRefund { get; set; }
+
     public int Quantity { get; set; }
     public float Subtotal { get; set; }
-    public float DiscountAmount { get; set; }
-    public float GiveAmount { get; set; }
-    public float TotalDiscount { get { return DiscountAmount + GiveAmount; } }
-    public float TradeInAmount { get; set; }
-    public float TaxPct { get; set; }
-    public float TaxAmt { get { return (Subtotal - TotalDiscount - TradeInAmount) * (TaxPct / 100f); } }
-    public float Total { get { return Subtotal - TotalDiscount - TradeInAmount + TaxAmt; } }
-    public float Paid { get { return PaidGiftCard + PaidCash; } }
-    public float PaidGiftCard { get; set; }
-    public float PaidCash { get; set; }
-    public float Remaining { get { return Total - Paid; } }
+    public float Discount { get; set; }
+    public float TradeInValue { get; set; }
+    public float TaxPercent { get; set; }
+    public float TaxAmount { get { return (Subtotal - Discount - TradeInValue) * (TaxPercent / 100f); } }
+    public float Total { get { return Subtotal - Discount - TradeInValue + TaxAmount; } }
+    
+    public float Paid { get; set; }
+    public float DueBalance { get { return Total - Paid; } }
+
     public float Change { get; set; }
+
     public float RefundedAmount { get; set; }
     public float RefundingAmount { get; set; }
   }

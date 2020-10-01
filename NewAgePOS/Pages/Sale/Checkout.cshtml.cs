@@ -95,7 +95,7 @@ namespace NewAgePOS.Pages.Sale
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       float purchaseAmount = saleLines.Where(sl =>
           sl.ProductId.HasValue || sl.GiftCardId.HasValue)
-        .Sum(sl => (sl.Price - (sl.LineDiscountTotal / sl.Qty)) * sl.Qty);
+        .Sum(sl => (sl.Price - (sl.Discount / sl.Qty)) * sl.Qty);
       float tradeInAmount = saleLines.Where(sl =>
           !sl.ProductId.HasValue && !sl.GiftCardId.HasValue)
         .Sum(sl => sl.Price);
@@ -250,13 +250,14 @@ namespace NewAgePOS.Pages.Sale
     {
       List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
 
-      float purchaseAmount = saleLines.Where(s => s.ProductId.HasValue || s.GiftCardId.HasValue).Sum(s => s.LineTotal - s.LineDiscountTotal);
-      float tradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue).Sum(s => s.LineTotal - s.LineDiscountTotal);
+      float purchaseAmount = saleLines.Where(s => s.ProductId.HasValue || s.GiftCardId.HasValue).Sum(s => s.Total);
+      float tradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue).Sum(s => s.Total);
       float transactionAmount = transactions.Sum(t => t.Amount);
+      
       float change = purchaseAmount - tradeInAmount - transactionAmount;
 
-      if (change > 0)
-        _sqlDb.Transactions_Insert(SaleId, null, change, MethodEnum.Change, TypeEnum.Checkout);
+      if (change < 0)
+        _sqlDb.Transactions_Insert(SaleId, null, Math.Abs(change), MethodEnum.Change, TypeEnum.Checkout);
     }
 
     private void GenerateErrorMessage(JObject result)

@@ -19,88 +19,73 @@ namespace NewAgePOS.ViewComponents
 
     public IViewComponentResult Invoke(int saleId)
     {
-      PriceSummaryViewModel model = GeneratePriceSummaryViewModel(saleId);
+      PriceSummaryViewModel model = GenerateViewModel(saleId);
+      model.SaleId = saleId;
+      model.IsFromRefund = ViewContext.View.Path.Contains(PathSourceEnum.Refund.ToString());
 
       return View(model);
     }
 
-    private PriceSummaryViewModel GeneratePriceSummaryViewModel(int saleId)
+    private PriceSummaryViewModel GenerateViewModel(int saleId)
     {
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
-      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
-      List<TransactionModel> paidTransactions = transactions.Where(t => t.Type == TypeEnum.Checkout).ToList();
-      List<RefundLineModel> refundLines = _sqlDb.RefundLines_GetBySaleId(saleId);
-      TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
+      IEnumerable<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
+      IEnumerable<SaleLineModel> tradeInSaleLines = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue);
 
-      PriceSummaryViewModel model = new PriceSummaryViewModel
-      {
-        Quantity = saleLines.Sum(s => s.Qty),
-        Subtotal = saleLines.Where(s =>
-            s.ProductId.HasValue || s.GiftCardId.HasValue)
-          .Sum(s => s.LineTotal),
-        DiscountAmount = saleLines.Sum(s => s.LineDiscountTotal),
-        GiveAmount = paidTransactions.Where(p =>
-            p.Type == TypeEnum.Checkout &&
-            p.Method == MethodEnum.Give)
-          .Sum(p => p.Amount),
-        TradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue)
-          .Sum(s => s.LineTotal),
-        TaxPct = tax.TaxPct,
-        PaidGiftCard = paidTransactions.Where(p =>
-            p.Type == TypeEnum.Checkout &&
-            p.Method == MethodEnum.GiftCard)
-          .Sum(p => p.Amount),
-        PaidCash = paidTransactions.Where(p =>
-            p.Type == TypeEnum.Checkout &&
-            p.Method == MethodEnum.Cash)
-          .Sum(p => p.Amount),
-        Change = transactions.FirstOrDefault(t => t.Method == MethodEnum.Change) == null ? 0
-          : transactions.FirstOrDefault(t => t.Method == MethodEnum.Change).Amount,
-        RefundedAmount = transactions.Where(t => t.Type == TypeEnum.Refund)
-          .Sum(t => t.Amount),
-        RefundingAmount = GetRefundingAmount(saleId, refundLines, saleLines, transactions)
-      };
-
-      return model;
-    }
-
-    private float GetRefundingAmount(int saleId, List<RefundLineModel> refundLines, List<SaleLineModel> saleLines, List<TransactionModel> transactions)
-    {
-      if (ViewContext.View.Path.Contains("Checkout")) return 0;
-
-      List<RefundLineModel> refundingLines = refundLines.Where(rl => rl.TransactionId == 0).ToList();
-      if (!refundingLines.Any())
-      {
-        return 0;
-      }
-
-      float refundingAmount = refundingLines.Sum(rl =>
-      {
-        SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.Id == rl.SaleLineId);
-        float priceAfterDiscount = saleLine.Price - saleLine.LineDiscountTotal / saleLine.Qty;
-        return rl.Qty * priceAfterDiscount;
-      });
-
-      float refundableAmount = 0;
+      IEnumerable<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(saleId);
+      TransactionModel giveTransaction = new TransactionModel();
+      TransactionModel cashTransaction = new TransactionModel();
+      TransactionModel changeTransaction = new TransactionModel();
+      List<TransactionModel> giftCardTransactions = new List<TransactionModel>();
+      List<TransactionModel> refundTransactions = new List<TransactionModel>();
       foreach (var t in transactions)
       {
         if (t.Type == TypeEnum.Checkout)
         {
-          if (t.Method == MethodEnum.GiftCard || t.Method == MethodEnum.Cash)
-            refundableAmount += t.Amount;
-          else
-            refundableAmount -= t.Amount;
+          if (t.Method == MethodEnum.Give) 
+            giveTransaction = t;
+          else if (t.Method == MethodEnum.Cash) 
+            cashTransaction = t;
+          else if (t.Method == MethodEnum.GiftCard)
+            giftCardTransactions.Add(t);
+          else if (t.Method == MethodEnum.Change) 
+            changeTransaction = t;
         }
         else
         {
-          refundableAmount -= t.Amount;
+          refundTransactions.Add(t);
         }
       }
 
-      if (refundableAmount < refundingAmount)
-        refundingAmount = refundableAmount;
+      IEnumerable<RefundLineModel> refundingLines = _sqlDb.RefundLines_GetBySaleId(saleId)
+        .Where(r => !r.TransactionId.HasValue);
+      TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
 
-      return refundableAmount;
+      PriceSummaryViewModel m = new PriceSummaryViewModel();
+      m.Quantity = saleLines.Sum(s => s.Qty);
+      m.Subtotal = saleLines.Sum(s => s.Subtotal) - tradeInSaleLines.Sum(s => s.Subtotal);
+
+      float giveAmount = giveTransaction == null ? 0 : giveTransaction.Amount;
+      m.Discount = saleLines.Sum(s => s.Discount) + giveAmount;
+      m.TradeInValue = tradeInSaleLines.Sum(t => t.Price);
+      m.TaxPercent = tax.TaxPct;
+      m.Paid = giftCardTransactions.Sum(t => t.Amount) + cashTransaction.Amount;
+      m.Change = changeTransaction == null ? 0 : changeTransaction.Amount;
+      m.RefundedAmount = refundTransactions.Sum(t => t.Amount);
+
+      float refundingAmount = 0;
+      if (refundingLines.Any())
+      {
+        foreach (var refunding in refundingLines)
+        {
+          SaleLineModel saleLine = saleLines.FirstOrDefault(s => s.Id == refunding.SaleLineId);
+          refundingAmount += saleLine.Total / saleLine.Qty * refunding.Qty * (1 + (m.TaxPercent / 100f));
+        }
+      }
+      float refundableAmount = m.Total - m.RefundedAmount;
+      m.RefundingAmount = refundableAmount < refundingAmount ? 
+        refundableAmount : refundingAmount;
+
+      return m;
     }
   }
 }
