@@ -106,11 +106,14 @@
 - Bug Fix: Sale/Cart: Prevents applying discount outside of 0 to 100
 - DB: Ensure any table update also updates Updated column
 - Updated Server
-
 - Refactor: PriceSummaryViewComponent to fix miscalculation and cleaner code
 - Bug Fix: Order #128 refunding amount isn't accurate. Solved as part of refactoring PriceSummaryViewComponent
 - Bug Fix: "Change" wasn't being recorded due to incorrect comparison sign
 - Refactor: Refunding trigger (buttons) moved to PriceSummary to reduce duplicate refunding amount calculation
+
+2020/10/01
+- Updated server
+- UI/UX: Increase all error font size to h4
 
 
 ********** WORKING ON **********
@@ -125,8 +128,8 @@ Michael:
 - Xfer Batch List: Sort warehouse location by Location
 
 Michael:
-- Transaction History: Needs to display actual sale amount. It's only showing transaction amounts.
-- Increase error font size
+- Transaction History: Needs to display actual sale amount. It's only showing transaction amounts. The day cash earning is incorrect
+	* Could be related to "Change" not being recorded due to incorrect comparison sign (09/30 fix)
 - Checkout: Cash default, display by default
 - Checkout: Cash input, blank. Currently it's defaulted to 0
 
