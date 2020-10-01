@@ -30,13 +30,9 @@ namespace NewAgePOS.Pages.Sale
     [BindProperty(SupportsGet = true)]
     public int SaleId { get; set; }
 
-    [BindProperty]
-    public CheckoutViewModel Checkout { get; set; }
-
     public CustomerModel Customer { get; set; }
     public List<TransactionModel> Transactions { get; set; }
     public List<GiftCardModel> GiftCards { get; set; }
-    public bool IsZeroBalance { get; set; }
 
     public IActionResult OnGet()
     {
@@ -46,177 +42,83 @@ namespace NewAgePOS.Pages.Sale
         return RedirectToPage("Search");
       }
 
-      Initialize();
-
-      return Page();
-    }
-
-    private void Initialize()
-    {
-      Checkout = new CheckoutViewModel();
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      GiftCards = Transactions.Where(t => t.GiftCardId.HasValue)
-        .Select(t => _sqlDb.GiftCards_GetById(t.GiftCardId.Value))
-        .ToList();
-
-      float dueBalance = (float)Math.Round(CalculateDueBalance(), 2);
-
-      TransactionModel giveTransaction = Transactions.FirstOrDefault(t => t.Method == MethodEnum.Give);
-      if (dueBalance > 0 && giveTransaction == null)
-        dueBalance = CalculateGive(dueBalance);
+      GiftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
 
       Transactions = Transactions
         .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
         .ToList();
 
-      IsZeroBalance = dueBalance <= 0;
+      return Page();
     }
 
-    private float CalculateGive(float dueBalance)
+    public IActionResult OnPostProcessTransaction(float amount, MethodEnum method)
     {
-      float factor = 0.05f;
-      float roundedDueBalance = (int)(dueBalance / factor) * factor;
-      float difference = dueBalance - roundedDueBalance;
-      if (difference == 0) return dueBalance;
-
-      _sqlDb.Transactions_Insert(SaleId, null, difference, MethodEnum.Give, TypeEnum.Checkout);
-      Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-
-      return roundedDueBalance;
-    }
-
-    private float CalculateDueBalance()
-    {
-      List<TransactionModel> transactions = new List<TransactionModel>();
-      if (Transactions != null && Transactions.Any()) transactions = Transactions;
-      else transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-
-      List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
-      float purchaseAmount = saleLines.Where(sl =>
-          sl.ProductId.HasValue || sl.GiftCardId.HasValue)
-        .Sum(sl => (sl.Price - (sl.Discount / sl.Qty)) * sl.Qty);
-      float tradeInAmount = saleLines.Where(sl =>
-          !sl.ProductId.HasValue && !sl.GiftCardId.HasValue)
-        .Sum(sl => sl.Price);
-
-      float subtotalDue = purchaseAmount - tradeInAmount;
-      float paid = transactions == null ? 0 : transactions.Sum(t => t.Amount);
-      float taxPct = _sqlDb.Taxes_GetBySaleId(SaleId).TaxPct;
-      float taxDue = subtotalDue * (taxPct / 100f);
-      float totalDue = subtotalDue + taxDue - paid;
-      return totalDue;
-    }
-
-
-    public IActionResult OnPostApplyPayment()
-    {
-      if (string.IsNullOrEmpty(Checkout.PaymentMethod))
+      if (amount <= 0)
       {
-        TempData["Message"] = "Please choose a Payment Method";
+        TempData["Message"] = $"{ method } amount must be greater than 0";
         return RedirectToPage();
       }
 
-      float dueBalance = CalculateDueBalance();
+      TransactionModel transaction = _sqlDb.Transactions_GetBySaleId(SaleId)
+        .FirstOrDefault(t => t.Type == TypeEnum.Checkout && t.Method == method);
 
-      if (Checkout.PaymentMethod == MethodEnum.Cash.ToString() && Checkout.Amount > 0)
-        ProcessCash();
-
-      return RedirectToPage(new { SaleId });
-    }
-
-    private void ProcessCash()
-    {
-      TransactionModel cashTransaction = _sqlDb.Transactions_GetBySaleId(SaleId)
-        .Where(t =>
-          t.Method == MethodEnum.Cash &&
-          t.Type == TypeEnum.Checkout)
-        .FirstOrDefault();
-
-      if (cashTransaction != null)
+      if (transaction != null)
       {
-        cashTransaction.Amount += Checkout.Amount;
-        _sqlDb.Transactions_UpdateAmount(cashTransaction.Id, cashTransaction.Amount);
+        transaction.Amount += amount;
+        _sqlDb.Transactions_UpdateAmount(transaction.Id, transaction.Amount);
       }
       else
       {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.Amount, MethodEnum.Cash, TypeEnum.Checkout);
-      }
-    }
-
-
-    public IActionResult OnPostApplyGiftCards()
-    {
-      if (string.IsNullOrEmpty(Checkout.GiftCardCodes))
-      {
-        TempData["Message"] = "Must enter at least 1 gift card code";
-        return RedirectToPage();
+        _sqlDb.Transactions_Insert(SaleId, null, amount, method, TypeEnum.Checkout);
       }
 
-      List<string> msgs = new List<string>();
-      float dueBalance = CalculateDueBalance();
-      List<string> giftCardCodes = Checkout.GiftCardCodes
-        .Trim()
-        .Split(Environment.NewLine)
-        .Select(g => g.Trim())
-        .Distinct()
-        .ToList();
-
-      foreach (var code in giftCardCodes)
-      {
-        GiftCardModel giftCard = _sqlDb.GiftCards_GetByCode(code);
-
-        if (giftCard == null)
-        {
-          msgs.Add($"{ code } was not found");
-          continue;
-        }
-        else if (giftCard.Amount <= 0)
-        {
-          msgs.Add($"{ code } has no balance");
-          continue;
-        }
-
-        float payingAmt = giftCard.Amount < dueBalance ? giftCard.Amount : dueBalance;
-
-        _sqlDb.Transactions_Insert(SaleId, giftCard.Id, payingAmt, MethodEnum.GiftCard, TypeEnum.Checkout);
-        _sqlDb.GiftCards_Update(giftCard.Id, giftCard.Amount - payingAmt);
-      }
-
-      TempData["Message"] = string.Join(Environment.NewLine, msgs);
       return RedirectToPage();
     }
 
-    public IActionResult OnPostApplyGiveAmount()
+    public IActionResult OnPostProcessGiftCardTransaction(string giftCardCode, float dueBalance)
     {
-      float dueBalance = CalculateDueBalance();
-      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
+      giftCardCode = giftCardCode.Trim();
+      string errorMsg = "";
 
-      TransactionModel giveTransaction = transactions.Where(t =>
-          t.Method == MethodEnum.Give &&
-          t.Type == TypeEnum.Checkout)
-        .FirstOrDefault();
+      if (string.IsNullOrEmpty(giftCardCode))
+        errorMsg = "Gift Card Code is required";
+      else if (giftCardCode.Length != 13)
+        errorMsg = "Gift Card Code must be 13 digits";
 
-      if (giveTransaction != null)
+      if (!string.IsNullOrEmpty(errorMsg))
       {
-        giveTransaction.Amount += Checkout.GiveAmount;
-        _sqlDb.Transactions_UpdateAmount(giveTransaction.Id, giveTransaction.Amount);
-      }
-      else
-      {
-        _sqlDb.Transactions_Insert(SaleId, null, Checkout.GiveAmount, MethodEnum.Give, TypeEnum.Checkout);
+        TempData["Message"] = errorMsg;
+        return RedirectToPage();
       }
 
-      return RedirectToPage(new { SaleId });
+      GiftCardModel gc = _sqlDb.GiftCards_GetByCode(giftCardCode);
+
+      if (gc == null)
+      {
+        TempData["Message"] = $"Gift Card does not exist";
+        return RedirectToPage();
+      }
+
+      float payingAmount = gc.Amount < dueBalance ? gc.Amount : dueBalance;
+
+      gc.Amount -= payingAmount;
+      _sqlDb.GiftCards_Update(gc.Id, gc.Amount);
+      _sqlDb.Transactions_Insert(SaleId, gc.Id, payingAmount, MethodEnum.GiftCard, TypeEnum.Checkout);
+
+      return RedirectToPage();
     }
 
 
-    public async Task<IActionResult> OnPostCompleteSaleAsync()
+    public async Task<IActionResult> OnPostCompleteSaleAsync(float change)
     {
       List<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
       JObject result = await RemoveProductsFromSkuVault(saleLines);
-      RecordChangeIfAny(saleLines);
       GenerateErrorMessage(result);
+
+      if (change > 0)
+        _sqlDb.Transactions_Insert(SaleId, null, change, MethodEnum.Change, TypeEnum.Checkout);
 
       _sqlDb.Sales_MarkComplete(SaleId);
 
@@ -244,20 +146,6 @@ namespace NewAgePOS.Pages.Sale
 
       JObject result = await _skuVault.RemoveItemBulkAsync(itemsToRemove);
       return result;
-    }
-
-    private void RecordChangeIfAny(List<SaleLineModel> saleLines)
-    {
-      List<TransactionModel> transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-
-      float purchaseAmount = saleLines.Where(s => s.ProductId.HasValue || s.GiftCardId.HasValue).Sum(s => s.Total);
-      float tradeInAmount = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue).Sum(s => s.Total);
-      float transactionAmount = transactions.Sum(t => t.Amount);
-      
-      float change = purchaseAmount - tradeInAmount - transactionAmount;
-
-      if (change < 0)
-        _sqlDb.Transactions_Insert(SaleId, null, Math.Abs(change), MethodEnum.Change, TypeEnum.Checkout);
     }
 
     private void GenerateErrorMessage(JObject result)

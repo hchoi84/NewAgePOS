@@ -1,4 +1,5 @@
-﻿@model NewAgePOS.ViewModels.Shared.PriceSummaryViewModel
+﻿@using NewAgePOS.Utilities
+@model NewAgePOS.ViewModels.Shared.PriceSummaryViewModel
 
 <div class="mt-5" style="max-width: 325px; margin: auto;">
   <div class="row">
@@ -77,17 +78,18 @@
   }
 </div>
 
-@if (Model.IsFromRefund)
+<div class="mt-5"></div>
+
+@if (Model.PathSource == PathSourceEnum.Refund)
 {
-  <div class="mt-5"></div>
   <h4 class="text-center">Refund Method</h4>
   <div class="row mb-2">
     <div class="col text-center">
-      <a id="cashRefundBtn" 
-         class="btn btn-primary" 
+      <a id="cashRefundBtn"
+         class="btn btn-primary"
          onclick="confirm2Btns(this.id, 'giftCardRefundBtn')">Cash</a>
-      <a id="giftCardRefundBtn" 
-         class="btn btn-primary" 
+      <a id="giftCardRefundBtn"
+         class="btn btn-primary"
          onclick="confirm2Btns(this.id, 'cashRefundBtn')">GC</a>
     </div>
   </div>
@@ -135,4 +137,106 @@
       </div>
     </form>
   </div>
+}
+else if (Model.PathSource == PathSourceEnum.Checkout)
+{
+  if (Model.DueBalance <= 0)
+  {
+    <form method="post" class="text-center"
+          asp-page="/Sale/Checkout"
+          asp-page-handler="CompleteSale"
+          asp-route-saleId="@Model.SaleId"
+          asp-route-change="@Model.Change">
+      <button type="submit" class="btn btn-success">Complete Sale</button>
+    </form>
+  }
+  else
+  {
+    <h4 class="text-center">Payment Method</h4>
+    <div class="row mb-2">
+      <div class="col text-center">
+        <a id="cashBtn"
+           class="btn btn-primary border-warning"
+           onclick="confirm3Btns(this.id, 'giftCardBtn', 'giveBtn')">Cash</a>
+        <a id="giftCardBtn"
+           class="btn btn-primary"
+           onclick="confirm3Btns(this.id, 'cashBtn', 'giveBtn')">GC</a>
+        <a id="giveBtn"
+           class="btn btn-primary"
+           onclick="confirm3Btns(this.id, 'cashBtn', 'giftCardBtn')">Give</a>
+      </div>
+    </div>
+
+    <div id="cash">
+      <form method="post" class="form-inline row justify-content-center"
+            asp-page="/Sale/Checkout"
+            asp-page-handler="ProcessTransaction"
+            asp-route-saleId="@Model.SaleId"
+            asp-route-method="@MethodEnum.Cash">
+        <div class="col-4 pr-0">
+          <input name="amount" class="form-control" 
+                 type="number" style="width: 100%" 
+                 placeholder="Cash amount" />
+        </div>
+        <div class="col-auto px-0">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-square"></i>
+          </button>
+        </div>
+        <div class="col-auto pl-0">
+          <a class="btn btn-danger" onclick="confirm3Btns('cashBtn')">
+            <i class="fas fa-window-close"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <div id="giftCard" style="display:none;">
+      <form method="post" class="form-inline row justify-content-center"
+            asp-page="/Sale/Checkout"
+            asp-page-handler="ProcessGiftCardTransaction"
+            asp-route-saleId="@Model.SaleId"
+            asp-route-dueBalance="@Model.DueBalance">
+        <div class="col-4 pr-0">
+          <input name="giftCardCode" class="form-control" 
+                 type="text" style="width: 100%" 
+                 placeholder="Gift Card Code" />
+        </div>
+        <div class="col-auto px-0">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-square"></i>
+          </button>
+        </div>
+        <div class="col-auto pl-0">
+          <a class="btn btn-danger" onclick="confirm('giftCardBtn')">
+            <i class="fas fa-window-close"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <div id="give" style="display:none;">
+      <form method="post" class="form-inline row justify-content-center"
+            asp-page="/Sale/Checkout"
+            asp-page-handler="ProcessTransaction"
+            asp-route-saleId="@Model.SaleId"
+            asp-route-method="@MethodEnum.Give">
+        <div class="col-4 pr-0">
+          <input name="amount" class="form-control" 
+                 type="number" step=".01" style="width: 100%" 
+                 placeholder="Give amount" />
+        </div>
+        <div class="col-auto px-0">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check-square"></i>
+          </button>
+        </div>
+        <div class="col-auto pl-0">
+          <a class="btn btn-danger" onclick="confirm3Btns('giveBtn')">
+            <i class="fas fa-window-close"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+  }
 }

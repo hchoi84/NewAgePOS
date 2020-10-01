@@ -114,6 +114,20 @@
 2020/10/01
 - Updated server
 - UI/UX: Increase all error font size to h4
+- Transaction History: Needs to display actual sale amount. It's only showing transaction amounts. The day cash earning is incorrect
+	* Could be related to "Change" not being recorded due to incorrect comparison sign (09/30 fix)
+- PriceSummaryViewComponent: Added Give calculation method if there's no giveTransaction
+- PriceSummaryViewComponent: Added payment buttons since the ViewComponent already does all necessary computations. No need to have duplicate calculation in Sale/Checkout
+- PriceSummaryViewComponent: Ensure Cash and Give input defaults to blank
+- PriceSummaryViewComponent: Cash input shows as default
+- Sale/Checkout: Removed all price calculation methods that's already being calculated by PriceSummaryViewComponent
+- Sale/Checkout: Removed all payment buttons
+- Sale/Checkout: Created OnPost methods for processing Cash, GiftCard, and Give
+- Sale/Checkout: OnGet() no longer calculates Due Balance, Give, and whether the remaining balance is 0
+- Sale/Checkout: OnPostCompleteSaleAsync() now receives Change value from PriceSummaryViewModel which eliminiates the need for RecordChangeIfAny()
+- CheckoutViewModel: Removed as it is no longer needed
+- site.js: Cleaned up confirmation functions to be consistent
+
 
 
 ********** WORKING ON **********
@@ -127,13 +141,7 @@ Michael:
 - Bug Fix: NAJ0468 displays DROPSHIP
 - Xfer Batch List: Sort warehouse location by Location
 
-Michael:
-- Transaction History: Needs to display actual sale amount. It's only showing transaction amounts. The day cash earning is incorrect
-	* Could be related to "Change" not being recorded due to incorrect comparison sign (09/30 fix)
-- Checkout: Cash default, display by default
-- Checkout: Cash input, blank. Currently it's defaulted to 0
-
-
+- TransactionHistory: For each sale, order transaction by type then by method
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

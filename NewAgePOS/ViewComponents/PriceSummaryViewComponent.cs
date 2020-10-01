@@ -19,15 +19,23 @@ namespace NewAgePOS.ViewComponents
 
     public IViewComponentResult Invoke(int saleId)
     {
-      PriceSummaryViewModel model = GenerateViewModel(saleId);
-      model.SaleId = saleId;
-      model.IsFromRefund = ViewContext.View.Path.Contains(PathSourceEnum.Refund.ToString());
+      string path = ViewContext.View.Path;
+      PriceSummaryViewModel model = new PriceSummaryViewModel();
 
+      model.SaleId = saleId;
+      if (path.Contains(PathSourceEnum.Refund.ToString()))
+        model.PathSource = PathSourceEnum.Refund;
+      else if (path.Contains(PathSourceEnum.Checkout.ToString()))
+        model.PathSource = PathSourceEnum.Checkout;
+
+      GenerateViewModel(model);
+      
       return View(model);
     }
 
-    private PriceSummaryViewModel GenerateViewModel(int saleId)
+    private void GenerateViewModel(PriceSummaryViewModel model)
     {
+      int saleId = model.SaleId;
       IEnumerable<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(saleId);
       IEnumerable<SaleLineModel> tradeInSaleLines = saleLines.Where(s => !s.ProductId.HasValue && !s.GiftCardId.HasValue);
 
@@ -60,17 +68,16 @@ namespace NewAgePOS.ViewComponents
         .Where(r => !r.TransactionId.HasValue);
       TaxModel tax = _sqlDb.Taxes_GetBySaleId(saleId);
 
-      PriceSummaryViewModel m = new PriceSummaryViewModel();
-      m.Quantity = saleLines.Sum(s => s.Qty);
-      m.Subtotal = saleLines.Sum(s => s.Subtotal) - tradeInSaleLines.Sum(s => s.Subtotal);
+      model.Quantity = saleLines.Sum(s => s.Qty);
+      model.Subtotal = saleLines.Sum(s => s.Subtotal) - tradeInSaleLines.Sum(s => s.Subtotal);
 
-      float giveAmount = giveTransaction == null ? 0 : giveTransaction.Amount;
-      m.Discount = saleLines.Sum(s => s.Discount) + giveAmount;
-      m.TradeInValue = tradeInSaleLines.Sum(t => t.Price);
-      m.TaxPercent = tax.TaxPct;
-      m.Paid = giftCardTransactions.Sum(t => t.Amount) + cashTransaction.Amount;
-      m.Change = changeTransaction == null ? 0 : changeTransaction.Amount;
-      m.RefundedAmount = refundTransactions.Sum(t => t.Amount);
+      model.Discount = saleLines.Sum(s => s.Discount) + giveTransaction.Amount;
+      model.TradeInValue = tradeInSaleLines.Sum(t => t.Price);
+      model.TaxPercent = tax.TaxPct;
+      model.Paid = giftCardTransactions.Sum(t => t.Amount) + cashTransaction.Amount;
+      model.Change = changeTransaction.SaleId == 0 ? 
+        model.Paid - model.Total : changeTransaction.Amount;
+      model.RefundedAmount = refundTransactions.Sum(t => t.Amount);
 
       float refundingAmount = 0;
       if (refundingLines.Any())
@@ -78,14 +85,28 @@ namespace NewAgePOS.ViewComponents
         foreach (var refunding in refundingLines)
         {
           SaleLineModel saleLine = saleLines.FirstOrDefault(s => s.Id == refunding.SaleLineId);
-          refundingAmount += saleLine.Total / saleLine.Qty * refunding.Qty * (1 + (m.TaxPercent / 100f));
+          refundingAmount += saleLine.Total / saleLine.Qty * refunding.Qty * (1 + (model.TaxPercent / 100f));
         }
       }
-      float refundableAmount = m.Total - m.RefundedAmount;
-      m.RefundingAmount = refundableAmount < refundingAmount ? 
+      float refundableAmount = model.Total - model.RefundedAmount;
+      model.RefundingAmount = refundableAmount < refundingAmount ? 
         refundableAmount : refundingAmount;
 
-      return m;
+      if (model.PathSource == PathSourceEnum.Checkout && giveTransaction.Id == 0)
+        CalculateGiveAmount(model);
+    }
+
+    private void CalculateGiveAmount(PriceSummaryViewModel model)
+    {
+      float factor = 0.05f;
+      float roundedDueBalance = (int)(model.DueBalance / factor) * factor;
+      float giveAmount = model.DueBalance - roundedDueBalance;
+      
+      if (giveAmount != 0)
+      {
+        _sqlDb.Transactions_Insert(model.SaleId, null, giveAmount, MethodEnum.Give, TypeEnum.Checkout);
+        model.Discount += giveAmount;
+      }
     }
   }
 }

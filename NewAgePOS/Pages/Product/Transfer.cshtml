@@ -166,7 +166,7 @@ else
             <div class="col-auto pl-0">
               @if (loc.Location != "STORE")
               {
-                <a id="confirmTransferButton_@id" class="btn btn-primary" onclick="confirmTransfer('@id')">
+                <a id="@(id + "Btn")" class="btn btn-primary" onclick="confirm(this.id)">
                   <i class="fas fa-dolly"></i>
                 </a>
               }
@@ -181,7 +181,7 @@ else
 
           @if (loc.Location != "STORE")
           {
-            <div id="confirmTransfer_@id" style="display: none;">
+            <div id="@id" style="display: none;">
               <form method="post" class="form-inline row"
                     asp-page-handler="Transfer"
                     asp-route-code="@result.Sku"
@@ -200,7 +200,7 @@ else
                   </button>
                 </div>
                 <div class="col-auto pl-0">
-                  <a href="#confirmTransfer_@id" class="btn btn-danger" onclick="confirmTransfer('@id')">
+                  <a class="btn btn-danger" onclick="confirm('@id')">
                     <i class="fas fa-window-close"></i>
                   </a>
                 </div>

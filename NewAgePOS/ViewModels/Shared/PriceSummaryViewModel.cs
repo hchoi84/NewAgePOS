@@ -1,9 +1,11 @@
-﻿namespace NewAgePOS.ViewModels.Shared
+﻿using NewAgePOS.Utilities;
+
+namespace NewAgePOS.ViewModels.Shared
 {
   public class PriceSummaryViewModel
   {
     public int SaleId { get; set; }
-    public bool IsFromRefund { get; set; }
+    public PathSourceEnum PathSource { get; set; }
 
     public int Quantity { get; set; }
     public float Subtotal { get; set; }

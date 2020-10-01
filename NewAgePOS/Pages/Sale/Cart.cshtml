@@ -14,23 +14,23 @@
 <h4 class="text-center">Add/Remove</h4>
 <div class="row mb-3">
   <div class="col" style="text-align: center;">
-    <button id="AddRemoveProductsButton"
+    <button id="AddRemoveProductsBtn"
             class="btn btn-primary"
-            onclick="addRemove(this.id, 'AddRemoveGiftCardsButton', 'AddRemoveTradeInButton');"
+            onclick="confirm3Btns(this.id, 'AddRemoveGiftCardsBtn', 'AddRemoveTradeInBtn');"
             style="display: inline-block;">
       Products
     </button>
 
-    <button id="AddRemoveGiftCardsButton"
+    <button id="AddRemoveGiftCardsBtn"
             class="btn btn-primary"
-            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddRemoveTradeInButton');"
+            onclick="confirm3Btns(this.id, 'AddRemoveProductsBtn', 'AddRemoveTradeInBtn');"
             style="display: inline-block;">
       Gift Cards
     </button>
 
-    <button id="AddRemoveTradeInButton"
+    <button id="AddRemoveTradeInBtn"
             class="btn btn-primary"
-            onclick="addRemove(this.id, 'AddRemoveProductsButton', 'AddRemoveGiftCardsButton');"
+            onclick="confirm3Btns(this.id, 'AddRemoveProductsBtn', 'AddRemoveGiftCardsBtn');"
             style="display: inline-block;">
       Trade Ins
     </button>
