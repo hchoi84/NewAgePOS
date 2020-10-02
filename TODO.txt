@@ -1,94 +1,4 @@
 ********** DONE (Last finished at the bottom) **********
-- Sale/Receipt: Not displaying
-- Sale/Cart: Add the word "Trade In" and "Gift Card" to appropriate line
-- Sale/Cart: GiftCard, enter value twice
-- Sale/Cart: TradeIn should show up as negative
-- PriceSummary: Give should be part of Discount
-- Sale/Cart: TradeIn remove feature
-- Require Admin for creating new users. Auto create default admin user if there are no users
-- Deploy for beta testing
-
-2020/09/18 Friday
-- Sale/Checkout: Convert payments to dropdown similar to cart add/remove. It's too cluttered the way it is right now
-- Sale/Checkout: Each payment method should have it's own Method
-- Center all messages directly below the page title
-- Report/TransactionHistory: Better organized report view
-- Sale/Receipt: If paid with GiftCard, should notify the remaining balance without displaying the GiftCard Code
-- Product Search product name wrap and auto height
-
-2020/09/20 Sunday
-- Receipt template for printing on Direct Thermal printer
-- Updated server to the latest git repo
-
-2020/09/21 Monday
-- Receipt: No space between Sale Receipt and the #
-- Receipt: Date format to follow US standard MM/DD/YYYY
-- Receipt: Reduce the width of the Price Summary by 10px
-- Receipt: Slightly reduced font size
-- Bug fix: Prevents cashier from collecting more than what's due
-- Bug fix: Negative currency doesn't display the same US standard format ($123.45). Instead, it shows -$123.45
-- Refactored CultureInfo("en-US") to be set for the entire application
-- Updated Server
-
-2020/09/22 Tuesday
-- Architect where the Messages should be displayed/inserted
-	* D/I Sale/Checkout
-	* D/I Sale/Refund
-- Refactored Location Search for efficiency and in preparation for batch transfer request
-
-2020/09/23 Wednesday
-- Renamed Location Search to Transfer
-- Transfer request
-	* Utilize Session for quicker processing
-	* Transfer page will now handle both Single, Batch, and Batch Review
-	* Single: Modified layout and converted buttons to icons
-	* Batch: Add/Edit/Remove products to batch request.
-- Tested UTC to PST time conversion
-- Added missing Stored Procedure (spMessages_GetBySaleId)
-
-2020/09/24 Thursday
-- Modified Sale/Checkout Give algo to only calculate if the due balance is greater than 0 and doesn't have any non-Give transactions
-- Edited spSales_CancelById stored procedure to remove any associated messages as well
-- Implemented UTCtoPST() for server
-- Transfer Batch Request: Not adding in quantity check of Request vs Available. More products could be coming in. Also, warehouse will eventually check when processing.
-- Transaction History: Updated to only show transactions from completed sales
-- Transaction History: Modified how data is shown for clarity
-- Transactions: Records change
-- Transaction Method: Added Change
-- Transaction Checkout: Calculates Change and determines whether to create or update dbo.Transactions
-- TransactionModel: Updated Created property to convert UTC to PST
-- Refund: Fixed splitting multiple codes
-- Added spTransactions_GetByDateRange to posdb
-- Sale/Refund: Fixed where removing already refunded product quantity deletes dbo.RefundLines
-- Sale/Refund & PriceSummaryViewComponent: Calculate previously refunded transactions and Give amount. Previously wasn't calculating Give amount
-- Sale/Receipt: Shrunk width of PriceSummary from 340px to 300px
-- Sale/Receipt: Added time to receipt
-- Sale/Receipt: "Sale Receipt" to "Sales Receipt"
-- Sale/Refund: Fixed miscalculation on Refunding amount
-
-2020/09/25 Friday
-- Sale/Refund: Changed textarea title to "Items to Remove SKUs or UPCs" for clarification. User states Add/Remove button is confusing as they may think Remove means to remove the product from what's already been purchased
-- Sale/Refund: Changed column width to take up full space instead of half way since there isn't anything else on the right side
-- Message: Added character count. Button disables if it goes over the max char limit
-- Transfer Batch Request: Finalize button to clear session
-- Sale/Cart: Refactored Adding/Removing products
-- Sale/Cart: Fixed a potential bug that can arise when adding more than 9 different products
-- Transaction History, time conflict. 
-
-2020/09/26 Saturday
-- Bug: After adding message, it goes to Sale/Search page. Have it redirect back to the original page
-- UI/UX: Input SaleId on the header for all Sale steps
-- UI/UX: Don't show Remaining $0.00 on receipt
-- UI/UX: Change receipt font size to 18, up price summary width to 325px
-- UI/UX: Transaction History: Display change only if rounded to 2 decimal is greater than 0
-- Improvement: Change should only be calculate during CompleteSaleAsync()
-- Bug: Give gets calculated every time page loads. If Give transaction exists, don't calculate (Special cases will need to be tested)
-
-2020/09/27 Sunday
-- Implemented messages count to Sale/Search and TransactionHistory
-- Implemented _HeaderPartial for uniform header design
-- Implemented Sale/Message
-
 2020/09/28 Monday
 - Pushed to server
 - UI/UX: Automatic height for AllName and Messages
@@ -98,11 +8,11 @@
 - Refactor: Move message related handlers from Sale/Search to Sale/Message
 - Feature: Sale/Search: Implement displaying pending sales
 
-2020/09/29
+2020/09/29 Tuesday
 - Sale/Cart: Refactored Add/Remove Gift Cards
 - Sale/Cart: Refactored Add/Remove Trade Ins for displaying accurate error messages
 
-2020/09/30
+2020/09/30 Wednesday
 - Bug Fix: Sale/Cart: Prevents applying discount outside of 0 to 100
 - DB: Ensure any table update also updates Updated column
 - Updated Server
@@ -128,6 +38,9 @@
 - CheckoutViewModel: Removed as it is no longer needed
 - site.js: Cleaned up confirmation functions to be consistent
 
+2020/10/02
+- Updated server
+
 
 
 ********** WORKING ON **********
@@ -141,7 +54,7 @@ Michael:
 - Bug Fix: NAJ0468 displays DROPSHIP
 - Xfer Batch List: Sort warehouse location by Location
 
-- TransactionHistory: For each sale, order transaction by type then by method
+- TransactionHistory: For each sale, order transaction by Type then by Method
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

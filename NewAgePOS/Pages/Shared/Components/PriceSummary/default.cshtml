@@ -100,7 +100,7 @@
           asp-page-handler="ApplyCashRefund"
           asp-route-saleId="@Model.SaleId"
           asp-route-amount="@Model.RefundingAmount">
-      <div class="col-4 pr-0">
+      <div class="col-6 pr-0">
         <input value="Apply refund as cash?" class="form-control text-right" style="width: 100%" disabled />
       </div>
       <div class="col-auto px-0">
@@ -122,7 +122,7 @@
           asp-page-handler="ApplyGiftCardRefund"
           asp-route-saleId="@Model.SaleId"
           asp-route-amount="@Model.RefundingAmount">
-      <div class="col-4 pr-0">
+      <div class="col-6 pr-0">
         <input name="giftCardCode" class="form-control" type="text" style="width: 100%" placeholder="Gift Card Code" />
       </div>
       <div class="col-auto px-0">
@@ -173,7 +173,7 @@ else if (Model.PathSource == PathSourceEnum.Checkout)
             asp-page-handler="ProcessTransaction"
             asp-route-saleId="@Model.SaleId"
             asp-route-method="@MethodEnum.Cash">
-        <div class="col-4 pr-0">
+        <div class="col-6 pr-0">
           <input name="amount" class="form-control" 
                  type="number" style="width: 100%" 
                  placeholder="Cash amount" />
@@ -197,7 +197,7 @@ else if (Model.PathSource == PathSourceEnum.Checkout)
             asp-page-handler="ProcessGiftCardTransaction"
             asp-route-saleId="@Model.SaleId"
             asp-route-dueBalance="@Model.DueBalance">
-        <div class="col-4 pr-0">
+        <div class="col-6 pr-0">
           <input name="giftCardCode" class="form-control" 
                  type="text" style="width: 100%" 
                  placeholder="Gift Card Code" />
@@ -221,7 +221,7 @@ else if (Model.PathSource == PathSourceEnum.Checkout)
             asp-page-handler="ProcessTransaction"
             asp-route-saleId="@Model.SaleId"
             asp-route-method="@MethodEnum.Give">
-        <div class="col-4 pr-0">
+        <div class="col-6 pr-0">
           <input name="amount" class="form-control" 
                  type="number" step=".01" style="width: 100%" 
                  placeholder="Give amount" />
