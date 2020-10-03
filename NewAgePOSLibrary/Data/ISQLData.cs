@@ -30,6 +30,7 @@ namespace NewAgePOSLibrary.Data
     void Messages_Delete(int id);
     void Messages_Edit(int id, string message);
     List<MessageModel> Messages_GetBySaleId(int saleId);
+    int Messages_GetCountBySaleId(int saleId);
     int Messages_Insert(int saleId, string message);
     #endregion
 
@@ -62,6 +63,7 @@ namespace NewAgePOSLibrary.Data
     void Sales_CancelById(int id);
     SaleModel Sales_GetById(int id);
     List<SaleModel> Sales_GetByCustomerId(int customerId);
+    List<SaleModel> Sales_GetPending();
     int Sales_Insert();
     void Sales_MarkComplete(int id);
     void Sales_UpdateCustomerId(int saleId, int customerId);
@@ -78,8 +80,17 @@ namespace NewAgePOSLibrary.Data
     int Transactions_Insert(int saleId, int? giftCardId, float amount, MethodEnum method, TypeEnum type);
     void Transactions_UpdateAmount(int id, float newAmt);
     void Transactions_DeleteById(int id);
-    int Messages_GetCountBySaleId(int saleId);
-    List<SaleModel> Sales_GetPending();
+    #endregion
+
+    #region TransferRequests
+    IEnumerable<TransferRequestModel> TransferRequests_GetByStatus(StatusEnum status);
+    int TransferRequests_Insert(string description, string creatorName);
+    #endregion
+
+    #region TransferRequestItems
+    IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByStatus(StatusEnum status);
+    IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByTransferRequestId(int transferRequestId);
+    void TransferRequestItems_Insert(int transferRequestId, string sku, int qty);
     #endregion
   }
 }

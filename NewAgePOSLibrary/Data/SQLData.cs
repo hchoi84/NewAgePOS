@@ -341,5 +341,42 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query, new { id, newAmt, updated }, _connectionStringName, false);
     }
     #endregion
+
+    #region TransferRequests
+    public IEnumerable<TransferRequestModel> TransferRequests_GetByStatus(StatusEnum status)
+    {
+      string query = "SELECT * FROM dbo.TransferRequests WHERE Status = @status";
+      return _sqlDb.LoadData<TransferRequestModel, dynamic>(query, new { status = status.ToString() }, _connectionStringName, false);
+    }
+
+    public int TransferRequests_Insert(string description, string creatorName)
+    {
+      string status = StatusEnum.Pending.ToString();
+      string query = "INSERT INTO dbo.TransferRequests (Description, CreatorName, Status) OUTPUT inserted.Id VALUES (@description, @creatorName, @status)";
+      return _sqlDb.LoadData<int, dynamic>(query, new { description, creatorName, status }, _connectionStringName, false).FirstOrDefault();
+    }
+    #endregion
+
+    #region TransferRequestItems
+    public IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByStatus(StatusEnum status)
+    {
+      string query = "SELECT tri.* FROM dbo.TransferRequests tr " +
+        "INNER JOIN dbo.TransferRequestItems tri ON tr.Id = tri.TransferRequestId " +
+        "WHERE tr.Status = @status";
+      return _sqlDb.LoadData<TransferRequestItemModel, dynamic>(query, new { status = status.ToString() }, _connectionStringName, false);
+    }
+
+    public IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByTransferRequestId(int transferRequestId)
+    {
+      string query = "SELECT * FROM dbo.TransferRequestItems WHERE TransferRequestId = @transferRequestId";
+      return _sqlDb.LoadData<TransferRequestItemModel, dynamic>(query, new { transferRequestId }, _connectionStringName, false);
+    }
+
+    public void TransferRequestItems_Insert(int transferRequestId, string sku, int qty)
+    {
+      string query = "INSERT INTO dbo.TransferRequestItems (TransferRequestId, Sku, Qty) VALUES (@transferRequestId, @sku, @qty)";
+      _sqlDb.SaveData(query, new { transferRequestId, sku, qty }, _connectionStringName, false);
+    }
+    #endregion
   }
 }

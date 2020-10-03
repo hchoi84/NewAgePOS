@@ -90,6 +90,8 @@
     <Build Include="dbo\StoredProcedures\spSaleLines_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spMessages_GetBySaleId.sql" />
     <Build Include="dbo\StoredProcedures\spTransactions_GetByDateRange.sql" />
+    <Build Include="dbo\Tables\TransferRequests.sql" />
+    <Build Include="dbo\Tables\TransferRequestItems.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />

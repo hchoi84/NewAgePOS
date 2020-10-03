@@ -8,8 +8,10 @@ using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NewAgePOS.Utilities;
 using NewAgePOS.ViewModels;
+using NewAgePOSLibrary.Data;
 using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
 using SkuVaultLibrary;
@@ -20,11 +22,13 @@ namespace NewAgePOS.Pages.Product
   {
     private readonly IChannelAdvisor _ca;
     private readonly ISkuVault _sv;
+    private readonly ISQLData _sqlDb;
 
-    public TransferModel(IChannelAdvisor ca, ISkuVault sv)
+    public TransferModel(IChannelAdvisor ca, ISkuVault sv, ISQLData sqlDb)
     {
       _ca = ca;
       _sv = sv;
+      _sqlDb = sqlDb;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -32,67 +36,67 @@ namespace NewAgePOS.Pages.Product
     public string Codes { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public bool IsBatchRequest { get; set; }
+    public TransferPageTypeEnum PageType { get; set; }
 
     [BindProperty]
-    public List<LocationSearchViewModel> Results { get; set; }
+    public List<TransferRequestViewModel> TransferRequests { get; set; }
 
     [BindProperty]
-    public Dictionary<string, int> XferReqQuantity { get; set; }
+    public int TransferRequestId { get; set; }
 
+    public List<LocationSearchViewModel> ViewModels { get; set; }
     public int XferBatchReqCount { get; set; }
+    public List<SelectListItem> PendingTransfers { get; set; }
     public bool IsReview { get; set; }
 
-    public async Task<IActionResult> OnGet()
+    public async Task<IActionResult> OnGetAsync()
     {
-      if (IsBatchRequest)
-      {
-        List<LocationSearchViewModel> xferReqItems = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems");
-        XferBatchReqCount = xferReqItems == null ? 0 : xferReqItems.Count;
-      }
-
       if (string.IsNullOrEmpty(Codes)) return Page();
+      
+      await InitializeAsync();
 
-      Results = new List<LocationSearchViewModel>();
-      XferReqQuantity = new Dictionary<string, int>();
-
-      IEnumerable<string> productCodes = Codes.Trim().Replace(" ", string.Empty).Split(Environment.NewLine).Distinct();
-
-      await AddProducts(productCodes);
-      if (Results.Count == 0)
+      if (PageType == TransferPageTypeEnum.Batch)
       {
-        TempData["Message"] = "No Results Found";
-        return Page();
+        InitializeBatch();
       }
-
-      await AddLocationsAsync();
-
-      Results = Results.Where(r => r.Locations != null && r.Locations.Any())
-        .OrderBy(r => r.Sku)
-        .ToList();
-
-      if (IsBatchRequest) Results.ForEach(r => XferReqQuantity.Add(r.Sku, r.RequestQty));
-
-      HttpContext.Session.SetObject("XferSearchResult", Results);
 
       return Page();
     }
 
+    private async Task InitializeAsync()
+    {
+      ViewModels = new List<LocationSearchViewModel>();
+      IEnumerable<string> productCodes = Codes.CountIt().Select(c => c.Key);
+
+      await AddProducts(productCodes);
+      if (ViewModels.Count == 0)
+      {
+        TempData["Message"] = "No Results Found";
+        return;
+      }
+
+      await AddLocationsAsync();
+
+      ViewModels = ViewModels.Where(r => r.Locations.Any())
+        .OrderBy(r => r.Sku)
+        .ToList();
+    }
+
     private async Task AddProducts(IEnumerable<string> productCodes)
     {
-      List<JObject> jObjects = await _ca.GetProductsByCodeAsync(productCodes.ToList());
+      IEnumerable<JObject> jObjects = await _ca.GetProductsByCodeAsync(productCodes);
 
       foreach (var item in jObjects)
       {
-        if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString()) 
+        if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString())
           || item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)"
           || item[CAStrings.whLoc].ToString() == "Out of Stock(0)") continue;
 
-        Results.Add(new LocationSearchViewModel
+        ViewModels.Add(new LocationSearchViewModel
         {
           Sku = item[CAStrings.sku].ToString(),
           Upc = item[CAStrings.upc].ToString(),
-          Cost = String.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
+          Cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0 :
           item[CAStrings.cost].ToObject<float>(),
           Price = item[CAStrings.attributes]
           .FirstOrDefault(i => i[CAStrings.name]
@@ -107,41 +111,72 @@ namespace NewAgePOS.Pages.Product
 
     private async Task AddLocationsAsync()
     {
-      List<string> skus = Results.Select(p => p.Sku).ToList();
+      List<string> skus = ViewModels.Select(p => p.Sku).ToList();
       JObject result = await _sv.GetInventoryLocationsAsync(skus, true);
-      var items = result["Items"].Select(i => i.ToObject<JProperty>());
+      IEnumerable<JProperty> items = result["Items"].Select(i => i.ToObject<JProperty>());
 
       if (items == null) return;
 
-      foreach (var r in Results)
+      foreach (var m in ViewModels)
       {
-        var item = items.FirstOrDefault(j => j.Name == r.Sku || j.Name == r.Upc);
+        var item = items.FirstOrDefault(j => j.Name == m.Sku || j.Name == m.Upc);
 
         if (item == null) continue;
         if (item.Value.Count() == 0) continue;
-        if (item.Value.Where(v => v["LocationCode"].ToString() != "DROPSHIP").Count() == 0) continue;
 
-        r.Locations.AddRange(item.Value
-          .OrderBy(v => v["LocationCode"].ToString())
-          .Select(v =>
-            {
-              return new ProductLocationModel
-              {
-                Code = item.Name,
-                Location = v["LocationCode"].ToString(),
-                Qty = v["Quantity"].ToObject<int>()
-              };
-            }));
+        foreach (JObject loc in item.Value)
+        {
+          if (loc["LocationCode"].ToString() == "DROPSHIP") continue;
+
+          m.Locations.Add(new ProductLocationModel
+          {
+            Code = item.Name,
+            Location = loc["LocationCode"].ToString(),
+            Qty = loc["Quantity"].ToObject<int>()
+          });
+        }
+
+        m.Locations = m.Locations.OrderBy(l => l.Location).ToList();
       }
     }
 
+    private void InitializeBatch()
+    {
+      TransferRequests = new List<TransferRequestViewModel>();
+      PendingTransfers = new List<SelectListItem>();
+
+      ViewModels.ForEach(vm => TransferRequests.Add(
+        new TransferRequestViewModel
+        {
+          Sku = vm.Sku
+        }));
+
+      IEnumerable<TransferRequestModel> transferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
+      IEnumerable<TransferRequestItemModel> transferRequestItems = _sqlDb.TransferRequestItems_GetByStatus(StatusEnum.Pending);
+      foreach (var tr in transferRequests)
+      {
+        int itemCount = transferRequestItems.Where(tri => tri.TransferRequestId == tr.Id).Count();
+        PendingTransfers.Add(new SelectListItem
+        {
+          Text = $"{tr.Description} ({itemCount} items)",
+          Value = tr.Id.ToString()
+        });
+      }
+    }
+
+
     public async Task<IActionResult> OnPostTransferAsync(string code, string location, int qty, int transferqty)
     {
+      if (transferqty <= 0)
+      {
+        TempData["Message"] = $"{ code } { location }: Transfer quantity must be greater than 0";
+        return RedirectToPage(new { Codes });
+      }
+
       if (transferqty > qty)
       {
-        TempData["Message"] = $"{ code }-{ location }-{ qty } Can not transfer { transferqty } because it is more than the available quantity";
-        Results = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferSearchResult");
-        return Page();
+        TempData["Message"] = $"{ code } { location }: Can not transfer more than available ({ transferqty } / { qty })";
+        return RedirectToPage(new { Codes });
       }
 
       List<AddRemoveItemBulkModel> itemsToTransfer = new List<AddRemoveItemBulkModel>
@@ -183,36 +218,73 @@ namespace NewAgePOS.Pages.Product
 
       Thread.Sleep(1000);
 
-      return RedirectToPage(new { Codes });
+      return RedirectToPage();
     }
 
-    public IActionResult OnPostAddToXferReqItems()
+
+    public IActionResult OnPostAddItemsToTransferRequest()
     {
-      List<LocationSearchViewModel> fromSession = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferSearchResult");
-      List<LocationSearchViewModel> xferReqItems = new List<LocationSearchViewModel>();
-      if (HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems") != null)
-        xferReqItems = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems");
-
-      foreach (var r in Results)
+      if (TransferRequestId == 0)
       {
-        if (r.RequestQty <= 0) continue;
+        TempData["Message"] = "Please choose Transfer";
+        return RedirectToPage(new { Codes });
+      }
 
-        LocationSearchViewModel xferReqItem = xferReqItems.FirstOrDefault(x => x.Sku == r.Sku);
-        if (xferReqItem != null)
+      IEnumerable<TransferRequestViewModel> requestItems = TransferRequests.Where(tr => tr.Qty > 0);
+      if (!requestItems.Any())
+      {
+        TempData["Message"] = "No items have been selected";
+        return RedirectToPage(new { Codes });
+      }
+
+      List<string> errorMsgs = new List<string>();
+      errorMsgs.Add("Finished processing");
+      IEnumerable<TransferRequestItemModel> transferRequestItems = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
+      foreach (var ri in requestItems)
+      {
+        bool isFound = transferRequestItems.FirstOrDefault(tri => tri.Sku == ri.Sku) != null;
+        if (isFound)
         {
-          xferReqItem.RequestQty = r.RequestQty;
+          errorMsgs.Add($"{ ri.Sku } already exists in Transfer");
           continue;
         }
 
-        LocationSearchViewModel result = fromSession.FirstOrDefault(s => s.Sku == r.Sku);
-        result.RequestQty = r.RequestQty;
-        xferReqItems.Add(result);
+        _sqlDb.TransferRequestItems_Insert(TransferRequestId, ri.Sku, ri.Qty);
+
       }
 
-      HttpContext.Session.SetObject("XferReqItems", xferReqItems);
+      if (errorMsgs.Count > 0)
+      {
+        TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
+      }
 
       return RedirectToPage();
     }
+
+    public IActionResult OnPostCreateTransferRequestAndAddItems(string description, string creatorName)
+    {
+      if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(creatorName))
+      {
+        TempData["Message"] = "Description and Name fields are required";
+        return RedirectToPage(new { Codes });
+      }
+
+      IEnumerable<TransferRequestViewModel> requestItems = TransferRequests.Where(tr => tr.Qty > 0);
+      if (!requestItems.Any())
+      {
+        TempData["Message"] = "No items have been selected";
+        return RedirectToPage(new { Codes });
+      }
+
+      TransferRequestId = _sqlDb.TransferRequests_Insert(description, creatorName);
+      foreach (var ri in requestItems)
+      {
+        _sqlDb.TransferRequestItems_Insert(TransferRequestId, ri.Sku, ri.Qty);
+      }
+
+      return RedirectToPage();
+    }
+
 
     public IActionResult OnGetDisplayXferReqItems()
     {
@@ -226,7 +298,7 @@ namespace NewAgePOS.Pages.Product
       }
 
       XferBatchReqCount = xferReqItems.Count;
-      Results = xferReqItems;
+      ViewModels = xferReqItems;
 
       return Page();
     }
@@ -236,7 +308,7 @@ namespace NewAgePOS.Pages.Product
       IsReview = true;
       List<LocationSearchViewModel> xferReqItems = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems");
 
-      foreach (var r in Results)
+      foreach (var r in ViewModels)
       {
         LocationSearchViewModel xferReqItem = xferReqItems.FirstOrDefault(x => x.Sku == r.Sku);
 
@@ -246,13 +318,7 @@ namespace NewAgePOS.Pages.Product
 
       HttpContext.Session.SetObject("XferReqItems", xferReqItems);
 
-      return RedirectToPage("/Product/Transfer", "DisplayXferReqItems", new { IsReview, IsBatchRequest });
-    }
-
-    public IActionResult OnPostClearBatchRequest()
-    {
-      HttpContext.Session.Remove("XferReqItems");
-      return RedirectToPage(new { IsBatchRequest });
+      return RedirectToPage("/Product/Transfer", "DisplayXferReqItems", new { IsReview, PageType });
     }
   }
 }

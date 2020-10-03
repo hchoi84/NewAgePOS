@@ -1,13 +1,18 @@
 ﻿@model int
 
-  <div class="mt-2 mb-5">
-    <div class="row">
-      <h1 class="font-weight-bold m-auto">@ViewData["Title"]</h1>
-    </div>
-    @if (Model != 0)
-    {
+<div class="mt-2">
+  <div class="row">
+    <h1 class="font-weight-bold m-auto">@ViewData["Title"]</h1>
+  </div>
+  @if (Model != 0)
+  {
     <div class="row">
       <h5 class="m-auto">#@Model</h5>
     </div>
-    }
-  </div>
+  }
+</div>
+
+@if (TempData["Message"] != null)
+{
+  <h5 class="text-danger my-3 text-center" style="white-space:pre-wrap;">@TempData["Message"]</h5>
+}

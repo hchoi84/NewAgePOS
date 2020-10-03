@@ -53,6 +53,7 @@ namespace NewAgePOS.Pages.Report
       Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate.PSTtoUTC(), EndDate.AddDays(1).PSTtoUTC())
           .Where(t => Math.Round(t.Amount, 2) != 0f)
           .OrderBy(t => t.SaleId)
+          .ThenBy(t => t.Type)
           .ThenBy(t => t.Method)
           .ToList();
 

@@ -40,6 +40,8 @@
 
 2020/10/02
 - Updated server
+- TransactionHistory: For each sale, order transaction by Type then by Method
+- Bug Fix: NAJ0468 displays DROPSHIP
 
 
 
@@ -51,10 +53,7 @@ Justin:
 
 Michael:
 - Xfer list highlight STORE in red. Make location different color
-- Bug Fix: NAJ0468 displays DROPSHIP
-- Xfer Batch List: Sort warehouse location by Location
 
-- TransactionHistory: For each sale, order transaction by Type then by Method
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

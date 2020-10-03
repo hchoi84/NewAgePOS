@@ -1,16 +1,10 @@
 ﻿@page
-@using NewAgePOS.Utilities
 @model NewAgePOS.Pages.Sale.SearchModel
 @{
   ViewData["Title"] = "Sales Search";
 }
 
 <partial name="_HeaderPartial" model="0" />
-
-@if (TempData["Message"] != null)
-{
-  <h4 class="text-danger mt-3 text-center">@TempData["Message"]</h4>
-}
 
 <form method="get" class="mb-5">
   <div class="form-row">
