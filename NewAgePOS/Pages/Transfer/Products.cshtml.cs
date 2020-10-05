@@ -47,17 +47,13 @@ namespace NewAgePOS.Pages.Transfer
 
     public TransferRequestModel TransferRequest { get; set; }
     public List<LocationSearchViewModel> ViewModels { get; set; }
-    public int XferBatchReqCount { get; set; }
-    public List<SelectListItem> PendingTransfers { get; set; }
-    public bool IsReview { get; set; }
+    public List<SelectListItem> PendingTransferRequests { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
       if (PageType == TransferPageTypeEnum.Single || PageType == TransferPageTypeEnum.Batch)
       {
         if (string.IsNullOrEmpty(Codes)) return Page();
-
-        ViewModels = new List<LocationSearchViewModel>();
         await InitializeAsync();
       }
 
@@ -66,8 +62,12 @@ namespace NewAgePOS.Pages.Transfer
 
       if (PageType == TransferPageTypeEnum.Review)
       {
-        ViewModels = new List<LocationSearchViewModel>();
         await InitializeReviewAsync();
+        if (TransferRequest == null)
+        {
+          TempData["Message"] = "No transfer request found with the given Id";
+          return RedirectToPage("/Transfer/Search");
+        }
       }
 
       return Page();
@@ -75,6 +75,7 @@ namespace NewAgePOS.Pages.Transfer
 
     private async Task InitializeAsync()
     {
+      ViewModels = new List<LocationSearchViewModel>();
       IEnumerable<string> productCodes = Codes.CountIt().Select(c => c.Key);
 
       await AddProductsAsync(productCodes);
@@ -152,7 +153,7 @@ namespace NewAgePOS.Pages.Transfer
     private void InitializeBatch()
     {
       TransferRequestQtys = new List<TransferRequestViewModel>();
-      PendingTransfers = new List<SelectListItem>();
+      PendingTransferRequests = new List<SelectListItem>();
 
       ViewModels.ForEach(vm => TransferRequestQtys.Add(
         new TransferRequestViewModel
@@ -160,11 +161,11 @@ namespace NewAgePOS.Pages.Transfer
           Sku = vm.Sku
         }));
 
-      IEnumerable<TransferRequestModel> transferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
-      foreach (var tr in transferRequests)
+      IEnumerable<TransferRequestModel> pendingTransferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
+      foreach (var tr in pendingTransferRequests)
       {
         int itemCount = _sqlDb.TransferRequestItems_GetByTransferRequestId(tr.Id).Count();
-        PendingTransfers.Add(new SelectListItem
+        PendingTransferRequests.Add(new SelectListItem
         {
           Text = $"{tr.Description} ({itemCount} items)",
           Value = tr.Id.ToString()
@@ -174,11 +175,10 @@ namespace NewAgePOS.Pages.Transfer
 
     private async Task InitializeReviewAsync()
     {
-      // If no TransferRequest found, redirect back to Transfer/Search page with error message
-      // Test some direct URL
-        // provide 0/Nothing/99 for TransactionId
-
+      ViewModels = new List<LocationSearchViewModel>();
       TransferRequest = _sqlDb.TransferRequests_GetById(TransferRequestId);
+      if (TransferRequest == null) return;
+
       TransferRequestQtys = new List<TransferRequestViewModel>();
 
       IEnumerable<TransferRequestItemModel> tris = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
@@ -303,6 +303,12 @@ namespace NewAgePOS.Pages.Transfer
         return RedirectToPage(new { Codes });
       }
 
+      if (description.Length > 20 || creatorName.Length > 10)
+      {
+        TempData["Message"] = "Description or Name fields character length is too long";
+        return RedirectToPage(new { Codes });
+      }
+
       IEnumerable<TransferRequestViewModel> requestItems = TransferRequestQtys.Where(tr => tr.Qty > 0);
       if (!requestItems.Any())
       {
@@ -320,39 +326,32 @@ namespace NewAgePOS.Pages.Transfer
     }
 
 
-    public IActionResult OnGetDisplayXferReqItems()
+    public IActionResult OnPostEditTransferQtys()
     {
-      IsReview = true;
-      List<LocationSearchViewModel> xferReqItems = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems");
+      IEnumerable<TransferRequestItemModel> tris = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
+      int updatedCount = 0;
 
-      if (xferReqItems == null)
+      foreach (var trq in TransferRequestQtys)
       {
-        TempData["Message"] = "There are no items";
-        return Page();
+        var tri = tris.FirstOrDefault(tri => tri.Sku == trq.Sku);
+        if (trq.Qty <= 0)
+        {
+          updatedCount++;
+          _sqlDb.TransferRequestItems_Delete(tri.Id);
+        }
+        else if (tri.Qty != trq.Qty)
+        {
+          updatedCount++;
+          _sqlDb.TransferRequestItems_Update(tri.Id, trq.Qty);
+        }
       }
 
-      XferBatchReqCount = xferReqItems.Count;
-      ViewModels = xferReqItems;
+      if (updatedCount > 0)
+        TempData["Message"] = $"{ updatedCount } product(s) updated";
+      else
+        TempData["Message"] = "Nothing to update";
 
-      return Page();
-    }
-
-    public IActionResult OnPostEditXferReqItems()
-    {
-      IsReview = true;
-      List<LocationSearchViewModel> xferReqItems = HttpContext.Session.GetObject<List<LocationSearchViewModel>>("XferReqItems");
-
-      foreach (var r in ViewModels)
-      {
-        LocationSearchViewModel xferReqItem = xferReqItems.FirstOrDefault(x => x.Sku == r.Sku);
-
-        if (r.RequestQty == 0) xferReqItems.Remove(xferReqItem);
-        else if (r.RequestQty != xferReqItem.RequestQty) xferReqItem.RequestQty = r.RequestQty;
-      }
-
-      HttpContext.Session.SetObject("XferReqItems", xferReqItems);
-
-      return RedirectToPage("/Product/Transfer", "DisplayXferReqItems", new { IsReview, PageType });
+      return RedirectToPage();
     }
   }
 }

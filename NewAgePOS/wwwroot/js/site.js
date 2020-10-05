@@ -97,19 +97,49 @@ function confirm3Btns(thisId, thatId, whatId) {
   }
 }
 
-function countCharacters(inputId, displayId, buttonId) {
+function countChars(inputId, maxChar) {
   var input = document.getElementById(inputId);
-  var display = document.getElementById(displayId);
-  var button = document.getElementById(buttonId);
+  var display = document.getElementById(inputId + 'CountDisplay');
+  var button = document.getElementById(inputId + 'SubmitButton');
   var count = input.value.length;
-  display.innerText = count + " / 100";
+  display.innerText = count + ' / ' + maxChar;
 
-  if (count > 100) {
+  if (count > maxChar) {
     display.className = "text-danger";
     button.disabled = true;
   }
   else {
     display.className = "text-info";
     button.disabled = false;
+  }
+}
+
+function countChars2Inputs(inputId1, inputId2, buttonId, maxChar1, maxChar2) {
+  var input1 = document.getElementById(inputId1);
+  var display1 = document.getElementById(inputId1 + 'CountDisplay');
+  var count1 = input1.value.length;
+  display1.innerText = count1 + ' / ' + maxChar1;
+
+  var input2 = document.getElementById(inputId2);
+  var display2 = document.getElementById(inputId2 + 'CountDisplay');
+  var count2 = input2.value.length;
+  display2.innerText = count2 + ' / ' + maxChar2;
+
+  var button = document.getElementById(buttonId);
+
+  if (count1 > maxChar1) {
+    display1.className = 'text-danger';
+  } else {
+    display1.className = 'text-info';
+  }
+
+  if (count2 > maxChar2) {
+    display2.className = 'text-danger';
+  } else {
+    display2.className = 'text-info';
+  }
+
+  if (count1 > maxChar1 || count2 > maxChar2) {
+    button.disabled = true;
   }
 }

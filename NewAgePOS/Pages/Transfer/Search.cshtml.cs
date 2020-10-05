@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,28 @@ namespace NewAgePOS.Pages.Transfer
 
       TempData["Message"] = $"{ description } has been deleted";
       return RedirectToPage();
+    }
+
+    public IActionResult OnPostUpdateStatus(int id, string description, StatusEnum currentStatus)
+    {
+      List<string> messages = new List<string>();
+      var transferRequest = _sqlDb.TransferRequests_GetById(id);
+
+      if (transferRequest.Status == currentStatus)
+      {
+        int currentStatusCode = (int)transferRequest.Status;
+        int newStatusCode = ++currentStatusCode;
+        transferRequest.Status = (StatusEnum)newStatusCode;
+        _sqlDb.TransferRequests_Update(transferRequest);
+        messages.Add($"{ description } status has been updated to { transferRequest.Status }");
+      }
+      else
+      {
+        messages.Add($"{ description } status has not been updated");
+        messages.Add($"Current status code { currentStatus } is different from DB { transferRequest.Status }. Someone could have already updated it");
+      }
+        TempData["Message"] = string.Join(Environment.NewLine, messages);
+        return RedirectToPage();
     }
   }
 }

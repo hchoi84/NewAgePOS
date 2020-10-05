@@ -4,7 +4,10 @@
 <form method="post" asp-page="/Sale/Message" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId" asp-route-returnurl="@Model.ReturnUrl">
   <div class="form-row">
     <div class="col">
-      <textarea asp-for="@Model.Message" class="form-control" onkeyup="countCharacters(this.id, 'MessageCountDisplay', 'MessageSubmitButton')" placeholder="Enter message here... 100 max characters"></textarea>
+      <textarea class="form-control"
+                asp-for="@Model.Message" 
+                onkeyup="countChars(this.id, 100)" 
+                placeholder="Enter message here... 100 max characters"></textarea>
     </div>
   </div>
   <div class="form-row mt-1">

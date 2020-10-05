@@ -64,16 +64,18 @@ Refactor/Converting Sale/Transfer
 - Updated Transfer page routing to include TransferRequestId
 - Changed folder name "Product" to "Transfer"
 - Changed page name "Transfer" to "Product"
-
 - Implemented Transfer/Search page
   * Search by Status, View items, Delete Transfer Request
 - Transfer/Products: Implemented listing Transfer Request info and items
 
+- Implemented Transfer/Products/Review functionality (Edit, Delete, Mark as Ready, Mark as Picking, Mark as Complete)
+- site.js: Refactored to simpler parameters
+- site.js: Created char count for 2 inputs
+- Implemented error handling to check character count in post methods in addition to site.js
+- Transfer/Products/Review: Redirects to search if nothing was found with given Id
 
 ********** WORKING ON **********
-- Implement Transfer/Products/Review functionality (Edit, Delete, Mark as Ready, Mark as Picking, Mark as Complete)
 - Create access for warehouse
-
 
 ********** PENDING (No particular order) **********
 - Sale/Cart: Select Tax % to apply

@@ -31,6 +31,15 @@ namespace NewAgePOS.Pages.Sale
           return RedirectToPage();
       }
 
+      if (message.Length > 100)
+      {
+        TempData["Message"] = "Message can not be greater than 100 characters";
+        if (Url.IsLocalUrl(returnUrl))
+          return Redirect(returnUrl);
+        else
+          return RedirectToPage();
+      }
+
       _sqlDb.Messages_Insert(saleId, message);
       if (Url.IsLocalUrl(returnUrl))
         return Redirect(returnUrl);

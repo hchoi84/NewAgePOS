@@ -75,6 +75,9 @@ else
     <div class="form-row">
       <h5 class="m-auto">Requester: @Model.TransferRequest.CreatorName</h5>
     </div>
+    <div class="form-row">
+      <h5 class="m-auto">Status: @Model.TransferRequest.Status.ToString()</h5>
+    </div>
   }
 </div>
 
@@ -176,13 +179,13 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
       }
     }
 
-    @if (Model.PendingTransfers.Any())
+    @if (Model.PendingTransferRequests.Any())
     {
       <div class="row mt-3">
         <div class="col-6 pr-0">
           <select class="form-control"
                   asp-for="@Model.TransferRequestId"
-                  asp-items="@Model.PendingTransfers">
+                  asp-items="@Model.PendingTransferRequests">
             <option value="">---Choose Transfer---</option>
           </select>
         </div>
@@ -198,13 +201,25 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
 
     <div class="row mt-3">
       <div class="col-6 pr-0">
-        <input name="description" class="form-control" type="text" placeholder="Description" />
+        <input id="description" 
+               name="description" 
+               class="form-control" 
+               type="text" 
+               placeholder="Description" 
+               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', 20, 10)" />
+        <span id="descriptionCountDisplay" class="text-info"></span>
       </div>
       <div class="col px-0">
-        <input name="creatorName" class="form-control" type="text" placeholder="Your Name" />
+        <input id="creatorName" 
+               name="creatorName" 
+               class="form-control" 
+               type="text" 
+               placeholder="Your Name" 
+               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', 20, 10)" />
+        <span id="creatorNameCountDisplay" class="text-info"></span>
       </div>
       <div class="col-auto">
-        <button type="submit" class="btn btn-primary"
+        <button id="createTransferRequestBtn" type="submit" class="btn btn-primary"
                 asp-page-handler="CreateTransferRequestAndAddItems"
                 asp-route-codes="@Model.Codes">
           Create
@@ -215,7 +230,10 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
 }
 else if (Model.PageType == TransferPageTypeEnum.Review)
 {
-  <form method="post">
+  int currentStatusCode = (int)Model.TransferRequest.Status;
+  int nextStatusCode = ++currentStatusCode;
+
+  <form method="post" class="mb-3">
     @for (var i = 0; i < Model.TransferRequestQtys.Count; i++)
     {
       <input asp-for="@Model.TransferRequestQtys[i].Sku" hidden />
@@ -237,7 +255,14 @@ else if (Model.PageType == TransferPageTypeEnum.Review)
           <input value="Transfer Quantity" class="form-control" readonly />
         </div>
         <div class="col px-0">
-          <input asp-for="@Model.TransferRequestQtys[i].Qty" class="form-control" />
+          @if (Model.TransferRequest.Status == StatusEnum.Pending)
+          {
+            <input asp-for="@Model.TransferRequestQtys[i].Qty" class="form-control" />
+          }
+          else
+          {
+            <input readonly value="@Model.TransferRequestQtys[i].Qty" class="form-control" />
+          }
         </div>
         <div class="col-1 px-0">
           <input value=" / " class="form-control text-center" readonly />
@@ -247,5 +272,39 @@ else if (Model.PageType == TransferPageTypeEnum.Review)
         </div>
       </div>
     }
+
+    @if (Model.TransferRequest.Status == StatusEnum.Pending)
+    {
+      <button type="submit" asp-page-handler="EditTransferQtys" class="btn btn-primary mt-1">Update Qty</button>
+    }
   </form>
+
+  <div class="row">
+    @if (Model.TransferRequest.Status == StatusEnum.Pending)
+    {
+      <div class="col-auto">
+        <form method="post"
+              asp-page="/Transfer/Search"
+              asp-page-handler="DeleteTransferRequest"
+              asp-route-id="@Model.TransferRequestId"
+              asp-route-description="@Model.TransferRequest.Description">
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </form>
+      </div>
+    }
+    <div class="col-auto">
+      <form method="post"
+            asp-page="/Transfer/Search"
+            asp-page-handler="UpdateStatus"
+            asp-route-id="@Model.TransferRequestId"
+            asp-route-description="@Model.TransferRequest.Description"
+            asp-route-currentStatus="@Model.TransferRequest.Status">
+        <button type="submit" class="btn btn-primary">
+          Mark As @((StatusEnum)nextStatusCode)
+        </button>
+      </form>
+    </div>
+  </div>
 }

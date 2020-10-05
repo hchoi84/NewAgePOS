@@ -358,7 +358,8 @@ namespace NewAgePOSLibrary.Data
 
     public void TransferRequests_Delete(int id)
     {
-      string query = "DELETE FROM dbo.TransferRequests WHERE Id = @id";
+      string query = "DELETE FROM dbo.TransferRequestItems WHERE TransferRequestId = @id; " +
+        "DELETE FROM dbo.TransferRequests WHERE Id = @id;";
       _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
     }
 
@@ -367,9 +368,22 @@ namespace NewAgePOSLibrary.Data
       string query = "SELECT * FROM dbo.TransferRequests WHERE Id = @id";
       return _sqlDb.LoadData<TransferRequestModel, dynamic>(query, new { id }, _connectionStringName, false).FirstOrDefault();
     }
+
+    public void TransferRequests_Update(TransferRequestModel tr)
+    {
+      string query = "Update dbo.TransferRequests SET Description = @description, CreatorName = @creatorName, status = @status, Updated = @updated WHERE Id = @id";
+      _sqlDb.SaveData(query,
+        new { id = tr.Id, description = tr.Description, creatorName = tr.CreatorName, status = tr.Status.ToString(), updated = DateTime.Now },
+        _connectionStringName, false);
+    }
     #endregion
 
     #region TransferRequestItems
+    public void TransferRequestItems_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.TransferRequestItems WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
+    }
     public IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByStatus(StatusEnum status)
     {
       string query = "SELECT tri.* FROM dbo.TransferRequests tr " +
@@ -388,6 +402,12 @@ namespace NewAgePOSLibrary.Data
     {
       string query = "INSERT INTO dbo.TransferRequestItems (TransferRequestId, Sku, Qty) VALUES (@transferRequestId, @sku, @qty)";
       _sqlDb.SaveData(query, new { transferRequestId, sku, qty }, _connectionStringName, false);
+    }
+
+    public void TransferRequestItems_Update(int id, int qty)
+    {
+      string query = "UPDATE dbo.TransferRequestItems SET Qty = @qty WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id, qty }, _connectionStringName, false);
     }
     #endregion
   }

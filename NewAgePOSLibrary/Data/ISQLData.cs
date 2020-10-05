@@ -87,12 +87,15 @@ namespace NewAgePOSLibrary.Data
     int TransferRequests_Insert(string description, string creatorName);
     void TransferRequests_Delete(int id);
     TransferRequestModel TransferRequests_GetById(int id);
+    void TransferRequests_Update(TransferRequestModel tr);
     #endregion
 
     #region TransferRequestItems
+    void TransferRequestItems_Delete(int id);
     IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByStatus(StatusEnum status);
     IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByTransferRequestId(int transferRequestId);
     void TransferRequestItems_Insert(int transferRequestId, string sku, int qty);
+    void TransferRequestItems_Update(int id, int qty);
     #endregion
   }
 }
