@@ -16,15 +16,15 @@ using NewAgePOSModels.Models;
 using Newtonsoft.Json.Linq;
 using SkuVaultLibrary;
 
-namespace NewAgePOS.Pages.Product
+namespace NewAgePOS.Pages.Transfer
 {
-  public class TransferModel : PageModel
+  public class ProductsModel : PageModel
   {
     private readonly IChannelAdvisor _ca;
     private readonly ISkuVault _sv;
     private readonly ISQLData _sqlDb;
 
-    public TransferModel(IChannelAdvisor ca, ISkuVault sv, ISQLData sqlDb)
+    public ProductsModel(IChannelAdvisor ca, ISkuVault sv, ISQLData sqlDb)
     {
       _ca = ca;
       _sv = sv;
@@ -41,7 +41,7 @@ namespace NewAgePOS.Pages.Product
     [BindProperty]
     public List<TransferRequestViewModel> TransferRequests { get; set; }
 
-    [BindProperty]
+    [BindProperty(SupportsGet = true)]
     public int TransferRequestId { get; set; }
 
     public List<LocationSearchViewModel> ViewModels { get; set; }
@@ -238,7 +238,7 @@ namespace NewAgePOS.Pages.Product
       }
 
       List<string> errorMsgs = new List<string>();
-      errorMsgs.Add("Finished processing");
+      errorMsgs.Add("Products added successfully");
       IEnumerable<TransferRequestItemModel> transferRequestItems = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
       foreach (var ri in requestItems)
       {
@@ -258,7 +258,7 @@ namespace NewAgePOS.Pages.Product
         TempData["Message"] = string.Join(Environment.NewLine, errorMsgs);
       }
 
-      return RedirectToPage();
+      return RedirectToPage(new { TransferRequestId });
     }
 
     public IActionResult OnPostCreateTransferRequestAndAddItems(string description, string creatorName)

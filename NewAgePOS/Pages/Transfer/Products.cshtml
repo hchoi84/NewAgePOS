@@ -1,10 +1,12 @@
-﻿@page "{PageType}"
+﻿@page "{PageType:alpha}/{TransferRequestId:min(1)?}"
 @using NewAgePOS.ViewModels
-@model NewAgePOS.Pages.Product.TransferModel
+@model NewAgePOS.Pages.Transfer.ProductsModel
 @{
   string titleSubfix = Model.IsReview ? "Batch Items Review" : Model.PageType == TransferPageTypeEnum.Batch ? "Batch" : "Single";
   ViewData["Title"] = $"Transfer { titleSubfix }";
+}
 
+@functions{
   void GenerateProductInfo(LocationSearchViewModel product)
   {
     <div class="row mt-3">
@@ -22,10 +24,10 @@
     </div>
     <div class="row">
       <div class="col pr-0">
-        <input value="@product.Cost.ToString("C2")" class="form-control" readonly />
+        <input value="@product.Cost.ToString(" C2")" class="form-control" readonly />
       </div>
       <div class="col pl-0">
-        <input value="@product.Price.ToString("C2")" class="form-control" readonly />
+        <input value="@product.Price.ToString(" C2")" class="form-control" readonly />
       </div>
     </div>
   }
@@ -74,7 +76,7 @@ else if (Model.PageType == TransferPageTypeEnum.Single)
         <div class="col-auto pl-0">
           @if (loc.Location != "STORE")
           {
-            <a id="@(id + "Btn")" class="btn btn-primary" onclick="confirm(this.id)">
+            <a id="@(id + " Btn")" class="btn btn-primary" onclick="confirm(this.id)">
               <i class="fas fa-dolly"></i>
             </a>
           }
@@ -160,16 +162,18 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
     {
       <div class="row mt-3">
         <div class="col-6 pr-0">
-          <select class="form-control" 
-                  asp-for="@Model.TransferRequestId" 
+          <select class="form-control"
+                  asp-for="@Model.TransferRequestId"
                   asp-items="@Model.PendingTransfers">
             <option value="">---Choose Transfer---</option>
           </select>
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-primary"
-                  asp-page-handler="AddItemsToTransferRequest" 
-                  asp-route-codes="@Model.Codes">Add</button>
+                  asp-page-handler="AddItemsToTransferRequest"
+                  asp-route-codes="@Model.Codes">
+            Add
+          </button>
         </div>
       </div>
     }
@@ -183,8 +187,10 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-primary"
-                asp-page-handler="CreateTransferRequestAndAddItems" 
-                asp-route-codes="@Model.Codes">Create</button>
+                asp-page-handler="CreateTransferRequestAndAddItems"
+                asp-route-codes="@Model.Codes">
+          Create
+        </button>
       </div>
     </div>
   </form>

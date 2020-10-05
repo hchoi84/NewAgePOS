@@ -6,11 +6,6 @@
 
 <partial name="_HeaderPartial" model="@Model.SaleId" />
 
-@if (TempData["Message"] != null)
-{
-  <h4 class="text-danger mb-3 text-center">@TempData["Message"]</h4>
-}
-
 @await Component.InvokeAsync("ItemList", new { saleId = @Model.SaleId })
 
 <h4 class="mt-5 text-center">CUSTOMER INFO</h4>

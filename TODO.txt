@@ -1,5 +1,5 @@
 ********** DONE (Last finished at the bottom) **********
-2020/09/28 Monday
+09/28 Monday
 - Pushed to server
 - UI/UX: Automatic height for AllName and Messages
 - UI/UX: Sale/Message: Put vertical margins on messages
@@ -8,11 +8,11 @@
 - Refactor: Move message related handlers from Sale/Search to Sale/Message
 - Feature: Sale/Search: Implement displaying pending sales
 
-2020/09/29 Tuesday
+09/29 Tuesday
 - Sale/Cart: Refactored Add/Remove Gift Cards
 - Sale/Cart: Refactored Add/Remove Trade Ins for displaying accurate error messages
 
-2020/09/30 Wednesday
+09/30 Wednesday
 - Bug Fix: Sale/Cart: Prevents applying discount outside of 0 to 100
 - DB: Ensure any table update also updates Updated column
 - Updated Server
@@ -21,7 +21,7 @@
 - Bug Fix: "Change" wasn't being recorded due to incorrect comparison sign
 - Refactor: Refunding trigger (buttons) moved to PriceSummary to reduce duplicate refunding amount calculation
 
-2020/10/01
+10/01 Thursday
 - Updated server
 - UI/UX: Increase all error font size to h4
 - Transaction History: Needs to display actual sale amount. It's only showing transaction amounts. The day cash earning is incorrect
@@ -38,21 +38,39 @@
 - CheckoutViewModel: Removed as it is no longer needed
 - site.js: Cleaned up confirmation functions to be consistent
 
-2020/10/02
+10/02 Friday
 - Updated server
 - TransactionHistory: For each sale, order transaction by Type then by Method
 - Bug Fix: NAJ0468 displays DROPSHIP
+- Architecturing best approach for modifying Sale/Transfer
 
+10/03 Saturday
+Refactor/Converting Sale/Transfer
+- Batch Transfer request to use DB instead of Session
+- Created TransferRequests table
+- Created TransferRequestItems table
+- Created StatusEnum for TransferRequest Status
+- Created TransferPageTypeEnum to have Sale/Transfer be able to handle
+  multiple page views all related to Transfering since they all use
+  similar methods
+- Created TransferRequestViewModel for being bale to submit multiple
+  products in one submit
+- UI/UX: Set the foundation to migrate all Messages that shows on top of
+  the page, directly below the header, towards _HeaderPartial for
+  consistency and reduce code duplicates
+
+10/05 Monday
+- Removed all message display line from pages except _HeaderPartial
+- Updated Transfer page routing to include TransferRequestId
+- Changed folder name "Product" to "Transfer"
+- Changed page name "Transfer" to "Product"
 
 
 ********** WORKING ON **********
-Justin:
-- Transfer Batch DB. Multiple dbs. Multiple Xfer Batch requests
-- FINISH button on the transfer batch or create a PROGRESS column
-- Warehouse to pull information, print, and mark as complete
-
-Michael:
-- Xfer list highlight STORE in red. Make location different color
+- Implement Sale/Transfer Review
+  * Add front-end code
+  * InitializeReview() to prepare for necessary data for front-end
+  * Modify/Add methods related to Review (choosing TransferRequest to review, editing, deleting, marking it ready for the warehouse)
 
 
 ********** PENDING (No particular order) **********

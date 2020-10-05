@@ -6,11 +6,6 @@
   string receiptName = idType.Substring(0, 1).ToUpper() + idType.Substring(1, idType.Length - 1) + " Receipt";
 }
 
-@if (TempData["Message"] != null)
-{
-  <h4 class="mt-5 text-danger text-center hideInPrint" style="white-space: pre-wrap;">@TempData["Message"]</h4>
-}
-
 <div style="max-width: 350px; margin: auto;">
   <div class="text-center">
     <img src="~/images/Golfio_Logo.png" />
