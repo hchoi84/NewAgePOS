@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using ChannelAdvisorLibrary;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,12 +39,13 @@ namespace NewAgePOS.Pages.Transfer
     [BindProperty(SupportsGet = true)]
     public TransferPageTypeEnum PageType { get; set; }
 
-    [BindProperty]
-    public List<TransferRequestViewModel> TransferRequests { get; set; }
-
     [BindProperty(SupportsGet = true)]
     public int TransferRequestId { get; set; }
 
+    [BindProperty]
+    public List<TransferRequestViewModel> TransferRequestQtys { get; set; }
+
+    public TransferRequestModel TransferRequest { get; set; }
     public List<LocationSearchViewModel> ViewModels { get; set; }
     public int XferBatchReqCount { get; set; }
     public List<SelectListItem> PendingTransfers { get; set; }
@@ -51,13 +53,21 @@ namespace NewAgePOS.Pages.Transfer
 
     public async Task<IActionResult> OnGetAsync()
     {
-      if (string.IsNullOrEmpty(Codes)) return Page();
-      
-      await InitializeAsync();
+      if (PageType == TransferPageTypeEnum.Single || PageType == TransferPageTypeEnum.Batch)
+      {
+        if (string.IsNullOrEmpty(Codes)) return Page();
+
+        ViewModels = new List<LocationSearchViewModel>();
+        await InitializeAsync();
+      }
 
       if (PageType == TransferPageTypeEnum.Batch)
-      {
         InitializeBatch();
+
+      if (PageType == TransferPageTypeEnum.Review)
+      {
+        ViewModels = new List<LocationSearchViewModel>();
+        await InitializeReviewAsync();
       }
 
       return Page();
@@ -65,10 +75,9 @@ namespace NewAgePOS.Pages.Transfer
 
     private async Task InitializeAsync()
     {
-      ViewModels = new List<LocationSearchViewModel>();
       IEnumerable<string> productCodes = Codes.CountIt().Select(c => c.Key);
 
-      await AddProducts(productCodes);
+      await AddProductsAsync(productCodes);
       if (ViewModels.Count == 0)
       {
         TempData["Message"] = "No Results Found";
@@ -82,7 +91,7 @@ namespace NewAgePOS.Pages.Transfer
         .ToList();
     }
 
-    private async Task AddProducts(IEnumerable<string> productCodes)
+    private async Task AddProductsAsync(IEnumerable<string> productCodes)
     {
       IEnumerable<JObject> jObjects = await _ca.GetProductsByCodeAsync(productCodes);
 
@@ -142,26 +151,51 @@ namespace NewAgePOS.Pages.Transfer
 
     private void InitializeBatch()
     {
-      TransferRequests = new List<TransferRequestViewModel>();
+      TransferRequestQtys = new List<TransferRequestViewModel>();
       PendingTransfers = new List<SelectListItem>();
 
-      ViewModels.ForEach(vm => TransferRequests.Add(
+      ViewModels.ForEach(vm => TransferRequestQtys.Add(
         new TransferRequestViewModel
         {
           Sku = vm.Sku
         }));
 
       IEnumerable<TransferRequestModel> transferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
-      IEnumerable<TransferRequestItemModel> transferRequestItems = _sqlDb.TransferRequestItems_GetByStatus(StatusEnum.Pending);
       foreach (var tr in transferRequests)
       {
-        int itemCount = transferRequestItems.Where(tri => tri.TransferRequestId == tr.Id).Count();
+        int itemCount = _sqlDb.TransferRequestItems_GetByTransferRequestId(tr.Id).Count();
         PendingTransfers.Add(new SelectListItem
         {
           Text = $"{tr.Description} ({itemCount} items)",
           Value = tr.Id.ToString()
         });
       }
+    }
+
+    private async Task InitializeReviewAsync()
+    {
+      // If no TransferRequest found, redirect back to Transfer/Search page with error message
+      // Test some direct URL
+        // provide 0/Nothing/99 for TransactionId
+
+      TransferRequest = _sqlDb.TransferRequests_GetById(TransferRequestId);
+      TransferRequestQtys = new List<TransferRequestViewModel>();
+
+      IEnumerable<TransferRequestItemModel> tris = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
+      foreach (var tri in tris)
+      {
+        TransferRequestQtys.Add(new TransferRequestViewModel
+        {
+          Sku = tri.Sku,
+          Qty = tri.Qty
+        });
+      }
+
+      IEnumerable<string> skus = tris.Select(tri => tri.Sku);
+      TransferRequest.Description += $" ({ skus.Count() } items)";
+
+      await AddProductsAsync(skus);
+      await AddLocationsAsync();
     }
 
 
@@ -230,7 +264,7 @@ namespace NewAgePOS.Pages.Transfer
         return RedirectToPage(new { Codes });
       }
 
-      IEnumerable<TransferRequestViewModel> requestItems = TransferRequests.Where(tr => tr.Qty > 0);
+      IEnumerable<TransferRequestViewModel> requestItems = TransferRequestQtys.Where(tr => tr.Qty > 0);
       if (!requestItems.Any())
       {
         TempData["Message"] = "No items have been selected";
@@ -269,7 +303,7 @@ namespace NewAgePOS.Pages.Transfer
         return RedirectToPage(new { Codes });
       }
 
-      IEnumerable<TransferRequestViewModel> requestItems = TransferRequests.Where(tr => tr.Qty > 0);
+      IEnumerable<TransferRequestViewModel> requestItems = TransferRequestQtys.Where(tr => tr.Qty > 0);
       if (!requestItems.Any())
       {
         TempData["Message"] = "No items have been selected";

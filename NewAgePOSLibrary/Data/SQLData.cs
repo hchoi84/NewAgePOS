@@ -355,6 +355,18 @@ namespace NewAgePOSLibrary.Data
       string query = "INSERT INTO dbo.TransferRequests (Description, CreatorName, Status) OUTPUT inserted.Id VALUES (@description, @creatorName, @status)";
       return _sqlDb.LoadData<int, dynamic>(query, new { description, creatorName, status }, _connectionStringName, false).FirstOrDefault();
     }
+
+    public void TransferRequests_Delete(int id)
+    {
+      string query = "DELETE FROM dbo.TransferRequests WHERE Id = @id";
+      _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
+    }
+
+    public TransferRequestModel TransferRequests_GetById(int id)
+    {
+      string query = "SELECT * FROM dbo.TransferRequests WHERE Id = @id";
+      return _sqlDb.LoadData<TransferRequestModel, dynamic>(query, new { id }, _connectionStringName, false).FirstOrDefault();
+    }
     #endregion
 
     #region TransferRequestItems

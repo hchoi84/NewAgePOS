@@ -1,0 +1,68 @@
+﻿@page
+@model NewAgePOS.Pages.Transfer.SearchModel
+@{
+  ViewData["Title"] = "Transfer Search";
+}
+
+<partial name="_HeaderPartial" model="0" />
+
+<form method="get" class="mb-5">
+  <div class="form-row">
+    <div class="col">
+      <select asp-for="SearchStatusId" asp-items="Html.GetEnumSelectList<StatusEnum>()" class="form-control">
+        <option value="">---Choose Status---</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </div>
+</form>
+
+@if (Model.TransferRequests.Any())
+{
+  @foreach (var tr in Model.TransferRequests)
+  {
+    <div class="form-row mt-3">
+      <div class="col">
+        <input disabled class="form-control" value="@tr.Description" />
+      </div>
+      <div class="col-auto">
+        <a class="btn btn-primary"
+           asp-page="/Transfer/Products"
+           asp-route-pageType="@TransferPageTypeEnum.Review"
+           asp-route-transferRequestId="@tr.Id">
+          <i class="fas fa-list-alt"></i>
+        </a>
+      </div>
+      <div class="col-auto">
+        <a class="btn btn-danger" id="deleteConfirmBtn" onclick="confirm(this.id)">
+          <i class="fas fa-trash-alt"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-1" id="deleteConfirm" style="display: none;">
+      <div class="form-row justify-content-center">
+        <div class="col-6">
+          <input disabled class="form-control" value="Are you sure?" />
+        </div>
+        <div class="col-auto">
+          <form method="post" 
+                asp-page-handler="DeleteTransferRequest" 
+                asp-route-id="@tr.Id" 
+                asp-route-description="@tr.Description">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-check-square"></i>
+            </button>
+          </form>
+        </div>
+        <div class="col-auto">
+          <a class="btn btn-danger" onclick="confirm('deleteConfirmBtn')">
+            <i class="fas fa-window-close"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+}

@@ -65,12 +65,14 @@ Refactor/Converting Sale/Transfer
 - Changed folder name "Product" to "Transfer"
 - Changed page name "Transfer" to "Product"
 
+- Implemented Transfer/Search page
+  * Search by Status, View items, Delete Transfer Request
+- Transfer/Products: Implemented listing Transfer Request info and items
+
 
 ********** WORKING ON **********
-- Implement Sale/Transfer Review
-  * Add front-end code
-  * InitializeReview() to prepare for necessary data for front-end
-  * Modify/Add methods related to Review (choosing TransferRequest to review, editing, deleting, marking it ready for the warehouse)
+- Implement Transfer/Products/Review functionality (Edit, Delete, Mark as Ready, Mark as Picking, Mark as Complete)
+- Create access for warehouse
 
 
 ********** PENDING (No particular order) **********

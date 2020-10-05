@@ -2,8 +2,8 @@
 @using NewAgePOS.ViewModels
 @model NewAgePOS.Pages.Transfer.ProductsModel
 @{
-  string titleSubfix = Model.IsReview ? "Batch Items Review" : Model.PageType == TransferPageTypeEnum.Batch ? "Batch" : "Single";
-  ViewData["Title"] = $"Transfer { titleSubfix }";
+  string titleSuffix = Model.PageType == TransferPageTypeEnum.Single ? "Single" : Model.PageType == TransferPageTypeEnum.Batch ? "Batch" : "Review";
+  ViewData["Title"] = $"Transfer { titleSuffix }";
 }
 
 @functions{
@@ -24,10 +24,10 @@
     </div>
     <div class="row">
       <div class="col pr-0">
-        <input value="@product.Cost.ToString(" C2")" class="form-control" readonly />
+        <input value="@product.Cost.ToString("C2")" class="form-control" readonly />
       </div>
       <div class="col pl-0">
-        <input value="@product.Price.ToString(" C2")" class="form-control" readonly />
+        <input value="@product.Price.ToString("C2")" class="form-control" readonly />
       </div>
     </div>
   }
@@ -47,18 +47,36 @@
   }
 }
 
-<partial name="_HeaderPartial" model="0" />
-
 @if (Model.PageType != TransferPageTypeEnum.Review)
 {
-  <form method="get" asp-page-handler="Search" class="mb-5">
-    <div class="form-group">
-      <label asp-for="Codes"></label>
-      <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-  </form>
+  <partial name="_HeaderPartial" model="0" />
 }
+else
+{
+  <partial name="_HeaderPartial" model="Model.TransferRequestId" />
+}
+
+<div class="mb-5">
+  @if (Model.PageType != TransferPageTypeEnum.Review)
+  {
+    <form method="get" asp-page-handler="Search">
+      <div class="form-group">
+        <label asp-for="Codes"></label>
+        <textarea asp-for="Codes" class="form-control" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  }
+  else
+  {
+    <div class="form-row">
+      <h5 class="m-auto">Description: @Model.TransferRequest.Description</h5>
+    </div>
+    <div class="form-row">
+      <h5 class="m-auto">Requester: @Model.TransferRequest.CreatorName</h5>
+    </div>
+  }
+</div>
 
 @if (Model.ViewModels == null || !Model.ViewModels.Any()) { }
 else if (Model.PageType == TransferPageTypeEnum.Single)
@@ -123,10 +141,10 @@ else if (Model.PageType == TransferPageTypeEnum.Single)
 else if (Model.PageType == TransferPageTypeEnum.Batch)
 {
   <form method="post">
-    @for (var i = 0; i < Model.TransferRequests.Count; i++)
+    @for (var i = 0; i < Model.TransferRequestQtys.Count; i++)
     {
-      <input asp-for="@Model.TransferRequests[i].Sku" hidden />
-      LocationSearchViewModel viewModel = Model.ViewModels.FirstOrDefault(vm => vm.Sku == Model.TransferRequests[i].Sku);
+      <input asp-for="@Model.TransferRequestQtys[i].Sku" hidden />
+      LocationSearchViewModel viewModel = Model.ViewModels.FirstOrDefault(vm => vm.Sku == Model.TransferRequestQtys[i].Sku);
 
       int whQty = viewModel.Locations.Where(l => l.Location != "STORE").Sum(l => l.Qty);
 
@@ -146,7 +164,7 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
             <input value="Transfer Quantity" class="form-control" readonly />
           </div>
           <div class="col px-0">
-            <input asp-for="@Model.TransferRequests[i].Qty" class="form-control" />
+            <input asp-for="@Model.TransferRequestQtys[i].Qty" class="form-control" />
           </div>
           <div class="col-1 px-0">
             <input value=" / " class="form-control text-center" readonly />
@@ -193,5 +211,41 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
         </button>
       </div>
     </div>
+  </form>
+}
+else if (Model.PageType == TransferPageTypeEnum.Review)
+{
+  <form method="post">
+    @for (var i = 0; i < Model.TransferRequestQtys.Count; i++)
+    {
+      <input asp-for="@Model.TransferRequestQtys[i].Sku" hidden />
+      LocationSearchViewModel viewModel = Model.ViewModels.FirstOrDefault(vm => vm.Sku == Model.TransferRequestQtys[i].Sku);
+
+      int whQty = viewModel.Locations.Where(l => l.Location != "STORE").Sum(l => l.Qty);
+
+      GenerateProductInfo(viewModel);
+
+      @for (var y = 0; y < viewModel.Locations.Count; y++)
+      {
+        <div class="row">
+          @{ GenerateLocationInfo(viewModel.Locations[y]); }
+        </div>
+      }
+
+      <div class="row">
+        <div class="col-6 pr-0">
+          <input value="Transfer Quantity" class="form-control" readonly />
+        </div>
+        <div class="col px-0">
+          <input asp-for="@Model.TransferRequestQtys[i].Qty" class="form-control" />
+        </div>
+        <div class="col-1 px-0">
+          <input value=" / " class="form-control text-center" readonly />
+        </div>
+        <div class="col-2 pl-0">
+          <input value="@whQty" class="form-control text-center" readonly />
+        </div>
+      </div>
+    }
   </form>
 }

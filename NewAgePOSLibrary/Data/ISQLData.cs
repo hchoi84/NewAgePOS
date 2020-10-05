@@ -85,6 +85,8 @@ namespace NewAgePOSLibrary.Data
     #region TransferRequests
     IEnumerable<TransferRequestModel> TransferRequests_GetByStatus(StatusEnum status);
     int TransferRequests_Insert(string description, string creatorName);
+    void TransferRequests_Delete(int id);
+    TransferRequestModel TransferRequests_GetById(int id);
     #endregion
 
     #region TransferRequestItems
