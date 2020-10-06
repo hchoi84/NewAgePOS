@@ -67,7 +67,6 @@ Refactor/Converting Sale/Transfer
 - Implemented Transfer/Search page
   * Search by Status, View items, Delete Transfer Request
 - Transfer/Products: Implemented listing Transfer Request info and items
-
 - Implemented Transfer/Products/Review functionality (Edit, Delete, Mark as Ready, Mark as Picking, Mark as Complete)
 - site.js: Refactored to simpler parameters
 - site.js: Created char count for 2 inputs

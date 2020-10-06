@@ -22,12 +22,11 @@
           <ul class="navbar-nav flex-grow-1">
 
             <li class="nav-item dropdown">
-              <a href="#" class="nav-link text-dark dropdown-toggle" id="sale-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sales</a>
+              <a href="#" class="nav-link text-dark dropdown-toggle" id="sale-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Transfer</a>
               <div class="dropdown-menu" aria-labelledby="sale-dropdown">
-                <a asp-page="/Sale/Search" class="dropdown-item">Search</a>
-                <form method="post" asp-page="/Sale/Search" asp-page-handler="CreateNewSale">
-                  <button type="submit" class="dropdown-item">New</button>
-                </form>
+                <a asp-page="/Transfer/Products" asp-route-pagetype="@TransferPageTypeEnum.Single" class="dropdown-item">Single</a>
+                <a asp-page="/Transfer/Products" asp-route-pagetype="@TransferPageTypeEnum.Batch" class="dropdown-item">Batch</a>
+                <a asp-page="/Transfer/Search" class="dropdown-item">Search</a>
               </div>
             </li>
 
@@ -35,9 +34,6 @@
               <a href="#" class="nav-link text-dark dropdown-toggle" id="report-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Other</a>
               <div class="dropdown-menu" aria-labelledby="report-dropdown">
                 <a asp-page="/Report/TransactionHistory" class="dropdown-item">Transaction History</a>
-                <a asp-page="/Transfer/Products" asp-route-pagetype="@TransferPageTypeEnum.Single" class="dropdown-item">Xfer Single</a>
-                <a asp-page="/Transfer/Products" asp-route-pagetype="@TransferPageTypeEnum.Batch" class="dropdown-item">Xfer Batch</a>
-                <a asp-page="/Transfer/Search" class="dropdown-item">Xfer Search</a>
               </div>
             </li>
 

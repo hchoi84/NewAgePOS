@@ -143,6 +143,9 @@ else if (Model.PageType == TransferPageTypeEnum.Single)
 }
 else if (Model.PageType == TransferPageTypeEnum.Batch)
 {
+  int maxDescInputChars = 20;
+  int maxNameInputChars = 10;
+
   <form method="post">
     @for (var i = 0; i < Model.TransferRequestQtys.Count; i++)
     {
@@ -201,22 +204,22 @@ else if (Model.PageType == TransferPageTypeEnum.Batch)
 
     <div class="row mt-3">
       <div class="col-6 pr-0">
-        <input id="description" 
-               name="description" 
-               class="form-control" 
-               type="text" 
-               placeholder="Description" 
-               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', 20, 10)" />
-        <span id="descriptionCountDisplay" class="text-info"></span>
+        <input id="description"
+               name="description"
+               class="form-control"
+               type="text"
+               placeholder="Description"
+               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', @maxDescInputChars, @maxNameInputChars)" />
+        <span id="descriptionCountDisplay" class="text-info ml-3">0 / @maxDescInputChars</span>
       </div>
       <div class="col px-0">
-        <input id="creatorName" 
-               name="creatorName" 
-               class="form-control" 
-               type="text" 
-               placeholder="Your Name" 
-               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', 20, 10)" />
-        <span id="creatorNameCountDisplay" class="text-info"></span>
+        <input id="creatorName"
+               name="creatorName"
+               class="form-control"
+               type="text"
+               placeholder="Your Name"
+               onkeyup="countChars2Inputs('description', 'creatorName', 'createTransferRequestBtn', @maxDescInputChars, @maxNameInputChars)" />
+        <span id="creatorNameCountDisplay" class="text-info ml-3">0 / @maxNameInputChars</span>
       </div>
       <div class="col-auto">
         <button id="createTransferRequestBtn" type="submit" class="btn btn-primary"
