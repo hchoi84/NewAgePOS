@@ -49,14 +49,11 @@ namespace NewAgePOS.ViewComponents
 
       foreach (SaleLineModel saleLine in saleLines)
       {
-        ProductModel product = new ProductModel();
-        GiftCardModel giftCard = new GiftCardModel();
-
         ItemListViewModel item = new ItemListViewModel();
 
         if (saleLine.ProductId.HasValue)
         {
-          product = products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
+          ProductModel product = products.FirstOrDefault(p => p.Id == saleLine.ProductId.Value);
 
           item.SaleLineId = saleLine.Id;
           item.IsProduct = true;
@@ -70,12 +67,13 @@ namespace NewAgePOS.ViewComponents
         }
         else if (saleLine.GiftCardId.HasValue)
         {
-          giftCard = giftCards.FirstOrDefault(g => g.Id == saleLine.GiftCardId.Value);
+          int gcId = saleLine.GiftCardId.Value;
+          GiftCardModel giftCard = giftCards.FirstOrDefault(g => g.Id == gcId);
 
           item.SaleLineId = saleLine.Id;
           item.IsGiftCard = true;
           item.Sku = giftCard.Code;
-          item.Price = giftCard.Amount;
+          item.Price = saleLine.Price;
           item.Qty = 1;
         }
         else

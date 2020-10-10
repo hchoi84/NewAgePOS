@@ -82,7 +82,7 @@ Refactor/Converting Sale/Transfer
 
 10/09 Friday
 - Bug Fix: Gift Card transaction would cause an error
-
+- Bug Fix: When looking at the Refund item lines, Gift Card amount shows current balance instead of the amount that was purchased
 
 ********** WORKING ON **********
 - Create access for warehouse
