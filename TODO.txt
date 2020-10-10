@@ -78,6 +78,10 @@ Refactor/Converting Sale/Transfer
 - UI/UX: New Sales have been removed from nav bar and added to the top of Sale/Search page
 - UI/UX: Transaction is receiving it's own main category with subcategories being Single, Batch, and Search
 - UI/UX: Text input character count to show up upon page load instead of when the user begins typing
+- Updated Server
+
+10/09 Friday
+- Bug Fix: Gift Card transaction would cause an error
 
 
 ********** WORKING ON **********
@@ -90,6 +94,5 @@ Refactor/Converting Sale/Transfer
 - Tax: Add with default selection (singleton)
 - Sale/Search: Implement optional date range criteria
 - Sale/Search: Implement page selector
-- Overall Gift Card balance
 - Limit warehouse access to just seeing Batch Transfer Request Review
 - User to be able to see his/her info and update password

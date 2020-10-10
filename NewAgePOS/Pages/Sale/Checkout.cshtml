@@ -42,9 +42,9 @@ else
     string method;
     string amount;
 
-    @if (transaction.GiftCardId.HasValue)
+    @if (transaction.Method == MethodEnum.GiftCard)
     {
-      GiftCardModel gc = Model.GiftCards.FirstOrDefault(g => g.Id == transaction.GiftCardId);
+      GiftCardModel gc = Model.UsedAsPaymentGCs.FirstOrDefault(t => t.Id == transaction.GiftCardId);
       string last3Digits = gc.Code.Substring(gc.Code.Length - 3);
       method = $"{ transaction.Method } (****{ last3Digits })";
       amount = $"{transaction.Amount.ToString("C2")} ({gc.Amount.ToString("C2")})";

@@ -32,7 +32,7 @@ namespace NewAgePOS.Pages.Sale
 
     public CustomerModel Customer { get; set; }
     public List<TransactionModel> Transactions { get; set; }
-    public List<GiftCardModel> GiftCards { get; set; }
+    public List<GiftCardModel> UsedAsPaymentGCs { get; set; }
 
     public IActionResult OnGet()
     {
@@ -44,11 +44,17 @@ namespace NewAgePOS.Pages.Sale
 
       Customer = _sqlDb.Customers_GetBySaleId(SaleId);
       Transactions = _sqlDb.Transactions_GetBySaleId(SaleId);
-      GiftCards = _sqlDb.GiftCards_GetBySaleId(SaleId);
+      UsedAsPaymentGCs = new List<GiftCardModel>();
 
       Transactions = Transactions
         .OrderBy(t => TransactionOrderPref.IndexOf(t.Method))
         .ToList();
+
+      foreach (var t in Transactions)
+      {
+        if (t.Method == MethodEnum.GiftCard)
+          UsedAsPaymentGCs.Add(_sqlDb.GiftCards_GetById(t.GiftCardId.Value));
+      }
 
       return Page();
     }
