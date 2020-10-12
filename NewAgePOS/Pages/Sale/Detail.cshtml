@@ -1,0 +1,60 @@
+﻿@page "{SaleId:min(1)}"
+@model NewAgePOS.Pages.Sale.DetailModel
+@{
+  ViewData["Title"] = "Sales Detail";
+}
+
+<partial name="_HeaderPartial" model="Model.SaleId" />
+
+@await Component.InvokeAsync("ItemList", new { saleId = Model.SaleId })
+
+@if (Model.Transactions.Any())
+{
+  <h4 class="mt-5 text-center">Transactions</h4>
+
+  foreach (TransactionModel transaction in Model.Transactions)
+  {
+    string method;
+    string amount;
+    int multiplier = 1;
+
+    if (transaction.Type == TypeEnum.Refund || transaction.Method == MethodEnum.Give || transaction.Method == MethodEnum.Change)
+    {
+      multiplier = -1;
+    }
+
+    if (transaction.Method == MethodEnum.GiftCard)
+    {
+      GiftCardModel gc = Model.UsedAsPaymentGCs.FirstOrDefault(t => t.Id == transaction.GiftCardId);
+      string last3Digits = gc.Code.Substring(gc.Code.Length - 3);
+      method = $"{ transaction.Method } (****{ last3Digits })";
+      amount = $"{(transaction.Amount * multiplier).ToString("C2")} ({gc.Amount.ToString("C2")})";
+    }
+    else
+    {
+      method = transaction.Method.ToString();
+      amount = (transaction.Amount * multiplier).ToString("C2");
+    }
+
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@transaction.Type @method" class="form-control" />
+      </div>
+      <div class="col px-0">
+        <input readonly value="@amount" class="form-control" />
+      </div>
+    </div>
+  }
+}
+
+@await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
+
+@await Component.InvokeAsync("Messages", new { saleId = Model.SaleId })
+
+@section Scripts{
+  <script>
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+}

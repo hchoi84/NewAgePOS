@@ -50,22 +50,41 @@ namespace NewAgePOS.Pages.Report
         return Page();
       }
 
+      Initialize();
+
+      return Page();
+    }
+
+    private void Initialize()
+    {
       Transactions = _sqlDb.Transactions_GetByDateRange(BeginDate.PSTtoUTC(), EndDate.AddDays(1).PSTtoUTC())
-          .Where(t => Math.Round(t.Amount, 2) != 0f)
+          .Where(t => t.Method != MethodEnum.Give && Math.Round(t.Amount, 2) != 0f)
           .OrderBy(t => t.SaleId)
           .ThenBy(t => t.Type)
           .ThenBy(t => t.Method)
           .ToList();
 
-      MessagesCount = new Dictionary<int, int>();
-      Transactions
-        .Select(t => t.SaleId)
-        .Distinct()
-        .ToList()
-        .ForEach(saleId =>
-          MessagesCount.Add(saleId, _sqlDb.Messages_GetCountBySaleId(saleId)));
+      foreach (var transaction in Transactions)
+      {
+        if (transaction.Method == MethodEnum.Change)
+        {
+          var cashTransaction = Transactions.FirstOrDefault(t =>
+            t.SaleId == transaction.SaleId &&
+            t.Type == TypeEnum.Checkout &&
+            t.Method == MethodEnum.Cash);
 
-      return Page();
+          cashTransaction.Amount -= transaction.Amount;
+        }
+      }
+
+      Transactions.RemoveAll(t => t.Method == MethodEnum.Change);
+
+      MessagesCount = new Dictionary<int, int>();
+      IEnumerable<int> saleIds = Transactions.Select(t => t.SaleId).Distinct();
+      foreach (var saleId in saleIds)
+      {
+        MessagesCount.Add(saleId, _sqlDb.Messages_GetCountBySaleId(saleId));
+      }
     }
   }
 }

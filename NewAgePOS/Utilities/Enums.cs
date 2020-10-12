@@ -5,6 +5,7 @@
     None,
     Cart,
     Refund,
-    Checkout
+    Checkout,
+    Detail
   }
 }

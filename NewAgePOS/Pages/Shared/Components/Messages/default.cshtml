@@ -2,12 +2,16 @@
 @model MessagesVCVM
 @{ int maxInputChar = 100; }
 
-<form method="post" asp-page="/Sale/Message" asp-page-handler="CreateMessage" asp-route-saleid="@Model.SaleId" asp-route-returnurl="@Model.ReturnUrl">
+<form method="post" class="mt-3"
+      asp-page="/Sale/Message" 
+      asp-page-handler="CreateMessage" 
+      asp-route-saleid="@Model.SaleId" 
+      asp-route-returnurl="@Model.ReturnUrl">
   <div class="form-row">
     <div class="col">
       <textarea class="form-control"
-                asp-for="@Model.Message" 
-                onkeyup="countChars(this.id, @maxInputChar)" 
+                asp-for="@Model.Message"
+                onkeyup="countChars(this.id, @maxInputChar)"
                 placeholder="Enter message here... 100 max characters"></textarea>
     </div>
   </div>
@@ -23,7 +27,8 @@
 
 @if (Model.Messages != null && Model.Messages.Any())
 {
-  <div class="mt-5"></div>
+  <h4 class="mt-3 text-center">Messages</h4>
+
   foreach (MessageModel msg in Model.Messages)
   {
     <div class="form-row mt-2">

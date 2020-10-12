@@ -80,12 +80,33 @@ Refactor/Converting Sale/Transfer
 - UI/UX: Text input character count to show up upon page load instead of when the user begins typing
 - Updated Server
 
+10/07 Wednesday
+- Create access for warehouse
+
 10/09 Friday
 - Bug Fix: Gift Card transaction would cause an error
 - Bug Fix: When looking at the Refund item lines, Gift Card amount shows current balance instead of the amount that was purchased
+- Updated Server
+
+10/12 Monday
+Transaction History
+- Display Cash related total for each sale (Checkout total and Refund total)
+- Summary to show Sale Count instead of Transaction Count
+- Sale Id will link to Sale Details page
+
+Create Sale Detail
+- Will show Items with discount %, refunded quantity
+- Will show Transactions
+- Will show Price Summary
+- WIll show Comments
 
 ********** WORKING ON **********
-- Create access for warehouse
+Transfer Batch
+- One Transfer Request
+- Continue adding to one transfer request
+- Warehouse will click clear when they had the change to begin picking
+
+- Have Nat create a redirect from golfio.com/POS to 54.183.221.174
 
 
 ********** PENDING (No particular order) **********

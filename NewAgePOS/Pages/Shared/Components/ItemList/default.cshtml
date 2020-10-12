@@ -106,7 +106,11 @@
   {
     if (item.IsProduct)
     {
-      <form method="post" asp-page="/Sale/Cart" asp-page-handler="ApplyDiscount" asp-route-SaleLineId="@item.SaleLineId" asp-route-qty="@item.Qty">
+      <form method="post" 
+            asp-page="/Sale/Cart" 
+            asp-page-handler="ApplyDiscount" 
+            asp-route-SaleLineId="@item.SaleLineId" 
+            asp-route-qty="@item.Qty">
         <div class="form-row">
           <label class="col-form-label ml-3">Cart Discount %</label>
           <div class="col">
@@ -118,5 +122,30 @@
         </div>
       </form>
     }
+  }
+
+  @if (Model.PathSource == PathSourceEnum.Detail)
+  {
+    int refundedQty = Model.Refunds.Where(r => r.TransactionId.HasValue && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+    int refundingQty = Model.Refunds.Where(r => !r.TransactionId.HasValue && r.SaleLineId == item.SaleLineId).Sum(r => r.Qty);
+
+    <div class="form-row">
+      <div class="col pr-0">
+        <input readonly value="@item.DiscPct%" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Discount %" />
+      </div>
+      <div class="col px-0">
+        <input readonly value="@refundedQty" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Refunded Qty" />
+      </div>
+      <div class="col pl-0">
+        @if (refundedQty == item.Qty)
+        {
+          <input readonly value="Fully Refunded" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Refunding Qty" />
+        }
+        else
+        {
+          <input readonly value="@refundingQty" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Refunding Qty" />
+        }
+      </div>
+    </div>
   }
 }

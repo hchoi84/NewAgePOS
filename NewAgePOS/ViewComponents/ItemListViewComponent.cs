@@ -32,6 +32,11 @@ namespace NewAgePOS.ViewComponents
         items.PathSource = PathSourceEnum.Refund;
         items.Refunds = _sqlDb.RefundLines_GetBySaleId(saleId);
       }
+      else if (path.Contains(PathSourceEnum.Detail.ToString()))
+      {
+        items.PathSource = PathSourceEnum.Detail;
+        items.Refunds = _sqlDb.RefundLines_GetBySaleId(saleId);
+      }
 
       items.Items = GenerateItemListViewModel(saleId)
         .OrderByDescending(i => i.IsProduct)

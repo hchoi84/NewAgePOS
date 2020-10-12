@@ -78,5 +78,4 @@ else
 
 @await Component.InvokeAsync("PriceSummary", new { saleId = Model.SaleId })
 
-<h4 class="mt-5 text-center">Messages</h4>
 @await Component.InvokeAsync("Messages", new { saleId = Model.SaleId })
