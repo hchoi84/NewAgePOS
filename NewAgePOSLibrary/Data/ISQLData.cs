@@ -96,6 +96,8 @@ namespace NewAgePOSLibrary.Data
     IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByTransferRequestId(int transferRequestId);
     void TransferRequestItems_Insert(int transferRequestId, string sku, int qty);
     void TransferRequestItems_Update(int id, int qty);
+    TransferRequestModel TransferRequests_GetDefault();
+    void TransferRequestItems_ClearByTransferRequestId(int id);
     #endregion
   }
 }

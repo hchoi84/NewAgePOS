@@ -153,7 +153,6 @@ namespace NewAgePOS.Pages.Transfer
     private void InitializeBatch()
     {
       TransferRequestQtys = new List<TransferRequestViewModel>();
-      PendingTransferRequests = new List<SelectListItem>();
 
       ViewModels.ForEach(vm => TransferRequestQtys.Add(
         new TransferRequestViewModel
@@ -161,22 +160,48 @@ namespace NewAgePOS.Pages.Transfer
           Sku = vm.Sku
         }));
 
-      IEnumerable<TransferRequestModel> pendingTransferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
-      foreach (var tr in pendingTransferRequests)
+      PendingTransferRequests = new List<SelectListItem>();
+      TransferRequestModel defaultTransferRequest = _sqlDb.TransferRequests_GetDefault();
+      int itemCount, id;
+      string description;
+      if (defaultTransferRequest == null)
       {
-        int itemCount = _sqlDb.TransferRequestItems_GetByTransferRequestId(tr.Id).Count();
-        PendingTransferRequests.Add(new SelectListItem
-        {
-          Text = $"{tr.Description} ({itemCount} items)",
-          Value = tr.Id.ToString()
-        });
+        id = _sqlDb.TransferRequests_Insert("Default", "Store");
+        itemCount = 0;
+        description = "Default";
       }
+      else
+      {
+        id = defaultTransferRequest.Id;
+        itemCount = _sqlDb.TransferRequestItems_GetByTransferRequestId(defaultTransferRequest.Id).Count();
+        description = defaultTransferRequest.Description;
+      }
+
+      TransferRequestId = id;
+      PendingTransferRequests.Add(new SelectListItem
+      {
+        Text = $"{description} ({itemCount} items)",
+        Value = id.ToString()
+      });
+
+      //List<TransferRequestModel> pendingTransferRequests = _sqlDb.TransferRequests_GetByStatus(StatusEnum.Pending);
+      //foreach (var tr in pendingTransferRequests)
+      //{
+      //  int itemCount = _sqlDb.TransferRequestItems_GetByTransferRequestId(tr.Id).Count();
+      //  PendingTransferRequests.Add(new SelectListItem
+      //  {
+      //    Text = $"{tr.Description} ({itemCount} items)",
+      //    Value = tr.Id.ToString()
+      //  });
+      //}
     }
 
     private async Task InitializeReviewAsync()
     {
       ViewModels = new List<LocationSearchViewModel>();
-      TransferRequest = _sqlDb.TransferRequests_GetById(TransferRequestId);
+      TransferRequest = _sqlDb.TransferRequests_GetDefault();
+      TransferRequestId = TransferRequest.Id;
+      //TransferRequest = _sqlDb.TransferRequests_GetById(TransferRequestId);
       if (TransferRequest == null) return;
 
       TransferRequestQtys = new List<TransferRequestViewModel>();
@@ -192,7 +217,7 @@ namespace NewAgePOS.Pages.Transfer
       }
 
       IEnumerable<string> skus = tris.Select(tri => tri.Sku);
-      TransferRequest.Description += $" ({ skus.Count() } items)";
+      //TransferRequest.Description += $" ({ skus.Count() } items)";
 
       await AddProductsAsync(skus);
       await AddLocationsAsync();
@@ -260,7 +285,7 @@ namespace NewAgePOS.Pages.Transfer
     {
       if (TransferRequestId == 0)
       {
-        TempData["Message"] = "Please choose Transfer";
+        TempData["Message"] = "Please choose a Transfer Request";
         return RedirectToPage(new { Codes });
       }
 
@@ -295,39 +320,44 @@ namespace NewAgePOS.Pages.Transfer
       return RedirectToPage(new { TransferRequestId });
     }
 
-    public IActionResult OnPostCreateTransferRequestAndAddItems(string description, string creatorName)
-    {
-      if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(creatorName))
-      {
-        TempData["Message"] = "Description and Name fields are required";
-        return RedirectToPage(new { Codes });
-      }
+    //public IActionResult OnPostCreateTransferRequestAndAddItems(string description, string creatorName)
+    //{
+    //  if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(creatorName))
+    //  {
+    //    TempData["Message"] = "Description and Name fields are required";
+    //    return RedirectToPage(new { Codes });
+    //  }
 
-      if (description.Length > 20 || creatorName.Length > 10)
-      {
-        TempData["Message"] = "Description or Name fields character length is too long";
-        return RedirectToPage(new { Codes });
-      }
+    //  if (description.Length > 20 || creatorName.Length > 10)
+    //  {
+    //    TempData["Message"] = "Description or Name fields character length is too long";
+    //    return RedirectToPage(new { Codes });
+    //  }
 
-      IEnumerable<TransferRequestViewModel> requestItems = TransferRequestQtys.Where(tr => tr.Qty > 0);
-      if (!requestItems.Any())
-      {
-        TempData["Message"] = "No items have been selected";
-        return RedirectToPage(new { Codes });
-      }
+    //  IEnumerable<TransferRequestViewModel> requestItems = TransferRequestQtys.Where(tr => tr.Qty > 0);
+    //  if (!requestItems.Any())
+    //  {
+    //    TempData["Message"] = "No items have been selected";
+    //    return RedirectToPage(new { Codes });
+    //  }
 
-      TransferRequestId = _sqlDb.TransferRequests_Insert(description, creatorName);
-      foreach (var ri in requestItems)
-      {
-        _sqlDb.TransferRequestItems_Insert(TransferRequestId, ri.Sku, ri.Qty);
-      }
+    //  TransferRequestId = _sqlDb.TransferRequests_Insert(description, creatorName);
+    //  foreach (var ri in requestItems)
+    //  {
+    //    _sqlDb.TransferRequestItems_Insert(TransferRequestId, ri.Sku, ri.Qty);
+    //  }
 
-      return RedirectToPage();
-    }
+    //  return RedirectToPage();
+    //}
 
 
     public IActionResult OnPostEditTransferQtys()
     {
+      if (TransferRequestId == 0)
+      {
+        TransferRequestId = _sqlDb.TransferRequests_GetDefault().Id;
+      }
+
       IEnumerable<TransferRequestItemModel> tris = _sqlDb.TransferRequestItems_GetByTransferRequestId(TransferRequestId);
       int updatedCount = 0;
 
@@ -351,6 +381,12 @@ namespace NewAgePOS.Pages.Transfer
       else
         TempData["Message"] = "Nothing to update";
 
+      return RedirectToPage();
+    }
+
+    public IActionResult OnPostClearItems(int id)
+    {
+      _sqlDb.TransferRequestItems_ClearByTransferRequestId(id);
       return RedirectToPage();
     }
   }

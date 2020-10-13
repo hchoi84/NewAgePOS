@@ -35,11 +35,11 @@ function confirm(thisId) {
 
   if (thisDiv.style.display == 'none') {
     thisDiv.style.display = 'block';
-    thisButton.className = 'btn btn-primary border-warning';
+    thisButton.classList.add('border-warning');
   }
   else {
     thisDiv.style.display = 'none';
-    thisButton.className = 'btn btn-primary';
+    thisButton.classList.remove('border-warning');
   }
 }
 

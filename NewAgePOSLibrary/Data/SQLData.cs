@@ -376,14 +376,27 @@ namespace NewAgePOSLibrary.Data
         new { id = tr.Id, description = tr.Description, creatorName = tr.CreatorName, status = tr.Status.ToString(), updated = DateTime.Now },
         _connectionStringName, false);
     }
+
+    public TransferRequestModel TransferRequests_GetDefault()
+    {
+      string query = "SELECT * FROM dbo.TransferRequests WHERE Description = 'Default'";
+      return _sqlDb.LoadData<TransferRequestModel, dynamic>(query, new { }, _connectionStringName, false).FirstOrDefault();
+    }
     #endregion
 
     #region TransferRequestItems
+    public void TransferRequestItems_ClearByTransferRequestId(int id)
+    {
+      string query = "DELETE FROM dbo.TransferRequestItems WHERE TransferRequestId = @id";
+      _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
+    }
+
     public void TransferRequestItems_Delete(int id)
     {
       string query = "DELETE FROM dbo.TransferRequestItems WHERE Id = @id";
       _sqlDb.SaveData(query, new { id }, _connectionStringName, false);
     }
+
     public IEnumerable<TransferRequestItemModel> TransferRequestItems_GetByStatus(StatusEnum status)
     {
       string query = "SELECT tri.* FROM dbo.TransferRequests tr " +
