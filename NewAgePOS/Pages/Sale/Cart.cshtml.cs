@@ -220,14 +220,7 @@ namespace NewAgePOS.Pages
     #region Gift Cards
     public IActionResult OnPostAddGiftCards()
     {
-      List<string> errorMsgs = new List<string>();
-
-      if (String.IsNullOrEmpty(CartVM.GiftCardCodes) || CartVM.GiftCardAmount == 0 || CartVM.GiftCardAmountConfirm == 0) 
-        errorMsgs.Add("All Gift Card fields are required");
-      else if (CartVM.GiftCardAmount <= 0) 
-        errorMsgs.Add("Gift Card Amount must be greater than 0");
-      else if (CartVM.GiftCardAmount != CartVM.GiftCardAmountConfirm) 
-        errorMsgs.Add("Gift Card Amount does not match with the confirmation amount");
+      List<string> errorMsgs = ValidateInputs();
 
       if (errorMsgs.Any())
       {
@@ -249,12 +242,65 @@ namespace NewAgePOS.Pages
 
         if (gcIsInDB)
         {
-          errorMsgs.Add($"{ code.Key }: Same code already exists");
+          errorMsgs.Add($"{ code.Key }: Same code already exists. If you are trying to refill, please press the \"Refill\" button.");
           continue;
         }
 
         int gcId = _sqlDb.GiftCards_Insert(code.Key, CartVM.GiftCardAmount);
         _sqlDb.SaleLines_Insert(SaleId, null, gcId, 1);
+      }
+
+      if (errorMsgs.Any())
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
+
+      return RedirectToPage();
+    }
+
+    private List<string> ValidateInputs()
+    {
+      List<string> errorMsgs = new List<string>();
+
+      if (String.IsNullOrEmpty(CartVM.GiftCardCodes) || CartVM.GiftCardAmount == 0 || CartVM.GiftCardAmountConfirm == 0)
+        errorMsgs.Add("All Gift Card fields are required");
+      else if (CartVM.GiftCardAmount <= 0)
+        errorMsgs.Add("Gift Card Amount must be greater than 0");
+      else if (CartVM.GiftCardAmount != CartVM.GiftCardAmountConfirm)
+        errorMsgs.Add("Gift Card Amount does not match with the confirmation amount");
+
+      return errorMsgs;
+    }
+
+    public IActionResult OnPostRefillGiftCards()
+    {
+      List<string> errorMsgs = ValidateInputs();
+
+      if (errorMsgs.Any())
+      {
+        TempData["Message"] = String.Join(Environment.NewLine, errorMsgs);
+        return Page();
+      }
+
+      Dictionary<string, int> codeCounts = CartVM.GiftCardCodes.CountIt();
+
+      foreach (var code in codeCounts)
+      {
+        if (code.Key.Length != 13)
+        {
+          errorMsgs.Add($"{ code.Key }: Invalid Gift Card code. Must be 13 digits");
+          continue;
+        }
+
+        var gc = _sqlDb.GiftCards_GetByCode(code.Key);
+
+        if (gc == null)
+        {
+          errorMsgs.Add($"{ code.Key }: No gift card exists to refill");
+          continue;
+        }
+
+        gc.Amount += CartVM.GiftCardAmount;
+        _sqlDb.GiftCards_Update(gc.Id, CartVM.GiftCardAmount);
+        _sqlDb.SaleLines_Insert(SaleId, null, gc.Id, 1);
       }
 
       if (errorMsgs.Any())

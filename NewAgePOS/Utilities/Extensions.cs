@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace NewAgePOS.Utilities
 {
@@ -28,6 +27,8 @@ namespace NewAgePOS.Utilities
 
       foreach (var myCode in myCodes)
       {
+        if (string.IsNullOrEmpty(myCode)) continue;
+
         if (codeCount.ContainsKey(myCode))
           codeCount[myCode]++;
         else

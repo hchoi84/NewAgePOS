@@ -1,0 +1,24 @@
+﻿@page "{handler:alpha?}"
+@model NewAgePOS.Pages.Report.GiftCardsModel
+@{
+  ViewData["Title"] = "Gift Cards";
+}
+
+<partial name="_HeaderPartial" model="0" />
+
+<h4 class="mt-5 text-center">CHECK BALANCE</h4>
+<form method="get" asp-page-handler="CheckBalance" class="mb-3">
+  <div class="form-row">
+    <div class="col">
+      <input class="form-control" name="code" placeholder="Gift Card Code" />
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Check Balance</button>
+    </div>
+  </div>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Balance))
+{
+  <h3 class="text-center">@Model.Balance</h3>
+}

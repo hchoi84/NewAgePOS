@@ -1,5 +1,65 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+  ViewData["Title"] = "Home page";
 }
+
+<div style="white-space:pre-wrap">
+  <h5 class="text-center">Below are the most recent updates. You can come back to this page by clicking on the <i class="fas fa-bell"></i> (top-right corner)</h5>
+
+  10/15 Thursday
+  - Bug fix: Sale/Cart: Ignores empty line entry on multiple line inputs when adding products & gift cards
+  - Sale/Cart: Implemented gift card refill
+  - Report/GiftCards: Implemented gift card balance cheker
+  - Account/Login: Removed Beta notification
+  - /Index: Display app updates
+  - Redirect to Index page on successful login
+  - Changed NewAgePOS to POS
+  - POS now redirects to /Sale/Search
+  - Nav: Added an bell icon to navigate to the /Index page
+
+  10/13 Tuesday
+  Transfer Batch
+  - Multiple Transfer Requests to One Transfer Request
+  - Clear button to clear the items associated with the default transfer request
+
+  10/12 Monday
+  Transaction History
+  - Display Cash related total for each sale (Checkout total and Refund total)
+  - Summary to show Sale Count instead of Transaction Count
+  - Sale Id will link to Sale Details page
+  Create Sale Detail
+  - Will show Items with discount %, refunded quantity
+  - Will show Transactions
+  - Will show Price Summary
+  - WIll show Comments
+
+  10/09 Friday
+  - Bug Fix: Gift Card transaction would cause an error
+  - Bug Fix: When looking at the Refund item lines, Gift Card amount shows current balance instead of the amount that was purchased
+  - Updated Server
+
+  10/07 Wednesday
+  - Create access for warehouse
+
+  10/06 Tuesday
+  - UI/UX: Removed Sales category on nav bar since the Brand button takes it to Sales/Search
+  - UI/UX: New Sales have been removed from nav bar and added to the top of Sale/Search page
+  - UI/UX: Transaction is receiving it's own main category with subcategories being Single, Batch, and Search
+  - UI/UX: Text input character count to show up upon page load instead of when the user begins typing
+  - Updated Server
+
+  10/05 Monday
+  - Removed all message display line from pages except _HeaderPartial
+  - Updated Transfer page routing to include TransferRequestId
+  - Changed folder name "Product" to "Transfer"
+  - Changed page name "Transfer" to "Product"
+  - Implemented Transfer/Search page
+  * Search by Status, View items, Delete Transfer Request
+  - Transfer/Products: Implemented listing Transfer Request info and items
+  - Implemented Transfer/Products/Review functionality (Edit, Delete, Mark as Ready, Mark as Picking, Mark as Complete)
+  - site.js: Refactored to simpler parameters
+  - site.js: Created char count for 2 inputs
+  - Implemented error handling to check character count in post methods in addition to site.js
+  - Transfer/Products/Review: Redirects to search if nothing was found with given Id
+</div>

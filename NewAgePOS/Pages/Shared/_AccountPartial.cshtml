@@ -21,6 +21,11 @@
     <li class="nav-item">
       <a class="nav-link text-dark">@fullName</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" asp-page="/Index">
+        <i class="fas fa-bell"></i>
+      </a>
+    </li>
     @if ((await AuthorizationService.AuthorizeAsync(User, ClaimTypeEnum.Admin.ToString())).Succeeded)
     {
       <li class="nav-item">
