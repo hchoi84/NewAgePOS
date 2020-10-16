@@ -47,6 +47,7 @@ namespace NewAgePOS
         options.Conventions.AuthorizeFolder("/Product");
         options.Conventions.AuthorizeFolder("/Report");
         options.Conventions.AuthorizeFolder("/Sale");
+        options.Conventions.AuthorizePage("/Index");
         options.Conventions.AuthorizePage("/Account/Register", ClaimTypeEnum.Admin.ToString());
       });
 

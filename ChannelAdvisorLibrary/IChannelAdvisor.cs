@@ -6,7 +6,6 @@ namespace ChannelAdvisorLibrary
 {
   public interface IChannelAdvisor
   {
-    Task<List<JObject>> GetProductsByCodeAsync(List<string> codes);
     Task<IEnumerable<JObject>> GetProductsByCodeAsync(IEnumerable<string> codes);
   }
 }
