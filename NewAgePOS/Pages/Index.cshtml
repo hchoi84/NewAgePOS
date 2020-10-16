@@ -6,6 +6,19 @@
 
 <div style="white-space:pre-wrap">
   <h5 class="text-center">Below are the most recent updates. You can come back to this page by clicking on the <i class="fas fa-bell"></i> (top-right corner)</h5>
+  10/16 Friday
+  - Implemented AccessDenied page
+  - Refactor: Removed unused method in ChannelAdvisor
+  - Bug: Sale/Cart: Remove Gift Card currently isn't taking into consideration of refilled GC. Disabling the Refill GC for the time being
+  - Server Updated
+  - Sale/Cart: Gift Card refill has been modified
+    * Refill amount will be recorded to SaleLine
+    * Gift Card amount will be updated from current + refill amount
+  - Sale/Cart: Gift Card remove
+    * Determines whether the gift card is a refill or not based on Transaction history and previous SaleLines
+    * If refill, refill amount will be deducted from gift card amount and then SaleLine will be deleted
+    * If not a refill, GiftCard and SaleLine will be deleted
+  - Re-enabled Gift Card Refill button
 
   10/15 Thursday
   - Bug fix: Sale/Cart: Ignores empty line entry on multiple line inputs when adding products & gift cards
