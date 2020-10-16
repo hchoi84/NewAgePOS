@@ -23,6 +23,7 @@ namespace NewAgePOSLibrary.Data
     GiftCardModel GiftCards_GetById(int id);
     List<GiftCardModel> GiftCards_GetBySaleId(int saleId);
     int GiftCards_Insert(string code, float amount);
+    bool GiftCards_IsRefill(int id, int saleId);
     void GiftCards_Update(int id, float amount);
     #endregion
 
@@ -56,6 +57,7 @@ namespace NewAgePOSLibrary.Data
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
     void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty);
     void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty);
+    void SaleLines_InsertGiftCard(int saleId, int giftCardId, float amount);
     void SaleLines_Update(int id, int qty, float discPct);
     #endregion
 

@@ -95,6 +95,21 @@ namespace NewAgePOSLibrary.Data
     public int GiftCards_Insert(string code, float amount) =>
      _sqlDb.LoadData<int, dynamic>("dbo.spGiftCards_Insert", new { code, amount }, _connectionStringName, true).FirstOrDefault();
 
+    public bool GiftCards_IsRefill(int id, int saleId)
+    {
+      bool isRefill = false;
+
+      string query = "SELECT COUNT(Id) FROM dbo.Transactions WHERE GiftCardId = @id";
+      isRefill = _sqlDb.LoadData<int, dynamic>(query, new { id }, _connectionStringName, false).FirstOrDefault() > 0;
+
+      if (isRefill) return isRefill;
+
+      query = "SELECT COUNT(Id) FROM dbo.SaleLines WHERE GiftCardId = @id AND SaleId != @saleId";
+      isRefill = _sqlDb.LoadData<int, dynamic>(query, new { id, saleId }, _connectionStringName, false).FirstOrDefault() > 0;
+
+      return isRefill;
+    }
+
     public void GiftCards_Update(int id, float amount)
     {
       DateTime updated = DateTime.Now;
@@ -229,6 +244,12 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData("dbo.spSaleLines_Insert",
                       new { saleId, productId, giftCardId, qty },
                       _connectionStringName, true);
+    }
+
+    public void SaleLines_InsertGiftCard(int saleId, int giftCardId, float amount)
+    {
+      string query = "INSERT INTO dbo.SaleLines (SaleId, GiftCardId, Cost, Price, Qty) VALUES (@saleId, @giftCardId, 0, @amount, 1)";
+      _sqlDb.SaveData(query, new { saleId, giftCardId, amount }, _connectionStringName, false);
     }
 
     public void SaleLines_Update(int id, int qty, float discPct)

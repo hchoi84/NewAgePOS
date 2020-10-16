@@ -299,8 +299,8 @@ namespace NewAgePOS.Pages
         }
 
         gc.Amount += CartVM.GiftCardAmount;
-        _sqlDb.GiftCards_Update(gc.Id, CartVM.GiftCardAmount);
-        _sqlDb.SaleLines_Insert(SaleId, null, gc.Id, 1);
+        _sqlDb.SaleLines_InsertGiftCard(SaleId, gc.Id, CartVM.GiftCardAmount);
+        _sqlDb.GiftCards_Update(gc.Id, gc.Amount);
       }
 
       if (errorMsgs.Any())
@@ -344,8 +344,19 @@ namespace NewAgePOS.Pages
 
         SaleLineModel saleLine = saleLines.FirstOrDefault(sl => sl.GiftCardId == gc.Id);
 
-        _sqlDb.SaleLines_Delete(saleLine.Id);
-        _sqlDb.GiftCards_Delete(gc.Id);
+        bool gcIsRefill = _sqlDb.GiftCards_IsRefill(gc.Id, SaleId);
+
+        if (gcIsRefill)
+        {
+          gc.Amount -= saleLine.Price;
+          _sqlDb.GiftCards_Update(gc.Id, gc.Amount);
+          _sqlDb.SaleLines_Delete(saleLine.Id);
+        }
+        else
+        {
+          _sqlDb.SaleLines_Delete(saleLine.Id);
+          _sqlDb.GiftCards_Delete(gc.Id);
+        }
       }
 
       if (errorMsgs.Any())

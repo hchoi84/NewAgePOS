@@ -6,6 +6,7 @@ namespace NewAgePOSModels.Models
   public class SaleLineModel
   {
     public int Id { get; set; }
+    public int SaleId { get; set; }
     public int? ProductId { get; set; }
     public int? GiftCardId { get; set; }
     public float Cost { get; set; }
