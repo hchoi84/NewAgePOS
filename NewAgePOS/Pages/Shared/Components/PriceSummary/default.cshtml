@@ -140,7 +140,7 @@
 }
 else if (Model.PathSource == PathSourceEnum.Checkout)
 {
-  if (Model.DueBalance <= 0)
+  if (Math.Round(Model.DueBalance, 2) <= 0)
   {
     <form method="post" class="text-center"
           asp-page="/Sale/Checkout"
@@ -175,7 +175,7 @@ else if (Model.PathSource == PathSourceEnum.Checkout)
             asp-route-method="@MethodEnum.Cash">
         <div class="col-6 pr-0">
           <input name="amount" class="form-control" 
-                 type="number" style="width: 100%" 
+                 type="number" step=".01" style="width: 100%" 
                  placeholder="Cash amount" />
         </div>
         <div class="col-auto px-0">
