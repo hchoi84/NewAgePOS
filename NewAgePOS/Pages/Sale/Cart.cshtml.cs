@@ -410,11 +410,31 @@ namespace NewAgePOS.Pages
 
     public IActionResult OnPostProceed()
     {
-      if (_sqlDb.SaleLines_GetBySaleId(SaleId).Any())
-        return RedirectToPage("Guest", new { SaleId });
+      IEnumerable<SaleLineModel> saleLines = _sqlDb.SaleLines_GetBySaleId(SaleId);
 
-      TempData["Message"] = "There are no items to proceed with";
-      return RedirectToPage();
+      if (!saleLines.Any())
+      {
+        TempData["Message"] = "There are no items to proceed with";
+        return RedirectToPage();
+      }
+
+      float cartTotal = 0f;
+
+      foreach (var saleLine in saleLines)
+      {
+        if (!saleLine.ProductId.HasValue && !saleLine.GiftCardId.HasValue)
+          cartTotal -= saleLine.Price;
+        else
+          cartTotal += saleLine.Price;
+      }
+
+      if (cartTotal < 0)
+      {
+        TempData["Message"] = "Cart total can't be negative";
+        return RedirectToPage();
+      }
+      
+      return RedirectToPage("Guest", new { SaleId });
     }
   }
 }

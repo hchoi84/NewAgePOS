@@ -192,7 +192,7 @@ namespace NewAgePOS.Pages.Sale
       _sqlDb.Sales_CancelById(saleId);
 
       if (giftCardIds.Count > 0)
-        giftCardIds.ForEach(g => _sqlDb.GiftCards_Delete(g));
+        giftCardIds.ForEach(id => _sqlDb.GiftCards_Delete(id));
 
       TempData["Message"] = "Sale has been cancelled";
       return RedirectToPage(new { SearchMethod, SearchQuery });
