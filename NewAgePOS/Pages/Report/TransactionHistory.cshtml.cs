@@ -73,7 +73,10 @@ namespace NewAgePOS.Pages.Report
             t.Type == TypeEnum.Checkout &&
             t.Method == MethodEnum.Cash);
 
-          cashTransaction.Amount -= transaction.Amount;
+          if (cashTransaction != null)
+          {
+            cashTransaction.Amount -= transaction.Amount;
+          }
         }
       }
 

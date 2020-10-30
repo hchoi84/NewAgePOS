@@ -29,7 +29,10 @@
   {
     int multiplier = 1;
 
-    if (ts[i].Type == TypeEnum.Checkout && ts[i].Method == MethodEnum.Cash) earning += ts[i].Amount;
+    if (ts[i].Type == TypeEnum.Checkout && ts[i].Method == MethodEnum.Cash)
+    {
+      earning += ts[i].Amount;
+    }
     else if (ts[i].Type == TypeEnum.Refund && ts[i].Method == MethodEnum.Cash)
     {
       earning -= ts[i].Amount;
