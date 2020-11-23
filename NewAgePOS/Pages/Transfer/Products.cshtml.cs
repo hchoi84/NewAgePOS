@@ -244,7 +244,7 @@ namespace NewAgePOS.Pages.Transfer
         {
           Code = code,
           LocationCode = location,
-          Quantity = qty,
+          Quantity = transferqty,
           Reason = "Transfer"
         }
       };
