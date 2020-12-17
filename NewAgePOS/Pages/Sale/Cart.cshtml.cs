@@ -111,6 +111,7 @@ namespace NewAgePOS.Pages
         ProductModel product = new ProductModel();
         product.Sku = item[CAStrings.sku].ToString();
         product.Upc = item[CAStrings.upc].ToString();
+        product.Mpn = item["MPN"].ToString();
         product.Cost = string.IsNullOrEmpty(item[CAStrings.cost].ToString()) ? 0
           : item[CAStrings.cost].ToObject<float>();
         product.Price = item[CAStrings.attributes]
@@ -154,11 +155,13 @@ namespace NewAgePOS.Pages
       {
         if (!codeCount.TryGetValue(product.Sku, out int qty1)) qty1 = 0;
         if (!codeCount.TryGetValue(product.Upc, out int qty2)) qty2 = 0;
+        if (!codeCount.TryGetValue(product.Mpn, out int qty3)) qty3 = 0;
 
-        _sqlDb.SaleLines_Insert(SaleId, product.Id, null, qty1 + qty2);
+        _sqlDb.SaleLines_Insert(SaleId, product.Id, null, qty1 + qty2 + qty3);
 
         if (qty1 > 0) codeCount.Remove(product.Sku);
         if (qty2 > 0) codeCount.Remove(product.Upc);
+        if (qty3 > 0) codeCount.Remove(product.Mpn);
       }
     }
 

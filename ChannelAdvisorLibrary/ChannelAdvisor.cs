@@ -82,8 +82,8 @@ namespace ChannelAdvisorLibrary
 
     public async Task<IEnumerable<JObject>> GetProductsByCodeAsync(IEnumerable<string> codes)
     {
-      string expand = "Attributes";
-      string select = "Sku,Upc,Cost,WarehouseLocation";
+      string expand = "Attributes($filter=Name eq 'All Name' or Name eq 'BCPrice')";
+      string select = "Sku,UPC,MPN,Cost,WarehouseLocation";
       List<string> filterContents = new List<string>();
       List<JObject> jObjects = new List<JObject>();
 
@@ -91,7 +91,8 @@ namespace ChannelAdvisorLibrary
       {
         if (code.Length == 7) filterContents.Add($"ParentSku eq '{ code }'");
         else if (code.Contains('_')) filterContents.Add($"Sku eq '{ code }'");
-        else filterContents.Add($"Upc eq '{ code }'");
+        else if (code.Length > 15) filterContents.Add($"MPN eq '{ code }'");
+        else filterContents.Add($"UPC eq '{ code }'");
       }
 
       while (filterContents.Count > 0)

@@ -58,11 +58,12 @@ namespace NewAgePOS
 
       services.AddSession();
 
+      services.AddSingleton<IChannelAdvisor, ChannelAdvisor>();
+
       services.AddTransient<IEmailSender, EmailSender>();
       services.AddTransient<ISQLData, SQLData>();
       services.AddTransient<ISQLDataAccess, SQLDataAccess>();
 
-      services.AddScoped<IChannelAdvisor, ChannelAdvisor>();
       services.AddScoped<ISkuVault, SkuVault>();
 
       services.AddAuthorization(options =>

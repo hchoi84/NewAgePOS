@@ -52,7 +52,7 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        ProcessSaleId(saleId);
+        SearchBySaleId(saleId);
       }
       else if (SearchMethod == "LastName")
       {
@@ -64,7 +64,7 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        ProcessLastName();
+        SearchByLastName();
       }
       else if (SearchMethod == "EmailAddress")
       {
@@ -74,7 +74,7 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        ProcessEmailAddress();
+        SearchByEmailAddress();
       }
       else
       {
@@ -86,13 +86,13 @@ namespace NewAgePOS.Pages.Sale
           return Page();
         }
 
-        ProcessPhoneNumber();
+        SearchByPhoneNumber();
       }
 
       return Page();
     }
 
-    private void ProcessSaleId(int saleId)
+    private void SearchBySaleId(int saleId)
     {
       SaleModel sale = _sqlDb.Sales_GetById(saleId);
       if (sale == null) return;
@@ -100,7 +100,7 @@ namespace NewAgePOS.Pages.Sale
       GenerateResults(sale, customer);
     }
 
-    private void ProcessLastName()
+    private void SearchByLastName()
     {
       List<CustomerModel> customers = _sqlDb.Customers_GetByLastName(SearchQuery);
       if (customers == null) return;
@@ -120,7 +120,7 @@ namespace NewAgePOS.Pages.Sale
       }
     }
 
-    private void ProcessEmailAddress()
+    private void SearchByEmailAddress()
     {
       CustomerModel customer = _sqlDb.Customers_GetByEmailAddress(SearchQuery);
       if (customer == null) return;
@@ -132,7 +132,7 @@ namespace NewAgePOS.Pages.Sale
         GenerateResults(sale, customer);
     }
 
-    private void ProcessPhoneNumber()
+    private void SearchByPhoneNumber()
     {
       CustomerModel customer = _sqlDb.Customers_GetByPhoneNumber(SearchQuery);
       if (customer == null) return;
@@ -198,7 +198,7 @@ namespace NewAgePOS.Pages.Sale
       return RedirectToPage(new { SearchMethod, SearchQuery });
     }
 
-    public IActionResult OnGetGetPendingSales()
+    public IActionResult OnGetPendingSales()
     {
       Results = new List<SearchViewModel>();
 

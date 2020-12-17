@@ -35,11 +35,12 @@
 <div id="AddRemoveProducts" style="display: none;">
   <form method="post">
     <div class="form-group">
-      <textarea asp-for="CartVM.ProductCodes" class="form-control" rows="3" placeholder="SKUs or UPCs"></textarea>
+      <textarea asp-for="CartVM.ProductCodes" class="form-control" rows="3" placeholder="SKU, UPC, or MPN*"></textarea>
     </div>
     <button asp-page-handler="AddProducts" type="submit" class="btn btn-primary">Add Products</button>
     <button asp-page-handler="RemoveProducts" type="submit" class="btn btn-danger">Remove Products</button>
   </form>
+  <div class="text-info">IMPORTANT: MPN only works for adding products</div>
 </div>
 
 <div id="AddRemoveGiftCards" style="display: none;">

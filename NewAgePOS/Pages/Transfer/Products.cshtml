@@ -293,31 +293,31 @@ else if (Model.PageType == TransferPageTypeEnum.Review)
     </button>
   </form>
   @*<div class="form-row">
-    @if (Model.TransferRequest.Status == StatusEnum.Pending)
-      {
+      @if (Model.TransferRequest.Status == StatusEnum.Pending)
+        {
+          <div class="col-auto">
+            <form method="post"
+                  asp-page="/Transfer/Search"
+                  asp-page-handler="DeleteTransferRequest"
+                  asp-route-id="@Model.TransferRequestId"
+                  asp-route-description="@Model.TransferRequest.Description">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+          </div>
+        }
         <div class="col-auto">
           <form method="post"
                 asp-page="/Transfer/Search"
-                asp-page-handler="DeleteTransferRequest"
+                asp-page-handler="UpdateStatus"
                 asp-route-id="@Model.TransferRequestId"
-                asp-route-description="@Model.TransferRequest.Description">
-            <button type="submit" class="btn btn-danger">
-              <i class="fas fa-trash-alt"></i>
+                asp-route-description="@Model.TransferRequest.Description"
+                asp-route-currentStatus="@Model.TransferRequest.Status">
+            <button type="submit" class="btn btn-primary">
+              Mark As @((StatusEnum)nextStatusCode)
             </button>
           </form>
         </div>
-      }
-      <div class="col-auto">
-        <form method="post"
-              asp-page="/Transfer/Search"
-              asp-page-handler="UpdateStatus"
-              asp-route-id="@Model.TransferRequestId"
-              asp-route-description="@Model.TransferRequest.Description"
-              asp-route-currentStatus="@Model.TransferRequest.Status">
-          <button type="submit" class="btn btn-primary">
-            Mark As @((StatusEnum)nextStatusCode)
-          </button>
-        </form>
-      </div>
-  </div>*@
+    </div>*@
 }

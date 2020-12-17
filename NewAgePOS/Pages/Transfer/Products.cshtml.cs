@@ -100,7 +100,8 @@ namespace NewAgePOS.Pages.Transfer
       {
         if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString())
           || item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)"
-          || item[CAStrings.whLoc].ToString() == "Out of Stock(0)") continue;
+          || item[CAStrings.whLoc].ToString() == "Out of Stock(0)") 
+          continue;
 
         ViewModels.Add(new LocationSearchViewModel
         {
