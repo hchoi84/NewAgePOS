@@ -149,6 +149,7 @@ namespace NewAgePOS.Pages.Sale
       Results.Add(new SearchViewModel
       {
         SaleId = sale.Id,
+        UserId = sale.UserId,
         IsComplete = sale.IsComplete,
         FullName = customer.FullName,
         EmailAddress = customer.EmailAddress,
@@ -158,9 +159,15 @@ namespace NewAgePOS.Pages.Sale
       });
     }
 
-    public IActionResult OnPostCreateNewSale()
+    public IActionResult OnPostCreateNewSale(string userId)
     {
-      int saleId = _sqlDb.Sales_Insert();
+      if (string.IsNullOrEmpty(userId))
+      {
+        TempData["Message"] = "User Id is required to create new sale";
+        return Page();
+      }
+
+      int saleId = _sqlDb.Sales_Insert(userId);
       return RedirectToPage("Cart", new { saleId });
     }
 

@@ -285,10 +285,10 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { }, _connectionStringName, false);
     }
 
-    public int Sales_Insert()
+    public int Sales_Insert(string userId)
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",
-                                           new { },
+                                           new { userId },
                                            _connectionStringName,
                                            true).FirstOrDefault();
     }

@@ -7,9 +7,12 @@
 <partial name="_HeaderPartial" model="0" />
 
 <form method="post">
-  <div class="form-row">
-    <div class="col text-center">
-      <button type="submit" class="btn btn-primary my-3" asp-page-handler="CreateNewSale">New Sale</button>
+  <div class="form-row d-flex justify-content-center">
+    <div class="form-group col-md-3">
+      <input id="userId" name="userId" class="form-control" placeholder="User ID" />
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary" asp-page-handler="CreateNewSale">New Sale</button>
     </div>
   </div>
 </form>
@@ -54,7 +57,7 @@
           <input readonly class="form-control" value="@result.Created.ToString("yyyy/MM/dd")" />
         </div>
         <div class="col-2 px-0">
-          <input readonly class="form-control" value="@result.SaleId" />
+          <input readonly class="form-control" value="@result.SaleId (@result.UserId)" />
         </div>
         <div class="col-5 pl-0">
           <input readonly class="form-control" value="@result.PhoneNumber" />
