@@ -13,5 +13,5 @@ BEGIN
 
 	INSERT INTO dbo.Sales (UserId, CustomerId, TaxId)
 	OUTPUT inserted.Id
-	VALUES (@userId, @customerId, @TaxId);
+	VALUES (@userId, @CustomerId, @TaxId);
 END
