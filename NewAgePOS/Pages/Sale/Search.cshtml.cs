@@ -35,6 +35,11 @@ namespace NewAgePOS.Pages.Sale
       new SelectListItem { Text = "Phone Number", Value = "PhoneNumber" },
     };
 
+    private string[] UserIds = new string[]
+    {
+      "5422", "6993", "3162", "6679", "2484", "2038", "3125", "6592", "1849", "3620"
+    };
+
     public IActionResult OnGet()
     {
       if (string.IsNullOrEmpty(SearchQuery)) return Page();
@@ -164,6 +169,12 @@ namespace NewAgePOS.Pages.Sale
       if (string.IsNullOrEmpty(userId))
       {
         TempData["Message"] = "User Id is required to create new sale";
+        return Page();
+      }
+
+      if (!UserIds.Contains(userId))
+      {
+        TempData["Message"] = "User Id does not exist";
         return Page();
       }
 
