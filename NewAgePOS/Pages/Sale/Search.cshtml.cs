@@ -35,7 +35,7 @@ namespace NewAgePOS.Pages.Sale
       new SelectListItem { Text = "Phone Number", Value = "PhoneNumber" },
     };
 
-    private string[] UserIds = new string[]
+    private string[] _userIds = new string[]
     {
       "5422", "6993", "3162", "6679", "2484", "2038", "3125", "6592", "1849", "3620"
     };
@@ -172,7 +172,7 @@ namespace NewAgePOS.Pages.Sale
         return Page();
       }
 
-      if (!UserIds.Contains(userId))
+      if (!_userIds.Contains(userId))
       {
         TempData["Message"] = "User Id does not exist";
         return Page();
