@@ -285,10 +285,10 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { }, _connectionStringName, false);
     }
 
-    public int Sales_Insert(string userId)
+    public int Sales_Insert()
     {
       return _sqlDb.LoadData<int, dynamic>("dbo.spSales_Insert",
-                                           new { userId },
+                                           new { },
                                            _connectionStringName,
                                            true).FirstOrDefault();
     }
@@ -307,6 +307,12 @@ namespace NewAgePOSLibrary.Data
       _sqlDb.SaveData(query,
                       new { saleId, customerId, updated },
                       _connectionStringName, false);
+    }
+
+    public void Sales_UpdateHelperId(string helperId, int saleId)
+    {
+      string query = "UPDATE dbo.Sales SET HelperId = @helperId WHERE Id = @saleId";
+      _sqlDb.SaveData(query, new { helperId, saleId }, _connectionStringName, false);
     }
     #endregion
 

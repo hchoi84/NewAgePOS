@@ -1,5 +1,4 @@
 ﻿CREATE PROCEDURE [dbo].[spSales_Insert]
-	@userId varchar(10)
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -11,7 +10,7 @@ BEGIN
 
 	SELECT @TaxId = Id FROM dbo.Taxes WHERE IsDefault = 1
 
-	INSERT INTO dbo.Sales (UserId, CustomerId, TaxId)
+	INSERT INTO dbo.Sales (CustomerId, TaxId)
 	OUTPUT inserted.Id
-	VALUES (@userId, @CustomerId, @TaxId);
+	VALUES (@CustomerId, @TaxId);
 END

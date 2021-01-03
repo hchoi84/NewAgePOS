@@ -5,7 +5,7 @@ namespace NewAgePOS.ViewModels.Sale
   public class SearchViewModel
   {
     public int SaleId { get; set; }
-    public string UserId { get; set; }
+    public string HelperId { get; set; }
     public bool IsComplete { get; set; }
     public string FullName { get; set; }
     public string EmailAddress { get; set; }

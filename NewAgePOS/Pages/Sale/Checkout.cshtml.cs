@@ -18,6 +18,11 @@ namespace NewAgePOS.Pages.Sale
     private readonly ISQLData _sqlDb;
     private readonly ISkuVault _skuVault;
 
+    private string[] _helperIds = new string[]
+    {
+      "5422", "6993", "3162", "6679", "2484", "2038", "3125", "6592", "1849", "3620"
+    };
+
     public CheckoutModel(ISQLData sqlDb, ISkuVault skuVault)
     {
       _sqlDb = sqlDb;
@@ -191,6 +196,19 @@ namespace NewAgePOS.Pages.Sale
       _sqlDb.Transactions_DeleteById(transactionId);
 
       return RedirectToPage(new { SaleId });
+    }
+
+    public IActionResult OnPostUpdateHelperId(string helperId)
+    {
+      if (string.IsNullOrEmpty(helperId) && !_helperIds.Contains(helperId))
+      {
+        TempData["Message"] = "Helper ID does not exist";
+        return RedirectToPage();
+      }
+
+      _sqlDb.Sales_UpdateHelperId(helperId, SaleId);
+      TempData["Message"] = "Helper ID has been updated";
+      return RedirectToPage();
     }
   }
 }

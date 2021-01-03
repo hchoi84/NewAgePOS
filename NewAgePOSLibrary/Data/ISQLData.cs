@@ -66,9 +66,10 @@ namespace NewAgePOSLibrary.Data
     SaleModel Sales_GetById(int id);
     List<SaleModel> Sales_GetByCustomerId(int customerId);
     List<SaleModel> Sales_GetPending();
-    int Sales_Insert(string userId);
+    int Sales_Insert();
     void Sales_MarkComplete(int id);
     void Sales_UpdateCustomerId(int saleId, int customerId);
+    void Sales_UpdateHelperId(string helperId, int saleId);
     #endregion
 
     #region Taxes

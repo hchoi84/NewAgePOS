@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Sales]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
-	[UserId] VARCHAR(10) NOT NULL,
+	[HelperId] VARCHAR(10),
 	[CustomerId] INT NOT NULL,
 	[TaxId] INT NOT NULL,
 	[IsComplete] INT NOT NULL DEFAULT(0),
