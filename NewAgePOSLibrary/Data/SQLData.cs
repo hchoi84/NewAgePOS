@@ -233,6 +233,12 @@ namespace NewAgePOSLibrary.Data
       return _sqlDb.LoadData<SaleLineModel, dynamic>(query, new { saleId }, _connectionStringName, false);
     }
 
+    public List<int> SaleLines_GetProductIds(int saleId)
+    {
+      string query = "SELECT ProductId FROM dbo.SaleLines WHERE SaleId = @saleId AND ProductId IS NOT NULL";
+      return _sqlDb.LoadData<int, dynamic>(query, new { saleId }, _connectionStringName, false);
+    }
+
     public void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty)
     {
       string query = "INSERT INTO dbo.SaleLines (SaleId, Cost, Price, Qty) VALUES (@saleId, 0, @tradeInValue, @tradeInQty);";
@@ -277,6 +283,12 @@ namespace NewAgePOSLibrary.Data
     {
       string query = "SELECT * FROM dbo.Sales WHERE CustomerId = @customerId";
       return _sqlDb.LoadData<SaleModel, dynamic>(query, new { customerId }, _connectionStringName, false);
+    }
+
+    public string Sales_GetHelperId(int saleId)
+    {
+      string query = "SELECT HelperId FROM dbo.Sales WHERE Id = @saleId";
+      return _sqlDb.LoadData<string, dynamic>(query, new { saleId }, _connectionStringName, false).FirstOrDefault();
     }
 
     public List<SaleModel> Sales_GetPending()

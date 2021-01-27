@@ -45,6 +45,13 @@
     {
       int msgCount = Model.MessagesCount[ts[i].SaleId];
       <div class="row justify-content-center mt-3">
+        <div class="col-3 text-center">
+          <a class="h4"
+             asp-page="/Sale/Detail"
+             asp-route-saleId="@ts[i].SaleId">
+            @ts[i].SaleId
+          </a>
+        </div>
         <div class="col-auto my-auto mx-0">
           <a class="btn btn-primary"
              asp-page="/Sale/Message"
@@ -59,13 +66,6 @@
             }
           </a>
         </div>
-        <div class="col-auto">
-          <a class="h4"
-             asp-page="/Sale/Detail"
-             asp-route-saleId="@ts[i].SaleId">
-            @ts[i].SaleId
-          </a>
-        </div>
       </div>
     }
 
@@ -74,12 +74,21 @@
         <input readonly value="@ts[i].Created.ToString("MM/dd hh:mm tt")" class="form-control" />
       </div>
       <div class="col px-0">
-        <input readonly value="@ts[i].Type.ToString() @ts[i].Method.ToString()" class="form-control" />
+        @*<input readonly value="@ts[i].Type.ToString() @ts[i].Method.ToString()" class="form-control" />*@
+        <input readonly value="@Model.ItemCount[ts[i].SaleId]" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Product / GC / TradeIn" />
+      </div>
+      <div class="col px-0">
+        <input readonly value="@amount.ToString("C2")" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Order Total" />
       </div>
       <div class="col pl-0">
-        <input readonly value="@amount.ToString("C2")" class="form-control" />
+        <input readonly value="@Model.Helper[ts[i].SaleId]" class="form-control" data-toggle="tooltip" data-placement="bottom" title="Helper Id" />
       </div>
     </div>
+
+    @foreach (var allName in Model.Products[ts[i].SaleId])
+    {
+      <div>@Html.DisplayFor(x => allName)</div>
+    }
   }
 
   <div style="max-width: 350px; margin: auto;">
@@ -93,4 +102,12 @@
       <div class="col text-right">@earning.ToString("C2")</div>
     </div>
   </div>
+}
+
+@section Scripts{
+  <script>
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
 }

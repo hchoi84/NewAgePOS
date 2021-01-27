@@ -55,6 +55,7 @@ namespace NewAgePOSLibrary.Data
     #region SaleLines
     void SaleLines_Delete(int id);
     List<SaleLineModel> SaleLines_GetBySaleId(int saleId);
+    List<int> SaleLines_GetProductIds(int saleId);
     void SaleLines_Insert(int saleId, float tradeInValue, float tradeInQty);
     void SaleLines_Insert(int saleId, int? productId, int? giftCardId, int qty);
     void SaleLines_InsertGiftCard(int saleId, int giftCardId, float amount);
@@ -65,6 +66,7 @@ namespace NewAgePOSLibrary.Data
     void Sales_CancelById(int id);
     SaleModel Sales_GetById(int id);
     List<SaleModel> Sales_GetByCustomerId(int customerId);
+    string Sales_GetHelperId(int saleId);
     List<SaleModel> Sales_GetPending();
     int Sales_Insert();
     void Sales_MarkComplete(int id);
