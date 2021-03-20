@@ -72,7 +72,7 @@ namespace NewAgePOS.ViewComponents
       model.Subtotal = saleLines.Sum(s => s.Subtotal) - tradeInSaleLines.Sum(s => s.Subtotal);
 
       model.Discount = saleLines.Sum(s => s.Discount) + giveTransaction.Amount;
-      model.TradeInValue = tradeInSaleLines.Sum(t => t.Price);
+      model.TradeInValue = tradeInSaleLines.Sum(t => t.Price * t.Qty);
       model.TaxPercent = tax.TaxPct;
       model.Paid = giftCardTransactions.Sum(t => t.Amount) + cashTransaction.Amount;
       model.Change = changeTransaction.SaleId == 0 ? 

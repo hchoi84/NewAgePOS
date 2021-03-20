@@ -98,10 +98,10 @@ namespace NewAgePOS.Pages.Transfer
 
       foreach (var item in jObjects)
       {
-        if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString())
-          || item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)"
-          || item[CAStrings.whLoc].ToString() == "Out of Stock(0)") 
-          continue;
+        //if (string.IsNullOrEmpty(item[CAStrings.whLoc].ToString())
+        //  || item[CAStrings.whLoc].ToString() == "DROPSHIP(19999)"
+        //  || item[CAStrings.whLoc].ToString() == "Out of Stock(0)")
+        //  continue;
 
         ViewModels.Add(new LocationSearchViewModel
         {
