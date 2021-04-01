@@ -18,7 +18,7 @@ BEGIN
 			WHERE Id = @productId;
 
 			INSERT INTO dbo.SaleLines (SaleId, ProductId, Qty, DiscPct, Cost, Price)
-			VALUES (@saleId, @productId, @qty, 15, @cost, @price);
+			VALUES (@saleId, @productId, @qty, 10, @cost, @price);
 		END
 	ELSE
 		BEGIN
