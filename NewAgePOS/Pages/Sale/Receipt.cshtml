@@ -51,7 +51,15 @@
   <div class="my-5">
     @if (Model.IdType == "sale")
     {
-      <p class="text-center">All sales are final</p>
+      <p class="text-center">
+        In order to be eligible for a refund or exchange, you must return the product within 14 calendar days of your purchase with a valid receipt.<br />
+        The product must be in the same condition that you received it.<br />
+        All clearance items are final sale.<br />
+        Any used golf clubs are subject to trade-in value.<br />
+        Gift cards/store credit cannot be replaced if lost or stolen.<br />
+        Please retain a copy of this receipt for store credit.<br />
+        Store credit will expire after two years from date of issue.
+      </p>
     }
 
     @if (string.IsNullOrEmpty(Model.FullName))
@@ -114,15 +122,15 @@
   <div class="mt-50">
     @if (Model.IdType == "sale")
     {
-    <p class="text-centered">
-      In order to be eligible for a refund or exchange, you must return the product within 14 calendar days of your purchase with a valid receipt.<br />
-      The product must be in the same condition that you received it.<br />
-      All clearance items are final sale.<br />
-      Any used golf clubs are subject to trade-in value.<br />
-      Gift cards/store credit cannot be replaced if lost or stolen.<br />
-      Please retain a copy of this receipt for store credit.<br />
-      Store credit will expire after two years from date of issue.
-    </p>
+      <p class="text-centered">
+        In order to be eligible for a refund or exchange, you must return the product within 14 calendar days of your purchase with a valid receipt.<br />
+        The product must be in the same condition that you received it.<br />
+        All clearance items are final sale.<br />
+        Any used golf clubs are subject to trade-in value.<br />
+        Gift cards/store credit cannot be replaced if lost or stolen.<br />
+        Please retain a copy of this receipt for store credit.<br />
+        Store credit will expire after two years from date of issue.
+      </p>
     }
 
     @if (string.IsNullOrEmpty(Model.FullName))
