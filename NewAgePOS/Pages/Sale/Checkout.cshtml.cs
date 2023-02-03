@@ -149,7 +149,7 @@ namespace NewAgePOS.Pages.Sale
         itemsToRemove.Add(new AddRemoveItemBulkModel
         {
           Code = sku,
-          LocationCode = "STORE",
+          LocationCode = "A00-STORE",
           Quantity = saleLine.Qty,
           Reason = "Store Sale"
         });
