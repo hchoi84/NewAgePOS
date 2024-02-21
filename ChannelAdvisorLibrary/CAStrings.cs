@@ -5,7 +5,7 @@
     public const string sku = "Sku";
     public const string upc = "UPC";
     public const string cost = "Cost";
-    public const string bcprice = "BCPrice";
+    public const string wsprice = "WS Price";
     public const string attributes = "Attributes";
     public const string name = "Name";
     public const string allName = "All Name";

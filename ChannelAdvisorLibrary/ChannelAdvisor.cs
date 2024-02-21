@@ -82,7 +82,7 @@ namespace ChannelAdvisorLibrary
 
     public async Task<IEnumerable<JObject>> GetProductsByCodeAsync(IEnumerable<string> codes)
     {
-      string expand = "Attributes($filter=Name eq 'All Name' or Name eq 'BCPrice')";
+      string expand = "Attributes($filter=Name eq 'All Name' or Name eq 'WS Price')";
       string select = "Sku,UPC,MPN,Cost,WarehouseLocation";
       List<string> filterContents = new List<string>();
       List<JObject> jObjects = new List<JObject>();

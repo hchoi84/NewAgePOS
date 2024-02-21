@@ -111,7 +111,7 @@ namespace NewAgePOS.Pages.Transfer
           item[CAStrings.cost].ToObject<float>(),
           Price = item[CAStrings.attributes]
           .FirstOrDefault(i => i[CAStrings.name]
-            .ToString() == CAStrings.bcprice)[CAStrings.Value]
+            .ToString() == CAStrings.wsprice)[CAStrings.Value]
           .ToObject<float>(),
           AllName = item[CAStrings.attributes]
           .FirstOrDefault(i => i[CAStrings.name].ToString() == CAStrings.allName)[CAStrings.Value]
